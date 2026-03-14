@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAD Bomberos Frutillar — 1ª Compañía</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Barlow:wght@400;500;600;700;900&family=Barlow+Condensed:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #141720;
+    --bg3: #1c2030;
+    --bg4: #242840;
+    --border: #2a2f4a;
+    --border2: #353b5c;
+    --text: #e8eaf6;
+    --text2: #8b92bb;
+    --text3: #555d85;
+    --red: #e53935;
+    --red-dark: #b71c1c;
+    --red-glow: rgba(229,57,53,0.15);
+    --amber: #f59e0b;
+    --green: #10b981;
+    --blue: #3b82f6;
+    --teal: #14b8a6;
+    --purple: #8b5cf6;
+    --orange: #f97316;
+    --radius: 6px;
+    --radius-lg: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .logo-badge {
+    background: var(--red);
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .org-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+  .org-name span { color: var(--text2); font-weight: 500; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+  .clock-date { font-size: 10px; color: var(--text3); text-align: right; margin-top: 1px; letter-spacing: 0.5px; }
+  .status-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+    color: var(--green); text-transform: uppercase;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .btn-top {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 14px; border-radius: var(--radius);
+    cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  .btn-top:hover { background: var(--bg4); }
+  .btn-top.danger { background: var(--red-dark); border-color: var(--red); color: white; }
+  .btn-top.danger:hover { background: var(--red); }
+
+  /* NAV TABS */
+  .nav-tabs {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 16px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--red); border-bottom-color: var(--red); }
+  .tab-badge {
+    display: inline-block; background: var(--red); color: white;
+    font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px;
+    margin-left: 5px; vertical-align: middle;
+  }
+
+  /* MAIN LAYOUT */
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* LEFT PANEL */
+  .panel-left {
+    width: 340px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* CENTER PANEL */
+  .panel-center { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* RIGHT PANEL */
+  .panel-right {
+    width: 300px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* PANEL HEADERS */
+  .panel-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .panel-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  .panel-action {
+    font-size: 11px; color: var(--text3); cursor: pointer;
+    background: var(--bg3); padding: 3px 8px; border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .panel-action:hover { color: var(--text2); }
+
+  /* SCROLLABLE CONTENT */
+  .panel-content { overflow-y: auto; flex: 1; }
+  .panel-content::-webkit-scrollbar { width: 4px; }
+  .panel-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* NUEVA EMERGENCIA FORM */
+  .emergency-form { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .form-row { display: flex; gap: 8px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .form-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text3);
+  }
+  .form-input, .form-select, .form-textarea {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); border-radius: var(--radius);
+    padding: 8px 10px; font-size: 13px; font-family: 'Barlow', sans-serif;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--red);
+    background: #1a0a0a;
+  }
+  .form-input::placeholder { color: var(--text3); }
+  .form-textarea { resize: vertical; min-height: 60px; }
+  .form-select option { background: var(--bg3); }
+
+  /* TIPO EMERGENCIA PILLS */
+  .tipo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .tipo-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 8px 6px;
+    text-align: center; cursor: pointer;
+    font-size: 11px; font-weight: 600;
+    color: var(--text2); transition: all 0.15s;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .tipo-btn:hover { border-color: var(--border2); color: var(--text); }
+  .tipo-btn.active { background: var(--red-dark); border-color: var(--red); color: white; }
+  .tipo-icon { font-size: 18px; }
+
+  /* DESPACHAR BTN */
+  .btn-despachar {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .btn-despachar:hover { background: #c62828; transform: translateY(-1px); }
+  .btn-despachar:active { transform: translateY(0); }
+  .btn-despachar:disabled { background: var(--bg4); color: var(--text3); cursor: not-allowed; transform: none; }
+
+  /* CARROS / UNIDADES */
+  .carro-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .carro-item:hover { background: var(--bg3); }
+  .carro-item.selected { background: rgba(229,57,53,0.08); border-left: 2px solid var(--red); }
+  .carro-badge {
+    width: 40px; height: 40px; border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 900; flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+  .carro-info { flex: 1; min-width: 0; }
+  .carro-nombre { font-size: 13px; font-weight: 600; color: var(--text); }
+  .carro-tipo { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .carro-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .carro-status { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+  .status-disponible { color: var(--green); }
+  .status-en-ruta { color: var(--amber); }
+  .status-en-emergencia { color: var(--red); }
+  .status-fuera-servicio { color: var(--text3); }
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); animation: pulse 1.5s infinite; }
+  .dot-red { background: var(--red); animation: pulse 1s infinite; }
+  .dot-gray { background: var(--text3); }
+  .carro-check { margin-left: auto; }
+  .carro-check input[type="checkbox"] { accent-color: var(--red); width: 15px; height: 15px; cursor: pointer; }
+
+  /* DOTACION */
+  .dotacion-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .pers-name { font-weight: 600; color: var(--text); }
+  .pers-cargo { color: var(--text3); font-size: 11px; }
+  .pers-estado {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; letter-spacing: 0.5px;
+  }
+  .estado-cuartel { background: rgba(16,185,129,0.15); color: var(--green); }
+  .estado-servicio { background: rgba(229,57,53,0.15); color: var(--red); }
+  .estado-fuera { background: rgba(85,93,133,0.15); color: var(--text3); }
+
+  /* EMERGENCIAS ACTIVAS */
+  .emerg-card {
+    margin: 10px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .emerg-card:hover { border-color: var(--border2); }
+  .emerg-card.priority-1 { border-left: 3px solid var(--red); }
+  .emerg-card.priority-2 { border-left: 3px solid var(--amber); }
+  .emerg-card.priority-3 { border-left: 3px solid var(--blue); }
+  .emerg-header {
+    padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .emerg-id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
+  .emerg-tipo {
+    font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .tipo-incendio { background: rgba(229,57,53,0.2); color: var(--red); }
+  .tipo-accidente { background: rgba(245,158,11,0.2); color: var(--amber); }
+  .tipo-rescate { background: rgba(59,130,246,0.2); color: var(--blue); }
+  .tipo-otro { background: rgba(139,92,246,0.2); color: var(--purple); }
+  .tipo-material { background: rgba(20,184,166,0.2); color: var(--teal); }
+  .emerg-body { padding: 10px 12px; }
+  .emerg-direccion { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .emerg-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .emerg-footer {
+    padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .emerg-timer { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--amber); }
+  .emerg-carros { font-size: 11px; color: var(--text3); }
+  .emerg-estado-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; letter-spacing: 0.5px;
+  }
+
+  /* MAPA PLACEHOLDER */
+  .map-container {
+    flex: 1;
+    background: #0a0e18;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .map-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  }
+  .map-grid {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .map-streets {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  }
+  .map-ui {
+    position: absolute; top: 12px; left: 12px; right: 12px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none;
+  }
+  .map-badge {
+    background: rgba(13,15,20,0.85);
+    border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: var(--radius);
+    font-size: 11px; color: var(--text2);
+    pointer-events: all;
+  }
+  .map-controls {
+    display: flex; flex-direction: column; gap: 4px;
+    pointer-events: all;
+  }
+  .map-btn {
+    background: rgba(13,15,20,0.85);
+    border: 1px solid var(--border);
+    color: var(--text2); width: 28px; height: 28px;
+    border-radius: var(--radius); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .map-btn:hover { background: var(--bg3); color: var(--text); }
+
+  /* EMERGENCY MARKER */
+  .marker {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    transform: translate(-50%, -100%);
+  }
+  .marker-pin {
+    width: 24px; height: 32px;
+    display: flex; align-items: flex-start; justify-content: center;
+    position: relative;
+  }
+  .marker-circle {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    animation: markerPulse 2s infinite;
+  }
+  @keyframes markerPulse {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(229,57,53,0.4); }
+    50%{ box-shadow: 0 0 0 8px rgba(229,57,53,0); }
+  }
+  .marker-fire { background: var(--red); color: white; }
+  .marker-accident { background: var(--amber); color: #1a0a00; }
+  .marker-rescue { background: var(--blue); color: white; }
+  .marker-label {
+    background: rgba(13,15,20,0.9);
+    border: 1px solid var(--border);
+    padding: 3px 7px; border-radius: var(--radius);
+    font-size: 10px; font-weight: 600; color: var(--text);
+    white-space: nowrap; margin-top: 4px;
+  }
+
+  /* HYDRANT MARKERS */
+  .hydrant-marker {
+    position: absolute;
+    width: 16px; height: 16px;
+    background: rgba(16,185,129,0.2);
+    border: 1px solid var(--green);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    cursor: pointer;
+  }
+  .hydrant-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+  }
+
+  /* UNIT MARKER */
+  .unit-marker {
+    position: absolute;
+    background: var(--blue);
+    color: white;
+    border-radius: var(--radius);
+    padding: 3px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    transform: translate(-50%,-50%);
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .unit-marker.en-ruta { background: var(--amber); color: #1a0a00; animation: pulse 1.5s infinite; }
+
+  /* BITACORA */
+  .log-entry {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .log-time { font-family: 'JetBrains Mono', monospace; color: var(--text3); flex-shrink: 0; font-size: 11px; }
+  .log-msg { color: var(--text2); line-height: 1.5; }
+  .log-msg strong { color: var(--text); }
+  .log-type { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; }
+  .log-despacho { background: rgba(229,57,53,0.15); color: var(--red); }
+  .log-actualiz { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .log-cierre { background: rgba(16,185,129,0.15); color: var(--green); }
+  .log-info { background: rgba(139,92,246,0.15); color: var(--purple); }
+
+  /* ESTADÍSTICAS */
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; padding: 12px;
+  }
+  .stat-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 900; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 11px; color: var(--text3); letter-spacing: 0.5px; }
+
+  /* SECTION DIVIDERS */
+  .section-divider {
+    padding: 8px 14px 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  /* GRIFER MAP */
+  .grifo-list { padding: 10px 14px; }
+  .grifo-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .grifo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .grifo-info { flex: 1; }
+  .grifo-dir { font-size: 12px; font-weight: 600; color: var(--text); }
+  .grifo-dist { font-size: 11px; color: var(--text3); }
+  .grifo-presion { font-size: 11px; color: var(--teal); font-weight: 600; }
+
+  /* TABS for right panel */
+  .rpanel-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    background: var(--bg2); flex-shrink: 0;
+  }
+  .rpanel-tab {
+    flex: 1; padding: 8px 6px; text-align: center;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.15s; text-transform: uppercase;
+  }
+  .rpanel-tab:hover { color: var(--text2); }
+  .rpanel-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); width: 520px; max-width: 95vw;
+    max-height: 80vh; overflow-y: auto;
+  }
+  .modal-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: var(--radius);
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text2); cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 20px; }
+  .modal-footer {
+    padding: 14px 20px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .btn-secondary {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text2); padding: 8px 16px; border-radius: var(--radius);
+    cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  .btn-secondary:hover { color: var(--text); }
+  .btn-primary {
+    background: var(--red); border: none; color: white;
+    padding: 8px 20px; border-radius: var(--radius);
+    cursor: pointer; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary:hover { background: #c62828; }
+
+  /* NOTIFICATION */
+  .notif-bar {
+    display: none;
+    position: fixed; top: 60px; right: 16px; z-index: 999;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 14px 16px;
+    max-width: 300px; box-shadow: var(--shadow);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .notif-bar.show { display: block; }
+  .notif-title { font-weight: 700; color: var(--red); font-size: 13px; margin-bottom: 4px; }
+  .notif-msg { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 40px 20px; text-align: center;
+    gap: 8px;
+  }
+  .empty-icon { font-size: 32px; opacity: 0.3; }
+  .empty-text { font-size: 12px; color: var(--text3); }
+
+  /* PAGE VIEWS */
+  .page-view { display: none; }
+  .page-view.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-badge">🚒 CAD</div>
+    <div>
+      <div class="org-name">Bomberos Frutillar <span>— 1ª Compañía</span></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="status-pill"><div class="dot"></div> Sistema Activo</div>
+    <div>
+      <div class="clock" id="clock">00:00:00</div>
+      <div class="clock-date" id="clock-date">SAB 14 MAR 2026</div>
+    </div>
+    <button class="btn-top" onclick="openModal('modal-personal')">👤 Personal</button>
+    <button class="btn-top danger" onclick="openModal('modal-alarma')">🚨 Alarma General</button>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <div class="tab active" onclick="switchTab('despacho')">📡 Despacho <span class="tab-badge" id="badge-activas">0</span></div>
+  <div class="tab" onclick="switchTab('bitacora')">📋 Bitácora</div>
+  <div class="tab" onclick="switchTab('estadisticas')">📊 Estadísticas</div>
+  <div class="tab" onclick="switchTab('carros')">🚒 Unidades</div>
+  <div class="tab" onclick="switchTab('personal')">👥 Dotación</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- ===================== TAB: DESPACHO ===================== -->
+  <div id="page-despacho" class="page-view active" style="display:flex; flex:1; overflow:hidden;">
+
+    <!-- LEFT: Nueva Emergencia -->
+    <div class="panel-left">
+      <div class="panel-header">
+        <span class="panel-title">Nueva Emergencia</span>
+        <span class="panel-action" onclick="clearForm()">Limpiar</span>
+      </div>
+      <div class="panel-content">
+        <div class="emergency-form">
+
+          <!-- Tipo de Emergencia -->
+          <div class="form-group">
+            <div class="form-label">Tipo de Emergencia</div>
+            <div class="tipo-grid">
+              <div class="tipo-btn active" onclick="selectTipo(this,'Incendio Estructural')" data-tipo="Incendio Estructural">
+                <span class="tipo-icon">🔥</span>Incendio Estructural
+              </div>
+              <div class="tipo-btn" onclick="selectTipo(this,'Incendio Forestal')" data-tipo="Incendio Forestal">
+                <span class="tipo-icon">🌲</span>Incendio Forestal
+              </div>
+              <div class="tipo-btn" onclick="selectTipo(this,'Accidente Vehículo')" data-tipo="Accidente Vehículo">
+                <span class="tipo-icon">🚗</span>Accidente Vehículo
+              </div>
+              <div class="tipo-btn" onclick="selectTipo(this,'Rescate')" data-tipo="Rescate">
+                <span class="tipo-icon">🧗</span>Rescate
+              </div>
+              <div class="tipo-btn" onclick="selectTipo(this,'Mat. Peligroso')" data-tipo="Mat. Peligroso">
+                <span class="tipo-icon">☢️</span>Mat. Peligroso
+              </div>
+              <div class="tipo-btn" onclick="selectTipo(this,'Otro')" data-tipo="Otro">
+                <span class="tipo-icon">🔔</span>Otro
+              </div>
+            </div>
+          </div>
+
+          <!-- Prioridad -->
+          <div class="form-group">
+            <div class="form-label">Prioridad</div>
+            <select class="form-select" id="prioridad">
+              <option value="1">🔴 P1 — Crítica (Riesgo Vida)</option>
+              <option value="2">🟡 P2 — Alta</option>
+              <option value="3">🔵 P3 — Media</option>
+            </select>
+          </div>
+
+          <!-- Dirección -->
+          <div class="form-group">
+            <div class="form-label">Dirección</div>
+            <input class="form-input" id="direccion" type="text" placeholder="Ej: Av. Philippi 420, Frutillar">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">Sector/Referencia</div>
+              <input class="form-input" id="sector" type="text" placeholder="Sector o referencia">
+            </div>
+            <div class="form-group">
+              <div class="form-label">N° Llamada</div>
+              <input class="form-input" id="n_llamada" type="text" placeholder="132-XXXX">
+            </div>
+          </div>
+
+          <!-- Reportante -->
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">Reportante</div>
+              <input class="form-input" id="reportante" type="text" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <div class="form-label">Teléfono</div>
+              <input class="form-input" id="telefono" type="text" placeholder="+56 9 XXXX">
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-group">
+            <div class="form-label">Descripción</div>
+            <textarea class="form-textarea" id="descripcion" placeholder="Detalles de la emergencia..."></textarea>
+          </div>
+
+          <!-- Selección de Carros -->
+          <div class="form-group">
+            <div class="form-label">Unidades a Despachar</div>
+            <div id="carros-disponibles-form" style="background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;">
+              <!-- se llena dinámicamente -->
+            </div>
+          </div>
+
+          <button class="btn-despachar" onclick="despachar()" id="btn-despachar">
+            🚒 Despachar Emergencia
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Mapa + Emergencias Activas -->
+    <div class="panel-center">
+      <!-- Emergencias activas encima del mapa -->
+      <div style="height:200px; overflow-y:auto; border-bottom:1px solid var(--border); background:var(--bg);">
+        <div class="panel-header" style="position:sticky; top:0; z-index:10;">
+          <span class="panel-title">Emergencias Activas</span>
+          <span style="font-size:11px; color:var(--text3);" id="activas-count">0 activas</span>
+        </div>
+        <div id="emergencias-activas-list">
+          <div class="empty-state">
+            <div class="empty-icon">📡</div>
+            <div class="empty-text">Sin emergencias activas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAPA -->
+      <div class="map-container">
+        <div class="map-grid"></div>
+
+        <!-- Street lines SVG -->
+        <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;" id="map-svg">
+          <!-- Calles principales de Frutillar simuladas -->
+          <line x1="0" y1="40%" x2="100%" y2="38%" stroke="rgba(59,130,246,0.12)" stroke-width="8"/>
+          <line x1="0" y1="60%" x2="100%" y2="62%" stroke="rgba(59,130,246,0.10)" stroke-width="6"/>
+          <line x1="25%" y1="0" x2="23%" y2="100%" stroke="rgba(59,130,246,0.10)" stroke-width="6"/>
+          <line x1="55%" y1="0" x2="57%" y2="100%" stroke="rgba(59,130,246,0.10)" stroke-width="6"/>
+          <line x1="75%" y1="0" x2="75%" y2="100%" stroke="rgba(59,130,246,0.08)" stroke-width="4"/>
+          <line x1="0" y1="78%" x2="100%" y2="80%" stroke="rgba(59,130,246,0.08)" stroke-width="4"/>
+          <!-- Lago -->
+          <ellipse cx="82%" cy="65%" rx="16%" ry="25%" fill="rgba(59,130,246,0.06)" stroke="rgba(59,130,246,0.15)" stroke-width="1"/>
+          <text x="82%" y="65%" text-anchor="middle" font-size="10" fill="rgba(59,130,246,0.3)" font-family="Barlow,sans-serif">Lago Llanquihue</text>
+        </svg>
+
+        <!-- Marcadores de unidades -->
+        <div class="unit-marker" style="left:26%; top:42%;" title="Bomba 1 - Disponible">B1</div>
+        <div class="unit-marker en-ruta" style="left:45%; top:55%;" title="B2 - En Ruta">B2</div>
+
+        <!-- Grifos -->
+        <div class="hydrant-marker" style="left:27%; top:38%;" title="Grifo 01 — AV. Philippi"></div>
+        <div class="hydrant-marker" style="left:42%; top:43%;" title="Grifo 02 — Bernardo O'Higgins"></div>
+        <div class="hydrant-marker" style="left:56%; top:59%;" title="Grifo 03 — Av. Carlos Richter"></div>
+        <div class="hydrant-marker" style="left:24%; top:62%;" title="Grifo 04 — Manuel Montt"></div>
+
+        <!-- Marcadores de emergencias (dinámicos) -->
+        <div id="map-markers"></div>
+
+        <!-- UI Overlay -->
+        <div class="map-ui">
+          <div class="map-badge">📍 Frutillar — Los Lagos</div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div class="map-controls">
+              <div class="map-btn">+</div>
+              <div class="map-btn">−</div>
+            </div>
+            <div class="map-badge" style="font-size:10px; margin-top:4px;">
+              <span style="color:var(--green);">●</span> Grifo &nbsp;
+              <span style="color:var(--blue);">■</span> Unidad &nbsp;
+              <span style="color:var(--red);">●</span> Emerg.
+            </div>
+          </div>
+        </div>
+
+        <!-- Cuartel marker -->
+        <div style="position:absolute; left:26%; top:41%; transform:translate(-50%,-50%);">
+          <div style="background:var(--red); color:white; padding:4px 8px; border-radius:var(--radius); font-size:10px; font-weight:700; border:1px solid rgba(255,255,255,0.2);">🏠 1ª Cía.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Dotación + Grifos -->
+    <div class="panel-right">
+      <div class="rpanel-tabs">
+        <div class="rpanel-tab active" onclick="switchRPanel('dotacion', this)">Dotación</div>
+        <div class="rpanel-tab" onclick="switchRPanel('grifos', this)">Grifos</div>
+        <div class="rpanel-tab" onclick="switchRPanel('carros', this)">Unidades</div>
+      </div>
+
+      <!-- Dotación -->
+      <div id="rpanel-dotacion" class="panel-content">
+        <div class="section-divider">En Cuartel <span style="color:var(--green); margin-left:6px;" id="count-cuartel">0</span></div>
+        <div id="lista-cuartel"></div>
+        <div class="section-divider">Fuera de Cuartel</div>
+        <div id="lista-fuera"></div>
+      </div>
+
+      <!-- Grifos -->
+      <div id="rpanel-grifos" class="panel-content" style="display:none;">
+        <div class="panel-header">
+          <span class="panel-title">Red de Grifos</span>
+          <span style="color:var(--green); font-size:11px;">🟢 4 operativos</span>
+        </div>
+        <div class="grifo-list">
+          <div class="grifo-item">
+            <div class="grifo-dot"></div>
+            <div class="grifo-info">
+              <div class="grifo-dir">Av. Philippi 380</div>
+              <div class="grifo-dist">Grifo #01 — 80m del cuartel</div>
+            </div>
+            <div class="grifo-presion">4.5 bar</div>
+          </div>
+          <div class="grifo-item">
+            <div class="grifo-dot"></div>
+            <div class="grifo-info">
+              <div class="grifo-dir">B. O'Higgins c/ Av. Philippi</div>
+              <div class="grifo-dist">Grifo #02 — 320m</div>
+            </div>
+            <div class="grifo-presion">4.2 bar</div>
+          </div>
+          <div class="grifo-item">
+            <div class="grifo-dot"></div>
+            <div class="grifo-info">
+              <div class="grifo-dir">Carlos Richter 150</div>
+              <div class="grifo-dist">Grifo #03 — 510m</div>
+            </div>
+            <div class="grifo-presion">3.8 bar</div>
+          </div>
+          <div class="grifo-item">
+            <div class="grifo-dot"></div>
+            <div class="grifo-info">
+              <div class="grifo-dir">Manuel Montt 220</div>
+              <div class="grifo-dist">Grifo #04 — 680m</div>
+            </div>
+            <div class="grifo-presion">4.0 bar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carros -->
+      <div id="rpanel-carros" class="panel-content" style="display:none;">
+        <div id="carros-list-rpanel"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: BITACORA ===================== -->
+  <div id="page-bitacora" class="page-view">
+    <div style="max-width:800px; margin:0 auto; width:100%; padding:16px; overflow-y:auto;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700;">Bitácora del Turno</div>
+        <div style="font-size:12px; color:var(--text3);">Registro completo de actividades</div>
+      </div>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+        <div class="panel-header">
+          <span class="panel-title">Registros de Hoy</span>
+          <span class="panel-action" onclick="exportBitacora()">Exportar CSV</span>
+        </div>
+        <div id="bitacora-list">
+          <div class="log-entry">
+            <span class="log-time">08:00</span>
+            <span class="log-type log-info">SISTEMA</span>
+            <span class="log-msg">Sistema CAD iniciado — 1ª Compañía de Bomberos de Frutillar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: ESTADÍSTICAS ===================== -->
+  <div id="page-estadisticas" class="page-view">
+    <div style="max-width:900px; margin:0 auto; width:100%; padding:16px; overflow-y:auto;">
+      <div style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; margin-bottom:16px;">Estadísticas Operacionales</div>
+      <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total" style="color:var(--text);">0</div>
+          <div class="stat-label">Total Emergencias</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-activas" style="color:var(--red);">0</div>
+          <div class="stat-label">Activas Ahora</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-cerradas" style="color:var(--green);">0</div>
+          <div class="stat-label">Cerradas Hoy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-tiempo" style="color:var(--amber);">—</div>
+          <div class="stat-label">T° Resp. Prom.</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;">
+          <div class="panel-title" style="margin-bottom:12px;">Emergencias por Tipo</div>
+          <div id="stats-por-tipo">
+            <div class="empty-state"><div class="empty-text">Sin datos aún</div></div>
+          </div>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;">
+          <div class="panel-title" style="margin-bottom:12px;">Últimas 24 horas</div>
+          <canvas id="chart-horas" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: CARROS ===================== -->
+  <div id="page-carros" class="page-view">
+    <div style="max-width:800px; margin:0 auto; width:100%; padding:16px; overflow-y:auto;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700;">Gestión de Unidades</div>
+        <button class="btn-top" onclick="openModal('modal-add-carro')">+ Nueva Unidad</button>
+      </div>
+      <div id="carros-full-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: PERSONAL ===================== -->
+  <div id="page-personal" class="page-view">
+    <div style="max-width:800px; margin:0 auto; width:100%; padding:16px; overflow-y:auto;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700;">Registro de Personal</div>
+        <button class="btn-top" onclick="openModal('modal-add-personal')">+ Agregar Bombero</button>
+      </div>
+      <div id="personal-full-list" style="background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- =================== MODALES =================== -->
+
+<!-- Modal: Alarma General -->
+<div class="modal-overlay" id="modal-alarma">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--red);">🚨 Alarma General</div>
+      <div class="modal-close" onclick="closeModal('modal-alarma')">×</div>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2); margin-bottom:16px; font-size:13px;">Esto enviará una notificación masiva a <strong>todo el personal</strong> disponible de la compañía.</p>
+      <div class="form-group">
+        <div class="form-label">Mensaje de la Alarma</div>
+        <textarea class="form-textarea" id="alarma-msg" placeholder="Ej: Incendio estructural en sector norte. Presentarse de inmediato al cuartel." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-alarma')">Cancelar</button>
+      <button class="btn-primary" onclick="enviarAlarma()">Activar Alarma General</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalle Emergencia -->
+<div class="modal-overlay" id="modal-emerg-detalle">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-emerg-titulo">Emergencia</div>
+      <div class="modal-close" onclick="closeModal('modal-emerg-detalle')">×</div>
+    </div>
+    <div class="modal-body" id="modal-emerg-body"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-emerg-detalle')">Cerrar</button>
+      <button class="btn-primary" onclick="cerrarEmergenciaActiva()">✓ Cerrar Emergencia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Personal -->
+<div class="modal-overlay" id="modal-personal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Gestión de Personal</div>
+      <div class="modal-close" onclick="closeModal('modal-personal')">×</div>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2); font-size:13px; margin-bottom:12px;">Control de asistencia y disponibilidad en tiempo real.</p>
+      <div id="modal-personal-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="closeModal('modal-personal')">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Agregar Carro -->
+<div class="modal-overlay" id="modal-add-carro">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nueva Unidad</div>
+      <div class="modal-close" onclick="closeModal('modal-add-carro')">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="form-group"><div class="form-label">Nombre / Designación</div><input class="form-input" id="new-carro-nombre" placeholder="Ej: Bomba 3 — Mercedes 1624"></div>
+        <div class="form-group"><div class="form-label">Tipo</div>
+          <select class="form-select" id="new-carro-tipo">
+            <option>Bomba Escala</option><option>Bomba Tanque</option><option>Carro Auxiliar</option>
+            <option>Carro Rescate</option><option>Carro Forestal</option><option>Ambulancia</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">Patente</div><input class="form-input" id="new-carro-patente" placeholder="Ej: CCFF-12"></div>
+        <div class="form-group"><div class="form-label">Capacidad Dotación</div><input class="form-input" id="new-carro-dotacion" type="number" value="6" min="1" max="20"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-add-carro')">Cancelar</button>
+      <button class="btn-primary" onclick="addCarro()">Agregar Unidad</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Agregar Personal -->
+<div class="modal-overlay" id="modal-add-personal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nuevo Bombero</div>
+      <div class="modal-close" onclick="closeModal('modal-add-personal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="form-row">
+          <div class="form-group"><div class="form-label">Nombre</div><input class="form-input" id="new-pers-nombre" placeholder="Nombre completo"></div>
+          <div class="form-group"><div class="form-label">N° Bombero</div><input class="form-input" id="new-pers-num" placeholder="Ej: 142"></div>
+        </div>
+        <div class="form-group"><div class="form-label">Cargo</div>
+          <select class="form-select" id="new-pers-cargo">
+            <option>Bombero</option><option>Teniente</option><option>Capitán</option>
+            <option>Comandante</option><option>Oficial de Guardia</option><option>Conductor</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">Teléfono</div><input class="form-input" id="new-pers-tel" placeholder="+56 9 XXXX XXXX"></div>
+        <div class="form-group"><div class="form-label">Estado Inicial</div>
+          <select class="form-select" id="new-pers-estado">
+            <option value="cuartel">En Cuartel</option>
+            <option value="fuera">Fuera de Cuartel</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-add-personal')">Cancelar</button>
+      <button class="btn-primary" onclick="addPersonal()">Agregar Bombero</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notificación flotante -->
+<div class="notif-bar" id="notif-bar">
+  <div class="notif-title" id="notif-title">Alerta</div>
+  <div class="notif-msg" id="notif-msg">Mensaje</div>
+</div>
+
+<script>
+// ===================== STATE =====================
+let emergencias = [];
+let carros = [
+  { id:'C1', nombre:'Bomba 1 — Mercedes 1116', tipo:'Bomba Escala', patente:'CBFR-01', dotacion:6, estado:'disponible', color:'#e53935' },
+  { id:'C2', nombre:'Bomba 2 — Magirus 150D', tipo:'Bomba Tanque', patente:'CBFR-02', dotacion:6, estado:'en-ruta', color:'#f59e0b' },
+  { id:'C3', nombre:'Carro Auxiliar', tipo:'Carro Auxiliar', patente:'CBFR-03', dotacion:4, estado:'disponible', color:'#3b82f6' },
+  { id:'C4', nombre:'Carro Forestal', tipo:'Carro Forestal', patente:'CBFR-04', dotacion:4, estado:'fuera-servicio', color:'#555d85' },
+];
+let personal = [
+  { id:'P1', nombre:'Rodrigo Muñoz', num:'101', cargo:'Capitán', tel:'+56 9 1234 5678', estado:'cuartel' },
+  { id:'P2', nombre:'Claudia Vera', num:'102', cargo:'Teniente', tel:'+56 9 2345 6789', estado:'cuartel' },
+  { id:'P3', nombre:'Mario Sandoval', num:'103', cargo:'Bombero', tel:'+56 9 3456 7890', estado:'cuartel' },
+  { id:'P4', nombre:'Valeria Torres', num:'104', cargo:'Conductor', tel:'+56 9 4567 8901', estado:'cuartel' },
+  { id:'P5', nombre:'Carlos Lagos', num:'105', cargo:'Bombero', tel:'+56 9 5678 9012', estado:'fuera' },
+  { id:'P6', nombre:'Ana Bravo', num:'106', cargo:'Oficial de Guardia', tel:'+56 9 6789 0123', estado:'cuartel' },
+  { id:'P7', nombre:'Felipe Ríos', num:'107', cargo:'Bombero', tel:'+56 9 7890 1234', estado:'fuera' },
+  { id:'P8', nombre:'Daniela Soto', num:'108', cargo:'Teniente', tel:'+56 9 8901 2345', estado:'cuartel' },
+];
+let tipoSeleccionado = 'Incendio Estructural';
+let emergenciaActivaId = null;
+let bitacora = [];
+let carrosSeleccionados = new Set();
+let emergenciaCounter = 1;
+let timerIntervals = {};
+
+// ===================== CLOCK =====================
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+  const dias = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+  const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  document.getElementById('clock-date').textContent = `${dias[now.getDay()]} ${now.getDate()} ${meses[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===================== TABS =====================
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page-view').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  event.target.classList.add('active');
+  const page = document.getElementById('page-' + tab);
+  page.classList.add('active');
+  page.style.display = '';
+  if (tab === 'carros') renderCarrosFull();
+  if (tab === 'personal') renderPersonalFull();
+  if (tab === 'estadisticas') renderStats();
+}
+
+function switchRPanel(panel, el) {
+  document.querySelectorAll('.rpanel-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['dotacion','grifos','carros'].forEach(p => {
+    const el2 = document.getElementById('rpanel-' + p);
+    if(el2) el2.style.display = p === panel ? '' : 'none';
+  });
+  if(panel === 'carros') renderCarrosRPanel();
+}
+
+// ===================== TIPO EMERGENCIA =====================
+function selectTipo(el, tipo) {
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  tipoSeleccionado = tipo;
+}
+
+// ===================== RENDER CARROS EN FORM =====================
+function renderCarrosEnForm() {
+  const container = document.getElementById('carros-disponibles-form');
+  container.innerHTML = '';
+  carros.forEach(c => {
+    const disponible = c.estado === 'disponible';
+    const div = document.createElement('div');
+    div.style.cssText = `display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--border);opacity:${disponible?1:0.4};`;
+    const checked = carrosSeleccionados.has(c.id);
+    div.innerHTML = `
+      <input type="checkbox" ${checked?'checked':''} ${!disponible?'disabled':''} style="accent-color:var(--red);width:14px;height:14px;"
+        onchange="toggleCarro('${c.id}', this.checked)">
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);">${c.nombre}</div>
+        <div style="font-size:10px;color:var(--text3);">${c.tipo}</div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:${estadoColor(c.estado)};">${estadoLabel(c.estado)}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleCarro(id, checked) {
+  if(checked) carrosSeleccionados.add(id);
+  else carrosSeleccionados.delete(id);
+}
+
+function estadoColor(e) {
+  return {disponible:'var(--green)','en-ruta':'var(--amber)','en-emergencia':'var(--red)','fuera-servicio':'var(--text3)'}[e] || 'var(--text3)';
+}
+function estadoLabel(e) {
+  return {disponible:'DISPONIBLE','en-ruta':'EN RUTA','en-emergencia':'EN EMERG.','fuera-servicio':'FUERA SERV.'}[e] || e;
+}
+
+// ===================== DESPACHAR =====================
+function despachar() {
+  const dir = document.getElementById('direccion').value.trim();
+  if(!dir) { showNotif('Campo requerido', 'Ingresa la dirección de la emergencia.'); return; }
+  if(carrosSeleccionados.size === 0) { showNotif('Selecciona una unidad', 'Debes seleccionar al menos un carro para despachar.'); return; }
+
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const id = `E${String(emergenciaCounter).padStart(3,'0')}`;
+  emergenciaCounter++;
+
+  const e = {
+    id, tipo: tipoSeleccionado,
+    prioridad: parseInt(document.getElementById('prioridad').value),
+    direccion: dir,
+    sector: document.getElementById('sector').value,
+    descripcion: document.getElementById('descripcion').value,
+    reportante: document.getElementById('reportante').value,
+    telefono: document.getElementById('telefono').value,
+    carros: Array.from(carrosSeleccionados),
+    hora: timeStr,
+    timestamp: Date.now(),
+    estado: 'activa',
+    mapX: 30 + Math.random()*40,
+    mapY: 35 + Math.random()*25,
+  };
+  emergencias.push(e);
+
+  // Cambiar estado carros
+  e.carros.forEach(cid => {
+    const c = carros.find(x => x.id === cid);
+    if(c) c.estado = 'en-emergencia';
+  });
+
+  addBitacora('DESPACHO', `log-despacho`, `<strong>${id}</strong> — ${e.tipo} en <strong>${dir}</strong>. Carros despachados: ${e.carros.join(', ')}`);
+  showNotif('🚒 Emergencia Despachada', `${id} · ${e.tipo}\n${dir}`);
+  clearForm();
+  renderEmergenciasActivas();
+  renderCarrosEnForm();
+  renderDotacion();
+  renderCarrosRPanel();
+  updateBadges();
+  addMapMarker(e);
+}
+
+// ===================== EMERGENCIAS ACTIVAS =====================
+function renderEmergenciasActivas() {
+  const list = document.getElementById('emergencias-activas-list');
+  const activas = emergencias.filter(e => e.estado === 'activa');
+  document.getElementById('activas-count').textContent = `${activas.length} activas`;
+  if(activas.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">Sin emergencias activas</div></div>';
+    return;
+  }
+  list.innerHTML = '';
+  activas.forEach(e => {
+    const div = document.createElement('div');
+    div.className = `emerg-card priority-${e.prioridad}`;
+    const tipoClass = {
+      'Incendio Estructural':'tipo-incendio','Incendio Forestal':'tipo-incendio',
+      'Accidente Vehículo':'tipo-accidente','Rescate':'tipo-rescate',
+      'Mat. Peligroso':'tipo-material','Otro':'tipo-otro'
+    }[e.tipo] || 'tipo-otro';
+    div.innerHTML = `
+      <div class="emerg-header">
+        <span class="emerg-id">${e.id} · ${e.hora}</span>
+        <span class="emerg-tipo ${tipoClass}">${e.tipo}</span>
+      </div>
+      <div class="emerg-body">
+        <div class="emerg-direccion">📍 ${e.direccion}</div>
+        ${e.descripcion ? `<div class="emerg-desc">${e.descripcion}</div>` : ''}
+      </div>
+      <div class="emerg-footer">
+        <div class="emerg-timer" id="timer-${e.id}">00:00</div>
+        <div class="emerg-carros">🚒 ${e.carros.join(' · ')}</div>
+        <div class="emerg-estado-badge" style="background:rgba(229,57,53,0.15);color:var(--red);">ACTIVA</div>
+      </div>
+    `;
+    div.onclick = () => abrirDetalleEmergencia(e.id);
+    list.appendChild(div);
+    startTimer(e);
+  });
+}
+
+function startTimer(e) {
+  if(timerIntervals[e.id]) return;
+  timerIntervals[e.id] = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - e.timestamp) / 1000);
+    const mm = String(Math.floor(elapsed/60)).padStart(2,'0');
+    const ss = String(elapsed%60).padStart(2,'0');
+    const el = document.getElementById('timer-'+e.id);
+    if(el) el.textContent = `${mm}:${ss}`;
+  }, 1000);
+}
+
+// ===================== MAPA =====================
+function addMapMarker(e) {
+  const container = document.getElementById('map-markers');
+  const markerClass = e.tipo.includes('Incendio') ? 'marker-fire' : (e.tipo === 'Accidente Vehículo' ? 'marker-accident' : 'marker-rescue');
+  const icon = e.tipo.includes('Incendio') ? '🔥' : (e.tipo === 'Accidente Vehículo' ? '🚗' : '🆘');
+  const div = document.createElement('div');
+  div.className = 'marker';
+  div.id = 'marker-' + e.id;
+  div.style.cssText = `left:${e.mapX}%; top:${e.mapY}%;`;
+  div.innerHTML = `
+    <div class="marker-pin">
+      <div class="marker-circle ${markerClass}">${icon}</div>
+    </div>
+    <div class="marker-label">${e.id}</div>
+  `;
+  div.onclick = () => abrirDetalleEmergencia(e.id);
+  container.appendChild(div);
+}
+
+function removeMapMarker(id) {
+  const el = document.getElementById('marker-'+id);
+  if(el) el.remove();
+}
+
+// ===================== DETALLE EMERGENCIA =====================
+function abrirDetalleEmergencia(id) {
+  const e = emergencias.find(x => x.id === id);
+  if(!e) return;
+  emergenciaActivaId = id;
+  document.getElementById('modal-emerg-titulo').textContent = `${e.id} — ${e.tipo}`;
+  document.getElementById('modal-emerg-body').innerHTML = `
+    <div style="display:grid;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--bg3);padding:10px;border-radius:var(--radius);border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Dirección</div>
+          <div style="font-size:13px;font-weight:600;">📍 ${e.direccion}</div>
+        </div>
+        <div style="background:var(--bg3);padding:10px;border-radius:var(--radius);border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Prioridad</div>
+          <div style="font-size:13px;font-weight:600;color:${e.prioridad===1?'var(--red)':e.prioridad===2?'var(--amber)':'var(--blue)'};">P${e.prioridad} — ${['','Crítica','Alta','Media'][e.prioridad]}</div>
+        </div>
+      </div>
+      ${e.descripcion?`<div style="background:var(--bg3);padding:10px;border-radius:var(--radius);border:1px solid var(--border);font-size:13px;color:var(--text2);">${e.descripcion}</div>`:''}
+      <div style="background:var(--bg3);padding:10px;border-radius:var(--radius);border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Unidades Despachadas</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${e.carros.map(cid=>{
+            const c = carros.find(x=>x.id===cid);
+            return `<div style="background:rgba(229,57,53,0.15);color:var(--red);padding:4px 10px;border-radius:var(--radius);font-size:12px;font-weight:700;">🚒 ${c?c.nombre:cid}</div>`;
+          }).join('')}
+        </div>
+      </div>
+      ${e.reportante?`<div style="background:var(--bg3);padding:10px;border-radius:var(--radius);border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Reportante</div>
+        <div style="font-size:13px;">${e.reportante} ${e.telefono?'— <span style="color:var(--teal);">'+e.telefono+'</span>':''}</div>
+      </div>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="actualizarEstadoEmerg('en-escena')" style="background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid var(--amber);padding:8px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:700;">🔔 En Escena</button>
+        <button onclick="actualizarEstadoEmerg('controlada')" style="background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid var(--blue);padding:8px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:700;">✓ Controlada</button>
+      </div>
+    </div>
+  `;
+  openModal('modal-emerg-detalle');
+}
+
+function cerrarEmergenciaActiva() {
+  if(!emergenciaActivaId) return;
+  const e = emergencias.find(x => x.id === emergenciaActivaId);
+  if(!e) return;
+  e.estado = 'cerrada';
+  const elapsed = Math.floor((Date.now() - e.timestamp) / 1000);
+  const mm = Math.floor(elapsed/60);
+  e.carros.forEach(cid => {
+    const c = carros.find(x=>x.id===cid);
+    if(c) c.estado = 'disponible';
+  });
+  clearInterval(timerIntervals[e.id]);
+  delete timerIntervals[e.id];
+  removeMapMarker(e.id);
+  addBitacora('CIERRE', 'log-cierre', `<strong>${e.id}</strong> cerrada — Duración: <strong>${mm} min</strong>. Unidades liberadas.`);
+  showNotif('✓ Emergencia Cerrada', `${e.id} cerrada. Duración: ${mm} min.`);
+  closeModal('modal-emerg-detalle');
+  renderEmergenciasActivas();
+  renderCarrosEnForm();
+  renderCarrosRPanel();
+  renderDotacion();
+  updateBadges();
+  renderStats();
+}
+
+function actualizarEstadoEmerg(estado) {
+  const e = emergencias.find(x => x.id === emergenciaActivaId);
+  if(!e) return;
+  const labels = {'en-escena':'En Escena','controlada':'Controlada'};
+  addBitacora('ACTUALIZ', 'log-actualiz', `<strong>${e.id}</strong> — Estado actualizado: <strong>${labels[estado]||estado}</strong>`);
+  showNotif('📢 Estado actualizado', `${e.id}: ${labels[estado]||estado}`);
+}
+
+// ===================== DOTACION =====================
+function renderDotacion() {
+  const enCuartel = personal.filter(p => p.estado === 'cuartel');
+  const fuera = personal.filter(p => p.estado !== 'cuartel');
+  document.getElementById('count-cuartel').textContent = enCuartel.length;
+  document.getElementById('lista-cuartel').innerHTML = enCuartel.map(p => `
+    <div class="dotacion-row">
+      <div>
+        <div class="pers-name">${p.nombre}</div>
+        <div class="pers-cargo">#${p.num} · ${p.cargo}</div>
+      </div>
+      <div class="pers-estado estado-cuartel">EN CUARTEL</div>
+    </div>
+  `).join('') || '<div style="padding:10px 14px;font-size:12px;color:var(--text3);">—</div>';
+  document.getElementById('lista-fuera').innerHTML = fuera.map(p => `
+    <div class="dotacion-row">
+      <div>
+        <div class="pers-name">${p.nombre}</div>
+        <div class="pers-cargo">#${p.num} · ${p.cargo}</div>
+      </div>
+      <div class="pers-estado estado-fuera">FUERA</div>
+    </div>
+  `).join('') || '<div style="padding:10px 14px;font-size:12px;color:var(--text3);">—</div>';
+}
+
+// ===================== CARROS RPANEL =====================
+function renderCarrosRPanel() {
+  const el = document.getElementById('carros-list-rpanel');
+  if(!el) return;
+  el.innerHTML = carros.map(c => `
+    <div class="carro-item">
+      <div class="carro-badge" style="background:${c.estado==='disponible'?'rgba(16,185,129,0.15)':c.estado==='en-ruta'||c.estado==='en-emergencia'?'rgba(229,57,53,0.15)':'var(--bg4)'};color:${estadoColor(c.estado)};">${c.id}</div>
+      <div class="carro-info">
+        <div class="carro-nombre">${c.nombre}</div>
+        <div class="carro-tipo">${c.tipo} · ${c.patente}</div>
+      </div>
+      <div>
+        <div class="carro-dot ${c.estado==='disponible'?'dot-green':c.estado.includes('ruta')||c.estado.includes('emerg')?'dot-red':'dot-gray'}" style="margin:0 auto 2px;"></div>
+        <div class="carro-status ${c.estado==='disponible'?'status-disponible':c.estado==='fuera-servicio'?'status-fuera-servicio':'status-en-emergencia'}">${estadoLabel(c.estado)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================== CARROS FULL LIST =====================
+function renderCarrosFull() {
+  const el = document.getElementById('carros-full-list');
+  if(!el) return;
+  el.innerHTML = carros.map(c => `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:14px;">
+      <div style="width:48px;height:48px;border-radius:var(--radius);background:${c.estado==='disponible'?'rgba(16,185,129,0.15)':'var(--bg3)'};display:flex;align-items:center;justify-content:center;font-size:22px;">🚒</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:700;">${c.nombre}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">${c.tipo} · ${c.patente} · Dot. ${c.dotacion} pers.</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:${c.estado==='disponible'?'rgba(16,185,129,0.15)':'rgba(229,57,53,0.1)'};color:${estadoColor(c.estado)};">${estadoLabel(c.estado)}</div>
+        <select style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:var(--radius);font-size:12px;" onchange="cambiarEstadoCarro('${c.id}', this.value)">
+          <option value="disponible" ${c.estado==='disponible'?'selected':''}>Disponible</option>
+          <option value="en-ruta" ${c.estado==='en-ruta'?'selected':''}>En Ruta</option>
+          <option value="en-emergencia" ${c.estado==='en-emergencia'?'selected':''}>En Emergencia</option>
+          <option value="fuera-servicio" ${c.estado==='fuera-servicio'?'selected':''}>Fuera Servicio</option>
+        </select>
+      </div>
+    </div>
+  `).join('');
+}
+
+function cambiarEstadoCarro(id, estado) {
+  const c = carros.find(x=>x.id===id);
+  if(c) { c.estado = estado; renderCarrosEnForm(); renderCarrosRPanel(); }
+}
+
+// ===================== PERSONAL FULL =====================
+function renderPersonalFull() {
+  const el = document.getElementById('personal-full-list');
+  if(!el) return;
+  el.innerHTML = personal.map(p => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text2);">${p.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${p.nombre}</div>
+        <div style="font-size:11px;color:var(--text3);">#${p.num} · ${p.cargo} · ${p.tel}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;${p.estado==='cuartel'?'background:rgba(16,185,129,0.15);color:var(--green)':'background:rgba(85,93,133,0.15);color:var(--text3)'};">${p.estado==='cuartel'?'EN CUARTEL':'FUERA'}</div>
+        <button onclick="togglePersonalEstado('${p.id}')" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:var(--radius);cursor:pointer;font-size:11px;">Cambiar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function togglePersonalEstado(id) {
+  const p = personal.find(x=>x.id===id);
+  if(!p) return;
+  p.estado = p.estado === 'cuartel' ? 'fuera' : 'cuartel';
+  renderPersonalFull();
+  renderDotacion();
+}
+
+// ===================== MODAL PERSONAL =====================
+function renderModalPersonal() {
+  const el = document.getElementById('modal-personal-list');
+  if(!el) return;
+  el.innerHTML = personal.map(p => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:12px;font-weight:600;flex:1;">${p.nombre} <span style="color:var(--text3);font-weight:400;">· ${p.cargo}</span></div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);cursor:pointer;">
+        <input type="checkbox" ${p.estado==='cuartel'?'checked':''} style="accent-color:var(--green);" onchange="togglePersonalCheckbox('${p.id}', this.checked)">
+        En cuartel
+      </label>
+    </div>
+  `).join('');
+}
+
+function togglePersonalCheckbox(id, checked) {
+  const p = personal.find(x=>x.id===id);
+  if(p) { p.estado = checked ? 'cuartel' : 'fuera'; renderDotacion(); }
+}
+
+// ===================== BITACORA =====================
+function addBitacora(tipo, cssClass, msg) {
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const entry = { tipo, cssClass, msg, time: t, ts: Date.now() };
+  bitacora.unshift(entry);
+  const el = document.getElementById('bitacora-list');
+  const div = document.createElement('div');
+  div.className = 'log-entry';
+  div.innerHTML = `<span class="log-time">${t}</span><span class="log-type ${cssClass}">${tipo}</span><span class="log-msg">${msg}</span>`;
+  el.insertBefore(div, el.firstChild.nextSibling);
+}
+
+function exportBitacora() {
+  const rows = ['Hora,Tipo,Mensaje'];
+  const entries = document.querySelectorAll('#bitacora-list .log-entry');
+  entries.forEach(e => {
+    const time = e.querySelector('.log-time').textContent;
+    const tipo = e.querySelector('.log-type').textContent;
+    const msg = e.querySelector('.log-msg').textContent;
+    rows.push(`"${time}","${tipo}","${msg}"`);
+  });
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bitacora-frutillar-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+// ===================== STATS =====================
+function renderStats() {
+  const total = emergencias.length;
+  const activas = emergencias.filter(e=>e.estado==='activa').length;
+  const cerradas = emergencias.filter(e=>e.estado==='cerrada').length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-activas').textContent = activas;
+  document.getElementById('stat-cerradas').textContent = cerradas;
+  if(cerradas > 0) {
+    const cerradasData = emergencias.filter(e=>e.estado==='cerrada');
+    document.getElementById('stat-tiempo').textContent = '— min';
+  }
+  // Por tipo
+  const porTipo = {};
+  emergencias.forEach(e => { porTipo[e.tipo] = (porTipo[e.tipo]||0)+1; });
+  const el = document.getElementById('stats-por-tipo');
+  if(Object.keys(porTipo).length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-text">Sin datos aún</div></div>';
+  } else {
+    el.innerHTML = Object.entries(porTipo).map(([tipo, cnt]) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
+        <div style="flex:1;font-size:12px;color:var(--text2);">${tipo}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${cnt}</div>
+        <div style="width:60px;height:4px;background:var(--bg3);border-radius:2px;">
+          <div style="height:100%;width:${Math.min(100,cnt/total*100)}%;background:var(--red);border-radius:2px;"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function updateBadges() {
+  const activas = emergencias.filter(e=>e.estado==='activa').length;
+  document.getElementById('badge-activas').textContent = activas;
+  document.getElementById('stat-activas').textContent = activas;
+}
+
+// ===================== ADD CARRO/PERSONAL =====================
+function addCarro() {
+  const nombre = document.getElementById('new-carro-nombre').value.trim();
+  if(!nombre) return;
+  const c = {
+    id: 'C' + (carros.length + 1),
+    nombre,
+    tipo: document.getElementById('new-carro-tipo').value,
+    patente: document.getElementById('new-carro-patente').value,
+    dotacion: parseInt(document.getElementById('new-carro-dotacion').value) || 6,
+    estado: 'disponible',
+    color: '#3b82f6'
+  };
+  carros.push(c);
+  addBitacora('INFO', 'log-info', `Nueva unidad registrada: <strong>${nombre}</strong>`);
+  closeModal('modal-add-carro');
+  renderCarrosFull();
+  renderCarrosEnForm();
+}
+
+function addPersonal() {
+  const nombre = document.getElementById('new-pers-nombre').value.trim();
+  if(!nombre) return;
+  const p = {
+    id: 'P' + (personal.length + 1),
+    nombre,
+    num: document.getElementById('new-pers-num').value || String(personal.length+101),
+    cargo: document.getElementById('new-pers-cargo').value,
+    tel: document.getElementById('new-pers-tel').value,
+    estado: document.getElementById('new-pers-estado').value
+  };
+  personal.push(p);
+  addBitacora('INFO', 'log-info', `Nuevo bombero registrado: <strong>${nombre}</strong> (#${p.num})`);
+  closeModal('modal-add-personal');
+  renderPersonalFull();
+  renderDotacion();
+}
+
+// ===================== ALARMA GENERAL =====================
+function enviarAlarma() {
+  const msg = document.getElementById('alarma-msg').value || 'ALARMA GENERAL — Presentarse de inmediato al cuartel.';
+  addBitacora('ALARMA', 'log-despacho', `<strong>🚨 ALARMA GENERAL</strong> — ${msg}`);
+  closeModal('modal-alarma');
+  showNotif('🚨 Alarma General Activada', 'Notificación enviada a todo el personal.');
+}
+
+// ===================== MODALES =====================
+function openModal(id) {
+  if(id === 'modal-personal') renderModalPersonal();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  emergenciaActivaId = null;
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+
+// ===================== NOTIFICACIONES =====================
+let notifTimeout;
+function showNotif(title, msg) {
+  clearTimeout(notifTimeout);
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-msg').textContent = msg;
+  document.getElementById('notif-bar').classList.add('show');
+  notifTimeout = setTimeout(() => document.getElementById('notif-bar').classList.remove('show'), 4000);
+}
+
+// ===================== CLEAR FORM =====================
+function clearForm() {
+  document.getElementById('direccion').value = '';
+  document.getElementById('sector').value = '';
+  document.getElementById('descripcion').value = '';
+  document.getElementById('reportante').value = '';
+  document.getElementById('telefono').value = '';
+  document.getElementById('n_llamada').value = '';
+  document.getElementById('prioridad').value = '1';
+  carrosSeleccionados.clear();
+  renderCarrosEnForm();
+}
+
+// ===================== INIT =====================
+function init() {
+  renderCarrosEnForm();
+  renderDotacion();
+  renderEmergenciasActivas();
+  renderStats();
+  updateBadges();
+
+  // Pre-cargar bitácora de inicio
+  addBitacora('INFO', 'log-info', `Dotación en cuartel: <strong>${personal.filter(p=>p.estado==='cuartel').length} bomberos</strong>`);
+}
+
+init();
+</script>
+</body>
+</html>
