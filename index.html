@@ -246,6 +246,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
   <div class="tab" onclick="switchTab('estadisticas',this)">📊 Estadísticas</div>
   <div class="tab" onclick="switchTab('carros',this)">🚒 Unidades</div>
   <div class="tab" onclick="switchTab('whatsapp',this)">💬 WhatsApp <span class="tab-badge green" id="badge-wsp">0</span></div>
+  <div class="tab" onclick="switchTab('parte',this)">📄 Parte</div>
 </div>
 
 <div class="main">
@@ -521,6 +522,89 @@ _Central de Alarmas Frutillar_</textarea>
   </div>
 </div>
 
+<!-- ===== PARTE DE ASISTENCIA ===== -->
+<div id="page-parte" class="page-view">
+  <div class="full-page" style="max-width:1000px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+      <div class="full-title" style="margin:0;">📄 Parte de Asistencia</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select class="fselect" id="parte-emerg-sel" onchange="cargarDatosParte()" style="font-size:12px;padding:5px 10px;min-width:200px;">
+          <option value="">— Seleccionar emergencia —</option>
+        </select>
+        <button onclick="generarPartePDF()" style="background:#e53935;border:none;color:#fff;padding:7px 16px;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:700;">⬇ Generar PDF</button>
+      </div>
+    </div>
+
+    <!-- Datos cabecera -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:14px;">
+      <div class="panel-title" style="margin-bottom:12px;">📋 Datos del Servicio</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div class="fgroup"><div class="flabel">Clave (Código)</div><input class="finput" id="parte-clave" placeholder="Ej: 10-0-2 – Urbano" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Motivo / Descripción</div><input class="finput" id="parte-motivo" placeholder="Ej: Incendio estructural casa habitación" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Calle / Dirección</div><input class="finput" id="parte-calle" placeholder="Ej: Av. Philippi 420" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Población o Villa</div><input class="finput" id="parte-poblacion" placeholder="Ej: Frutillar Bajo" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Propietario / Arrendatario</div><input class="finput" id="parte-propietario" placeholder="Nombre" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">OBAC C.B.F.</div><input class="finput" id="parte-obac-cbf" placeholder="Nombre" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">OBAC Compañía</div><input class="finput" id="parte-obac-cia" placeholder="Nombre" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Litros utilizados</div><input class="finput" id="parte-litros" placeholder="0" type="number" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Saldo tarjeta</div><input class="finput" id="parte-saldo" placeholder="$0" style="font-size:12px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:10px;">
+        <div class="fgroup"><div class="flabel">Tono</div><input class="finput" id="parte-tono" placeholder="HH:MM" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">6-0 (Salida)</div><input class="finput" id="parte-6-0" placeholder="HH:MM" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">6-3 (En escena)</div><input class="finput" id="parte-6-3" placeholder="HH:MM" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">6-7 (Controlado)</div><input class="finput" id="parte-6-7" placeholder="HH:MM" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">6-9 (Retorno)</div><input class="finput" id="parte-6-9" placeholder="HH:MM" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">6-10 (Disponible)</div><input class="finput" id="parte-6-10" placeholder="HH:MM" style="font-size:12px;"></div>
+      </div>
+    </div>
+
+    <!-- Voluntarios participantes -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="panel-title">👥 Voluntarios que Participaron</div>
+        <div style="font-size:11px;color:var(--text3);">
+          Oficiales: <span id="cnt-of" style="color:var(--text);font-weight:700;">0</span> &nbsp;|&nbsp;
+          Voluntarios: <span id="cnt-vol" style="color:var(--text);font-weight:700;">0</span> &nbsp;|&nbsp;
+          <strong style="color:var(--amber);">Total: <span id="cnt-total">0</span></strong>
+        </div>
+      </div>
+      <div id="parte-personal-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;"></div>
+    </div>
+
+    <!-- Resumen del acto -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:14px;">
+      <div class="panel-title" style="margin-bottom:10px;">📝 Resumen del Acto</div>
+      <textarea class="ftextarea" id="parte-resumen" style="min-height:120px;font-size:12px;line-height:1.8;" placeholder="Descripción detallada de las acciones realizadas durante la emergencia..."></textarea>
+    </div>
+
+    <!-- Material -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;">
+        <div class="panel-title" style="margin-bottom:10px;">🔧 Material por Recuperar</div>
+        <div id="material-recuperar">
+          ${[1,2,3,4,5].map(i=>`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-${i}" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-${i}" style="font-size:11px;padding:5px 7px;"></div>`).join('')}
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;">
+        <div class="panel-title" style="margin-bottom:10px;">📦 Material por Tripular</div>
+        <div id="material-tripular">
+          ${[1,2,3,4,5].map(i=>`<div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-${i}" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-${i}" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-${i}" style="font-size:11px;padding:5px 7px;"></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Oficial a cargo -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;">
+      <div class="panel-title" style="margin-bottom:10px;">✍ Oficial o Bombero a Cargo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="fgroup"><div class="flabel">Nombre</div><input class="finput" id="parte-oficial-nombre" placeholder="Nombre completo" style="font-size:12px;"></div>
+        <div class="fgroup"><div class="flabel">Cargo</div><input class="finput" id="parte-oficial-cargo" placeholder="Cargo" style="font-size:12px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- fin main -->
 
 <!-- MODALES -->
@@ -612,9 +696,85 @@ function estadoCia(ciaId){
   return carros.some(c=>c.estado==='disponible') ? 'disponible' : 'en-emergencia';
 }
 
+// Personal completo 1ª Compañía "Germania" de Frutillar
+// Categorías: oficial, honorario, bombero, aspirante, cadete
 let personal = [
-  {id:'P1',nombre:'Javier Lama',  num:'001',cargo:'Bombero',cia:'B-1',estado:'cuartel'},
-  {id:'P2',nombre:'Andrés Aguirre',num:'002',cargo:'Bombero',cia:'B-1',estado:'cuartel'},
+  // OFICIALES DE COMPAÑÍA
+  {id:'P41', num:'130', nombre:'Cristóbal Manríquez Sepúlveda', cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P101',num:'160', nombre:'Raúl Loaiza Hölck',              cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P102',num:'142', nombre:'Joaquín Soto Hernández',         cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P103',num:'157', nombre:'Gabriel Gallrdo Cáceres',        cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P104',num:'154', nombre:'Fabián Cares Hidalgo',           cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P105',num:'141', nombre:'Nicolás Torres Pérez',           cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P71', num:'127', nombre:'María Fuentes Cáceres',          cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P106',num:'155', nombre:'Cristian Urrutia Santibáñez',    cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P107',num:'112', nombre:'Marco Montenegro Campos',        cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  {id:'P159',num:'159', nombre:'Jaime Moreira Duran',            cargo:'Oficial',          cat:'oficial',    cia:'B-1', estado:'fuera'},
+  // HONORARIOS
+  {id:'P110',num:'110', nombre:'Alberto Guzmán Muñoz',           cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P111',num:'111', nombre:'Tomás Vidal Abello',             cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P113',num:'113', nombre:'Marcelo Schmidt Klein',          cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P114',num:'114', nombre:'Cristóbal Gutiérrez Ellies',     cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P115',num:'115', nombre:'Cristian Usabiaga Alvarado',     cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P116',num:'116', nombre:'Ramón Vidal Oyarzo',             cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P117',num:'117', nombre:'Claudio Hausdorf Hausdorf',      cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P118',num:'118', nombre:'Mauricio Barrientos Núñez',      cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P119',num:'119', nombre:'José Carrasco Barria',           cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P120',num:'120', nombre:'Alejandro Schmidt Klein',        cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P121',num:'121', nombre:'Cristóbal Scheel Lopetegui',     cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P122',num:'122', nombre:'José Vargas Padilla',            cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  {id:'P123',num:'123', nombre:'Ricardo Haro Guerrero',          cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
+  // BOMBEROS
+  {id:'P124',num:'124', nombre:'Javier Lama Díaz',               cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'cuartel'},
+  {id:'P125',num:'125', nombre:'Joaquín Díaz Nannig',            cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P126',num:'126', nombre:'Walter Brecht Winkler',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P128',num:'128', nombre:'Rodrigo Astete Contreras',       cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P129',num:'129', nombre:'Ricardo Bórquez Alvarado',       cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P131',num:'131', nombre:'Matías Miranda Arango',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P132',num:'132', nombre:'Francisco Carrasco von B.',      cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P133',num:'133', nombre:'Diego Catalán Catalán',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P134',num:'134', nombre:'Andrés Ríos Carretta',           cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P135',num:'135', nombre:'Tomás Manríquez Sepúlveda',      cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P136',num:'136', nombre:'Mauricio Troncoso Jara',         cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P137',num:'137', nombre:'Patricio Delgado González',      cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P138',num:'138', nombre:'Yuli Salas López',               cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P139',num:'139', nombre:'Cristian García Paillaleve',     cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P140',num:'140', nombre:'Gonzalo Cifuentes Vladillo',     cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P143',num:'143', nombre:'Amílcar Zubiría Baretto',        cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P144',num:'144', nombre:'Álvaro Almonacid Cancino',       cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P145',num:'145', nombre:'Fernando Pozo Virjili',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P146',num:'146', nombre:'Max Richter Gaete',              cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P147',num:'147', nombre:'Pablo Sandoval Rubilar',         cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P148',num:'148', nombre:'José Álvarez Galindo',           cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P149',num:'149', nombre:'Juan Bastidas Arteaga',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P150',num:'150', nombre:'Cristian Frêne Troquian',        cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P151',num:'151', nombre:'Bastián Valderas Meza',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P152',num:'152', nombre:'Pedro Camplá Araya',             cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P153',num:'153', nombre:'Leonardo Moreira Duran',         cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P156',num:'156', nombre:'Natalia Villarroel Ubeda',       cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P158',num:'158', nombre:'Andrés Said Garate',             cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P161',num:'161', nombre:'Felipe Araneda Burgos',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P162',num:'162', nombre:'Joaquín Frêne Troquian',         cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P163',num:'163', nombre:'Marcela Saavedra R.',            cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P164',num:'164', nombre:'Yasmín Garces Cid',              cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  {id:'P165',num:'165', nombre:'Víctor Acuña Picarte',           cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
+  // ASPIRANTES
+  {id:'PA1', num:'',    nombre:'Patricio Werner Elgueta',        cargo:'Aspirante',        cat:'aspirante',  cia:'B-1', estado:'fuera'},
+  {id:'PA2', num:'',    nombre:'Cristóbal Carrasco von B.',      cargo:'Aspirante',        cat:'aspirante',  cia:'B-1', estado:'fuera'},
+  {id:'PA3', num:'',    nombre:'Luis Escobar Gallardo',          cargo:'Aspirante',        cat:'aspirante',  cia:'B-1', estado:'fuera'},
+  {id:'PA4', num:'',    nombre:'Rolf Henríquez von B.',          cargo:'Aspirante',        cat:'aspirante',  cia:'B-1', estado:'fuera'},
+  {id:'PA5', num:'',    nombre:'Antonia Álvarez Zalazar',        cargo:'Aspirante',        cat:'aspirante',  cia:'B-1', estado:'fuera'},
+  {id:'PA6', num:'',    nombre:'Alexandra Oré Menendez',         cargo:'Aspirante',        cat:'aspirante',  cia:'B-1', estado:'fuera'},
+  // CADETES
+  {id:'PC1', num:'',    nombre:'Gustavo San Martin',             cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  {id:'PC2', num:'',    nombre:'Silvestre Galecio Salvatierra',  cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  {id:'PC3', num:'',    nombre:'Martina Paillaleve',             cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  {id:'PC4', num:'',    nombre:'Gastón Camplá Araya',            cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  {id:'PC5', num:'',    nombre:'Felipe Troncoso',                cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  {id:'PC6', num:'',    nombre:'José Franco Cerón',              cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  {id:'PC7', num:'',    nombre:'Antonella Valdera',              cargo:'Cadete',           cat:'cadete',     cia:'B-1', estado:'fuera'},
+  // PRUEBAS WSP (mantener para pruebas)
+  {id:'P_W2',num:'',    nombre:'Andrés Aguirre',                 cargo:'Bombero (prueba)', cat:'bombero',    cia:'B-1', estado:'cuartel'},
 ];
 let contactosWsp = [
   {id:'W1',cia:'B-1',nombre:'Javier Lama',   cargo:'Bombero 1ª Cía.',wsp:'+56982290186',apikey:'',enabled:true},
@@ -650,6 +810,7 @@ function switchTab(tab,el){
   if(tab==='estadisticas') renderStats();
   if(tab==='carros') renderCarrosFull();
   if(tab==='whatsapp') renderWspContacts();
+  if(tab==='parte'){ initParteSelector(); }
 }
 function switchRPanel(p,el){
   document.querySelectorAll('.rpanel-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
@@ -977,24 +1138,31 @@ function renderActivas(){
 
   activas.forEach(e=>{
     const pCol=e.prioridad===1?'var(--red)':e.prioridad===2?'var(--amber)':'var(--blue)';
-    // Filas de compañías con checkbox de retorno
+    // Filas de compañías con control salida + disponible
     const ciasHTML=(e.companias||[]).map(cid=>{
       const cia=COMPANIAS.find(x=>x.id===cid);
       const color=cia?cia.color:'#888';
       const ret=(e.retornadas||new Set()).has(cid);
       const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[cid]||cid;
       const carro=(e.carros||[]).map(id=>CARROS.find(x=>x.id===id)).find(c=>c&&c.cia===ciaNorm);
+      const salio=(e.salidasCarro||{})[cid];
       return `<div class="cia-row" style="background:${ret?'rgba(16,185,129,.08)':color+'0d'};border:1px solid ${ret?'rgba(16,185,129,.3)':color+'33'};">
         <div class="cia-num-badge" style="background:${color}22;color:${color};">${cia?cia.num:cid}</div>
         <div class="cia-row-info">
           <div class="cia-row-name" style="color:${ret?'var(--green)':'var(--text)'};">${cia?cia.nombre:cid}</div>
           ${carro?`<div class="cia-row-carro">${carro.nombre} · ${carro.tipo}${carro.prio===2?' (apoyo)':''}</div>`:''}
         </div>
-        <label class="retorno-label" style="color:${ret?'var(--green)':'var(--text3)'};">
-          <input type="checkbox" ${ret?'checked':''} style="accent-color:var(--green);width:13px;height:13px;"
-            onchange="toggleRetorno('${e.id}','${cid}',this.checked)">
-          ${ret?'✓ Retornó':'Retornó'}
-        </label>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          ${salio
+            ? `<div style="font-size:9px;color:var(--green);font-weight:700;">🚒 Salió ${salio}</div>`
+            : `<button onclick="marcarSalida('${e.id}','${cid}')" style="font-size:9px;background:rgba(245,158,11,.12);border:1px solid var(--amber);color:var(--amber);padding:2px 7px;border-radius:3px;cursor:pointer;font-weight:700;">🚒 Salió del cuartel</button>`
+          }
+          <label class="retorno-label" style="color:${ret?'var(--green)':'var(--text3)'};">
+            <input type="checkbox" ${ret?'checked':''} style="accent-color:var(--green);width:13px;height:13px;"
+              onchange="toggleRetorno('${e.id}','${cid}',this.checked)">
+            ${ret?'✓ Disponible':'Disponible'}
+          </label>
+        </div>
       </div>`;
     }).join('');
 
@@ -1051,6 +1219,8 @@ function despachar(){
     carros:[],
     hora, timestamp:Date.now(), estado:'activa',
     retornadas:new Set(),
+    salidasCarro:{},   // ciaId → hora de salida del cuartel HH:MM
+    voluntarios:new Set(), // ids del personal que participó
     lat:clickedLatLng?clickedLatLng.lat:FLAT+(Math.random()-.5)*.01,
     lng:clickedLatLng?clickedLatLng.lng:FLNG+(Math.random()-.5)*.01,
   };
@@ -1458,7 +1628,349 @@ function showNotif(title,msg){
   _nt=setTimeout(()=>document.getElementById('notif').classList.remove('show'),4000);
 }
 
-// ===== INIT =====
+// ===== SALIDA DEL CUARTEL =====
+function marcarSalida(emergId, ciaId){
+  const e=emergencias.find(x=>x.id===emergId); if(!e) return;
+  if(!e.salidasCarro) e.salidasCarro={};
+  const n=new Date();
+  const hora=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  e.salidasCarro[ciaId]=hora;
+  const cia=COMPANIAS.find(x=>x.id===ciaId);
+  addLog('SALIDA','lt-a',`<strong>${ciaId}${cia?' — '+cia.nombre:''}</strong> salió del cuartel (${hora}) hacia <strong>${e.id}</strong>`);
+  showNotif('🚒 En ruta',(cia?cia.num:ciaId)+' salió del cuartel a las '+hora);
+  renderActivas();
+}
+
+// ===== PARTE DE ASISTENCIA =====
+function initParteSelector(){
+  const sel=document.getElementById('parte-emerg-sel'); if(!sel) return;
+  sel.innerHTML='<option value="">— Seleccionar emergencia —</option>';
+  emergencias.forEach(e=>{
+    const o=document.createElement('option');
+    o.value=e.id;
+    o.textContent=`${e.id} · ${e.subtipo||e.tipo} · ${e.direccion} (${e.estado==='activa'?'Activa':'Cerrada'})`;
+    sel.appendChild(o);
+  });
+}
+
+function cargarDatosParte(){
+  const id=document.getElementById('parte-emerg-sel').value; if(!id) return;
+  const e=emergencias.find(x=>x.id===id); if(!e) return;
+  // Autorellenar campos desde los datos de la emergencia
+  document.getElementById('parte-clave').value=e.subtipo||e.tipo||'';
+  document.getElementById('parte-motivo').value=e.descripcion||e.tipo||'';
+  document.getElementById('parte-calle').value=e.direccion||'';
+  document.getElementById('parte-tono').value=e.hora||'';
+  document.getElementById('parte-6-0').value=e.salidasCarro?Object.values(e.salidasCarro)[0]||'':'';
+  // Calcular 6-9 desde retorno si existe
+  const ret=e.retornadas&&e.retornadas.size>0;
+  // Renderizar grid de personal
+  renderPartePersonal(e);
+}
+
+function renderPartePersonal(e){
+  const grid=document.getElementById('parte-personal-grid'); if(!grid) return;
+  const cats=[
+    {key:'oficial',    label:'OFICIALES DE COMPAÑÍA'},
+    {key:'honorario',  label:'HONORARIOS'},
+    {key:'bombero',    label:'BOMBEROS'},
+    {key:'aspirante',  label:'ASPIRANTES'},
+    {key:'cadete',     label:'CADETES'},
+  ];
+  let html='';
+  cats.forEach(cat=>{
+    const miembros=personal.filter(p=>p.cat===cat.key);
+    if(!miembros.length) return;
+    html+=`<div style="grid-column:1/-1;padding:4px 0;"><div class="sdiv" style="font-size:10px;background:transparent;border:none;padding:4px 0;">${cat.label}</div></div>`;
+    miembros.forEach(p=>{
+      const checked=e.voluntarios&&e.voluntarios.has(p.id);
+      html+=`<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:${checked?'rgba(16,185,129,.08)':'var(--bg3)'};border:1px solid ${checked?'rgba(16,185,129,.3)':'var(--border)'};border-radius:var(--r);cursor:pointer;transition:background .1s;">
+        <input type="checkbox" ${checked?'checked':''} style="accent-color:var(--green);width:13px;height:13px;flex-shrink:0;"
+          onchange="toggleVoluntario('${e.id}','${p.id}',this.checked)">
+        <div style="min-width:0;">
+          <div style="font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nombre}</div>
+          <div style="font-size:9px;color:var(--text3);">${p.num?p.num+' · ':''}${p.cargo}</div>
+        </div>
+      </label>`;
+    });
+  });
+  grid.innerHTML=html;
+  actualizarContadores(e);
+}
+
+function toggleVoluntario(emergId, persId, checked){
+  const e=emergencias.find(x=>x.id===emergId); if(!e) return;
+  if(!e.voluntarios) e.voluntarios=new Set();
+  if(checked) e.voluntarios.add(persId); else e.voluntarios.delete(persId);
+  actualizarContadores(e);
+  // Actualizar visual del label
+  renderPartePersonal(e);
+}
+
+function actualizarContadores(e){
+  if(!e||!e.voluntarios) return;
+  const ids=Array.from(e.voluntarios);
+  const oficiales=ids.filter(id=>{const p=personal.find(x=>x.id===id);return p&&p.cat==='oficial';}).length;
+  const voluntarios=ids.filter(id=>{const p=personal.find(x=>x.id===id);return p&&p.cat!=='oficial';}).length;
+  const cOf=document.getElementById('cnt-of');
+  const cVol=document.getElementById('cnt-vol');
+  const cTot=document.getElementById('cnt-total');
+  if(cOf) cOf.textContent=oficiales;
+  if(cVol) cVol.textContent=voluntarios;
+  if(cTot) cTot.textContent=ids.length;
+}
+
+// ===== GENERACIÓN PDF DEL PARTE =====
+function generarPartePDF(){
+  const id=document.getElementById('parte-emerg-sel').value;
+  if(!id){showNotif('Selecciona emergencia','Elige la emergencia en el selector.');return;}
+  const e=emergencias.find(x=>x.id===id);
+  if(!e){showNotif('Error','Emergencia no encontrada.');return;}
+
+  // Recopilar datos del formulario
+  const datos={
+    clave:   document.getElementById('parte-clave').value,
+    motivo:  document.getElementById('parte-motivo').value,
+    calle:   document.getElementById('parte-calle').value,
+    poblacion: document.getElementById('parte-poblacion').value,
+    propietario: document.getElementById('parte-propietario').value,
+    obacCbf: document.getElementById('parte-obac-cbf').value,
+    obacCia: document.getElementById('parte-obac-cia').value,
+    litros:  document.getElementById('parte-litros').value,
+    saldo:   document.getElementById('parte-saldo').value,
+    tono:    document.getElementById('parte-tono').value,
+    s60:     document.getElementById('parte-6-0').value,
+    s63:     document.getElementById('parte-6-3').value,
+    s67:     document.getElementById('parte-6-7').value,
+    s69:     document.getElementById('parte-6-9').value,
+    s610:    document.getElementById('parte-6-10').value,
+    resumen: document.getElementById('parte-resumen').value,
+    oficialNombre: document.getElementById('parte-oficial-nombre').value,
+    oficialCargo:  document.getElementById('parte-oficial-cargo').value,
+  };
+
+  // Materiales
+  const recuperar=[], tripular=[];
+  for(let i=1;i<=5;i++){
+    const n=document.getElementById(`rec-nombre-${i}`)?.value;
+    const u=document.getElementById(`rec-ubic-${i}`)?.value;
+    if(n) recuperar.push({nombre:n,ubicacion:u||''});
+  }
+  for(let i=1;i<=5;i++){
+    const n=document.getElementById(`trip-nombre-${i}`)?.value;
+    const c=document.getElementById(`trip-cant-${i}`)?.value;
+    const u=document.getElementById(`trip-ubic-${i}`)?.value;
+    if(n) tripular.push({nombre:n,cantidad:c||'',ubicacion:u||''});
+  }
+
+  // Voluntarios
+  const voluntarios=(e.voluntarios?Array.from(e.voluntarios):[]).map(pid=>personal.find(x=>x.id===pid)).filter(Boolean);
+  const oficiales=voluntarios.filter(p=>p.cat==='oficial');
+  const noOficiales=voluntarios.filter(p=>p.cat!=='oficial');
+
+  // Obtener fecha del servicio
+  const fecha=new Date(e.timestamp);
+  const dia=String(fecha.getDate()).padStart(2,'0');
+  const mes=String(fecha.getMonth()+1).padStart(2,'0');
+  const anio=fecha.getFullYear();
+  const diasSemana=['D','L','M','X','J','V','S'];
+  const diaSem=diasSemana[fecha.getDay()];
+
+  // Carros despachados
+  const carrosDesp=(e.carros||[]).map(cid=>{
+    const c=CARROS.find(x=>x.id===cid); return c?c.nombre:cid;
+  }).join(', ');
+
+  // Generar HTML imprimible como ventana nueva
+  const htmlParte=`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Parte de Asistencia ${e.id}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;font-size:10px;color:#000;background:#fff;padding:15mm 15mm 10mm;}
+  .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #000;padding-bottom:6px;margin-bottom:8px;}
+  .header-logos{display:flex;align-items:center;gap:10px;}
+  .logo-placeholder{width:55px;height:55px;border:2px solid #ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#888;text-align:center;font-weight:700;}
+  .header-title{text-align:center;flex:1;}
+  .header-title h1{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+  .header-title p{font-size:9px;color:#444;margin-top:2px;}
+  .red-bar{background:#c00;height:6px;margin-bottom:8px;}
+  .black-bar{background:#000;height:4px;margin-bottom:10px;}
+  .section-title{font-size:12px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid #000;padding-bottom:3px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
+  .field{border:1px solid #666;padding:3px 6px;min-height:22px;}
+  .field-label{font-size:8px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px;}
+  .field-value{font-size:10px;font-weight:600;}
+  .horarios{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin:8px 0;}
+  .horario-item{border:1px solid #666;padding:3px 5px;text-align:center;}
+  .horario-label{font-size:7px;color:#555;font-weight:700;text-transform:uppercase;}
+  .horario-value{font-size:12px;font-weight:700;margin-top:2px;min-height:18px;}
+  .personal-table{width:100%;border-collapse:collapse;margin:6px 0;}
+  .personal-table th{background:#333;color:#fff;padding:3px 6px;font-size:9px;text-align:left;text-transform:uppercase;}
+  .personal-table td{border:1px solid #ccc;padding:3px 6px;font-size:9px;}
+  .personal-table tr:nth-child(even) td{background:#f5f5f5;}
+  .cat-header td{background:#666;color:#fff;font-weight:700;padding:2px 6px;font-size:9px;text-transform:uppercase;}
+  .material-table{width:100%;border-collapse:collapse;margin:4px 0;}
+  .material-table th{background:#555;color:#fff;padding:3px 6px;font-size:9px;}
+  .material-table td{border:1px solid #ccc;padding:4px 6px;font-size:9px;min-height:20px;}
+  .resumen-box{border:1px solid #666;padding:6px;min-height:80px;font-size:10px;line-height:1.6;margin:4px 0;}
+  .firma-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:20px;}
+  .firma-item{text-align:center;}
+  .firma-line{border-bottom:1px solid #000;height:35px;margin-bottom:4px;}
+  .firma-label{font-size:9px;color:#555;text-transform:uppercase;}
+  .folio-box{border:2px solid #000;padding:4px 10px;text-align:right;}
+  .folio-label{font-size:9px;font-weight:700;text-transform:uppercase;}
+  .folio-value{font-size:14px;font-weight:700;}
+  .inline-row{display:flex;gap:6px;align-items:flex-end;margin:3px 0;}
+  .inline-field{flex:1;}
+  @media print{body{padding:8mm;} .no-print{display:none;}}
+</style>
+</head>
+<body>
+
+<button class="no-print" onclick="window.print()" style="position:fixed;top:10px;right:10px;background:#e53935;color:#fff;border:none;padding:8px 18px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:700;z-index:999;">🖨 Imprimir / Guardar PDF</button>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo-placeholder">LOGO<br>1ª CÍA</div>
+  <div class="header-title">
+    <div style="font-size:8px;color:#555;">Av. Philippi 1065, Frutillar – Décima Región – Chile | Fono: 65 2421919</div>
+    <h1>Parte de Asistencia</h1>
+    <div style="font-size:9px;color:#555;">Primera Compañía "Germania" de Frutillar</div>
+  </div>
+  <div class="folio-box">
+    <div class="folio-label">Folio N°</div>
+    <div class="folio-value">${e.id} — ${anio}</div>
+    <div class="folio-label" style="margin-top:2px;">DET N°</div>
+    <div style="font-size:12px;font-weight:700;">___________</div>
+  </div>
+</div>
+<div class="red-bar"></div>
+
+<!-- Fecha y unidad -->
+<div style="display:flex;gap:6px;margin-bottom:6px;align-items:stretch;">
+  <div style="border:1px solid #666;padding:4px 8px;display:flex;gap:10px;align-items:center;">
+    ${['L','M','X','J','V','S','D'].map(d=>`<div style="text-align:center;"><div style="font-size:8px;color:#555;">${d}</div><div style="width:14px;height:14px;border:1px solid #666;margin-top:1px;${diaSem===d?'background:#333;':''}">&nbsp;</div></div>`).join('')}
+  </div>
+  <div style="border:1px solid #666;padding:4px 10px;flex:1;">
+    <div class="field-label">Día</div><div class="field-value">${dia}</div>
+  </div>
+  <div style="border:1px solid #666;padding:4px 10px;flex:1;">
+    <div class="field-label">Mes</div><div class="field-value">${mes}</div>
+  </div>
+  <div style="border:1px solid #666;padding:4px 10px;flex:1;">
+    <div class="field-label">Año</div><div class="field-value">${anio}</div>
+  </div>
+  <div style="border:1px solid #666;padding:4px 10px;flex:3;">
+    <div class="field-label">Unidad</div><div class="field-value">${carrosDesp||'—'}</div>
+  </div>
+</div>
+
+<!-- Registro horario -->
+<div class="horarios">
+  <div class="horario-item"><div class="horario-label">Tono</div><div class="horario-value">${datos.tono}</div></div>
+  <div class="horario-item"><div class="horario-label">6-0</div><div class="horario-value">${datos.s60}</div></div>
+  <div class="horario-item"><div class="horario-label">6-3</div><div class="horario-value">${datos.s63}</div></div>
+  <div class="horario-item"><div class="horario-label">6-7</div><div class="horario-value">${datos.s67}</div></div>
+  <div class="horario-item"><div class="horario-label">6-9</div><div class="horario-value">${datos.s69}</div></div>
+  <div class="horario-item"><div class="horario-label">6-10</div><div class="horario-value">${datos.s610}</div></div>
+</div>
+
+<!-- Clave y datos operacionales -->
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:4px;margin-bottom:4px;">
+  <div class="field"><div class="field-label">Clave</div><div class="field-value">${datos.clave}</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+    <div class="field"><div class="field-label">OBAC C.B.F.</div><div class="field-value">${datos.obacCbf}</div></div>
+    <div class="field"><div class="field-label">OBAC Cía.</div><div class="field-value">${datos.obacCia}</div></div>
+    <div class="field"><div class="field-label">6-14 Litros</div><div class="field-value">${datos.litros}</div></div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:3fr 1fr;gap:4px;margin-bottom:4px;">
+  <div class="field"><div class="field-label">Motivo</div><div class="field-value">${datos.motivo}</div></div>
+  <div class="field"><div class="field-label">Saldo tarjeta</div><div class="field-value">${datos.saldo}</div></div>
+</div>
+
+<div class="field" style="margin-bottom:4px;"><div class="field-label">Calle / Dirección</div><div class="field-value">${datos.calle}</div></div>
+<div style="display:grid;grid-template-columns:2fr 3fr;gap:4px;margin-bottom:8px;">
+  <div class="field"><div class="field-label">Población o Villa</div><div class="field-value">${datos.poblacion}</div></div>
+  <div class="field"><div class="field-label">Propietario y/o Arrendatario</div><div class="field-value">${datos.propietario}</div></div>
+</div>
+
+<!-- Personal por categorías -->
+<div class="section-title">Personal que Participó</div>
+${['oficial','honorario','bombero','aspirante','cadete'].map(cat=>{
+  const catLabel={'oficial':'Oficiales de Compañía','honorario':'Honorarios','bombero':'Bomberos','aspirante':'Aspirantes','cadete':'Cadetes'}[cat];
+  const miembros=voluntarios.filter(p=>p.cat===cat);
+  if(!miembros.length) return '';
+  const cols=3;
+  const rows=[];
+  for(let i=0;i<miembros.length;i+=cols) rows.push(miembros.slice(i,i+cols));
+  return `<table class="personal-table" style="margin-bottom:4px;">
+    <tr class="cat-header"><td colspan="${cols*2+1}">${catLabel}</td></tr>
+    <tr><th style="width:30px;">N°</th><th>Nombre</th><th style="width:20px;">LL</th><th style="width:20px;">C</th>
+        <th style="width:30px;">N°</th><th>Nombre</th><th style="width:20px;">LL</th>${cols>2?'<th style="width:20px;">C</th><th style="width:30px;">N°</th><th>Nombre</th><th style="width:20px;">LL</th>':''}</tr>
+    ${rows.map(row=>{
+      const cells=row.map(p=>`<td>${p.num||''}</td><td>${p.nombre}</td><td style="border:1px solid #aaa;"></td><td style="border:1px solid #aaa;"></td>`).join('');
+      const empty='<td></td><td></td><td></td><td></td>'.repeat(cols-row.length);
+      return `<tr>${cells}${empty}</tr>`;
+    }).join('')}
+  </table>`;
+}).join('')}
+
+<!-- Resumen del acto -->
+<div class="section-title" style="margin-top:10px;">Resumen del Acto</div>
+<div class="resumen-box">${datos.resumen.replace(/\n/g,'<br>')}</div>
+
+<!-- Materiales -->
+${recuperar.length||tripular.length?`
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+  ${recuperar.length?`<div>
+    <div class="section-title">Material por Recuperar</div>
+    <table class="material-table"><tr><th>Nombre</th><th>Ubicación</th></tr>
+    ${recuperar.map(r=>`<tr><td>${r.nombre}</td><td>${r.ubicacion}</td></tr>`).join('')}
+    </table></div>`:''}
+  ${tripular.length?`<div>
+    <div class="section-title">Material por Tripular</div>
+    <table class="material-table"><tr><th>Nombre</th><th>Cantidad</th><th>Ubicación en Móvil</th></tr>
+    ${tripular.map(t=>`<tr><td>${t.nombre}</td><td style="text-align:center;">${t.cantidad}</td><td>${t.ubicacion}</td></tr>`).join('')}
+    </table></div>`:''}
+</div>`:''}
+
+<!-- Totales y firma -->
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;">
+  <div>
+    <table style="border-collapse:collapse;">
+      <tr><td style="border:1px solid #666;padding:3px 10px;font-size:9px;font-weight:700;">OFICIALES CÍA</td><td style="border:1px solid #666;padding:3px 20px;font-size:11px;font-weight:700;">${oficiales.length}</td></tr>
+      <tr><td style="border:1px solid #666;padding:3px 10px;font-size:9px;font-weight:700;">VOLUNTARIOS</td><td style="border:1px solid #666;padding:3px 20px;font-size:11px;font-weight:700;">${noOficiales.length}</td></tr>
+      <tr><td style="border:1px solid #666;padding:3px 10px;font-size:9px;font-weight:700;background:#eee;">TOTAL</td><td style="border:1px solid #666;padding:3px 20px;font-size:13px;font-weight:700;background:#eee;">${voluntarios.length}</td></tr>
+    </table>
+    <div style="font-size:9px;color:#555;margin-top:6px;">Tomó estadística: ___________________________</div>
+  </div>
+  <div style="text-align:center;">
+    <div style="font-size:10px;font-weight:700;margin-bottom:25px;">Oficial o Bombero a Cargo</div>
+    <div style="border-bottom:1px solid #000;width:220px;margin:0 auto;"></div>
+    <div style="font-size:10px;font-weight:700;margin-top:4px;">${datos.oficialNombre||'________________________________'}</div>
+    <div style="font-size:9px;color:#555;">${datos.oficialCargo||'________________________________'}</div>
+    <div style="font-size:9px;color:#555;margin-top:2px;">FIRMA</div>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:14px;font-size:8px;color:#888;border-top:1px solid #ccc;padding-top:4px;">
+  Av. Philippi 1065, Frutillar – Décima Región – Chile | Fono: 65 2421919 | contacto@ffwfrutillar.cl
+</div>
+</body></html>`;
+
+  const w=window.open('','_blank','width=900,height=700');
+  w.document.write(htmlParte);
+  w.document.close();
+  showNotif('📄 Parte generado','Se abrió en nueva ventana. Usa Ctrl+P para guardar como PDF.');
+}
+
+// ===== INIT PARTE =====
 function init(){
   initSelector();
   renderCompaniasForm();
@@ -1470,6 +1982,7 @@ function init(){
   setTimeout(initCiaMarkers,800);
   addLog('INFO','lt-i','Mapa cargado — OpenStreetMap · Frutillar, Los Lagos, Chile');
   addLog('INFO','lt-i','<strong>Tabla de despacho cargada</strong> — 431 registros · Octubre 2025');
+  addLog('INFO','lt-i',`<strong>${personal.length} voluntarios</strong> cargados — 1ª Cía. "Germania" de Frutillar`);
   addLog('INFO','lt-i','Contactos WSP: Javier Lama · Andrés Aguirre — ingresa la API key en pestaña 💬');
 }
 init();
