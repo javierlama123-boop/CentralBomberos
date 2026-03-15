@@ -1138,31 +1138,53 @@ function renderActivas(){
 
   activas.forEach(e=>{
     const pCol=e.prioridad===1?'var(--red)':e.prioridad===2?'var(--amber)':'var(--blue)';
-    // Filas de compañías con control salida + disponible
+    // Filas de compañías: secuencia 5 estados con hora automática al hacer clic
     const ciasHTML=(e.companias||[]).map(cid=>{
       const cia=COMPANIAS.find(x=>x.id===cid);
       const color=cia?cia.color:'#888';
-      const ret=(e.retornadas||new Set()).has(cid);
       const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[cid]||cid;
       const carro=(e.carros||[]).map(id=>CARROS.find(x=>x.id===id)).find(c=>c&&c.cia===ciaNorm);
-      const salio=(e.salidasCarro||{})[cid];
-      return `<div class="cia-row" style="background:${ret?'rgba(16,185,129,.08)':color+'0d'};border:1px solid ${ret?'rgba(16,185,129,.3)':color+'33'};">
-        <div class="cia-num-badge" style="background:${color}22;color:${color};">${cia?cia.num:cid}</div>
-        <div class="cia-row-info">
-          <div class="cia-row-name" style="color:${ret?'var(--green)':'var(--text)'};">${cia?cia.nombre:cid}</div>
-          ${carro?`<div class="cia-row-carro">${carro.nombre} · ${carro.tipo}${carro.prio===2?' (apoyo)':''}</div>`:''}
+      const claves=e.clavesEstado||{};
+      const est=claves[cid]||{};  // { despacho, s60, s63, s67, s69, s610 }
+
+      // Definición de la secuencia de estados
+      const SECUENCIA=[
+        {key:'despacho', label:'Despacho',  emoji:'📡', color:'var(--blue)',   desc:'Hora de despacho'},
+        {key:'s60',      label:'6-0',        emoji:'🚒', color:'var(--amber)', desc:'Salió del cuartel'},
+        {key:'s63',      label:'6-3',        emoji:'📍', color:'#f97316',      desc:'Llegó al lugar'},
+        {key:'s67',      label:'6-7',        emoji:'✓',  color:'var(--teal)',  desc:'Emergencia controlada'},
+        {key:'s69',      label:'6-9',        emoji:'↩',  color:'var(--purple)','desc':'En retorno'},
+        {key:'s610',     label:'6-10',       emoji:'🏠', color:'var(--green)', desc:'Disponible en cuartel'},
+      ];
+
+      const botones=SECUENCIA.map(({key,label,emoji,color:c,desc})=>{
+        const hecho=est[key];
+        if(hecho){
+          return `<div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;background:${c}18;border:1px solid ${c}44;">
+            <span style="font-size:10px;">${emoji}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:${c};">${label} ${hecho}</span>
+          </div>`;
+        } else {
+          // Solo mostrar el botón del siguiente estado disponible
+          const prevKey=SECUENCIA[SECUENCIA.indexOf(SECUENCIA.find(x=>x.key===key))-1]?.key;
+          const prevHecho=prevKey?est[prevKey]:true; // despacho siempre disponible
+          if(!prevHecho) return ''; // no mostrar si el anterior no está completo
+          return `<button onclick="marcarClaveEstado('${e.id}','${cid}','${key}')" title="${desc}" style="display:flex;align-items:center;gap:3px;padding:2px 7px;border-radius:3px;background:${c}15;border:1px solid ${c}55;color:${c};cursor:pointer;font-size:9px;font-weight:700;">
+            <span>${emoji}</span><span>${label}</span>
+          </button>`;
+        }
+      }).join('');
+
+      const todosHechos=est['s610'];
+      return `<div style="background:${todosHechos?'rgba(16,185,129,.07)':color+'0d'};border:1px solid ${todosHechos?'rgba(16,185,129,.3)':color+'33'};border-radius:4px;padding:6px 8px;margin-bottom:3px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+          <div class="cia-num-badge" style="background:${color}22;color:${color};">${cia?cia.num:cid}</div>
+          <div class="cia-row-info">
+            <div class="cia-row-name" style="color:${todosHechos?'var(--green)':'var(--text)'};">${cia?cia.nombre:cid}</div>
+            ${carro?`<div class="cia-row-carro">${carro.nombre} · ${carro.tipo}${carro.prio===2?' (apoyo)':''}</div>`:''}
+          </div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
-          ${salio
-            ? `<div style="font-size:9px;color:var(--green);font-weight:700;">🚒 Salió ${salio}</div>`
-            : `<button onclick="marcarSalida('${e.id}','${cid}')" style="font-size:9px;background:rgba(245,158,11,.12);border:1px solid var(--amber);color:var(--amber);padding:2px 7px;border-radius:3px;cursor:pointer;font-weight:700;">🚒 Salió del cuartel</button>`
-          }
-          <label class="retorno-label" style="color:${ret?'var(--green)':'var(--text3)'};">
-            <input type="checkbox" ${ret?'checked':''} style="accent-color:var(--green);width:13px;height:13px;"
-              onchange="toggleRetorno('${e.id}','${cid}',this.checked)">
-            ${ret?'✓ Disponible':'Disponible'}
-          </label>
-        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${botones}</div>
       </div>`;
     }).join('');
 
@@ -1219,15 +1241,16 @@ function despachar(){
     carros:[],
     hora, timestamp:Date.now(), estado:'activa',
     retornadas:new Set(),
-    salidasCarro:{},   // ciaId → hora de salida del cuartel HH:MM
-    voluntarios:new Set(), // ids del personal que participó
+    clavesEstado:{},   // ciaId → { despacho, s60, s63, s67, s69, s610 }
+    voluntarios:new Set(),
     lat:clickedLatLng?clickedLatLng.lat:FLAT+(Math.random()-.5)*.01,
     lng:clickedLatLng?clickedLatLng.lng:FLNG+(Math.random()-.5)*.01,
   };
-  // Asignar carros según especialidad y prioridad
+  // Asignar carros según especialidad y prioridad + registrar hora de despacho
   e.companias.forEach(cid=>{
     const carro=carroADespachar(cid);
     if(carro){carro.estado='en-emergencia';carro.emergenciaId=id;e.carros.push(carro.id);}
+    e.clavesEstado[cid]={despacho:hora};
   });
   emergencias.push(e);
   const ciasStr=e.companias.map(id=>{const c=COMPANIAS.find(x=>x.id===id);return c?c.num:id;}).join(', ');
@@ -1628,16 +1651,41 @@ function showNotif(title,msg){
   _nt=setTimeout(()=>document.getElementById('notif').classList.remove('show'),4000);
 }
 
-// ===== SALIDA DEL CUARTEL =====
-function marcarSalida(emergId, ciaId){
+// ===== ESTADOS DE CLAVE (Despacho → 6-0 → 6-3 → 6-7 → 6-9 → 6-10) =====
+const CLAVE_INFO = {
+  despacho: { label:'Despacho',           logEmoji:'📡', logMsg:'despachado hacia' },
+  s60:      { label:'6-0 Salida cuartel', logEmoji:'🚒', logMsg:'salió del cuartel (6-0) hacia' },
+  s63:      { label:'6-3 Llegó al lugar', logEmoji:'📍', logMsg:'llegó al lugar (6-3) de' },
+  s67:      { label:'6-7 Controlada',     logEmoji:'✓',  logMsg:'reporta controlada (6-7) en' },
+  s69:      { label:'6-9 En retorno',     logEmoji:'↩',  logMsg:'en retorno (6-9) desde' },
+  s610:     { label:'6-10 Disponible',    logEmoji:'🏠', logMsg:'disponible en cuartel (6-10) luego de' },
+};
+
+function marcarClaveEstado(emergId, ciaId, claveKey){
   const e=emergencias.find(x=>x.id===emergId); if(!e) return;
-  if(!e.salidasCarro) e.salidasCarro={};
+  if(!e.clavesEstado)  e.clavesEstado={};
+  if(!e.clavesEstado[ciaId]) e.clavesEstado[ciaId]={};
   const n=new Date();
   const hora=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
-  e.salidasCarro[ciaId]=hora;
+  e.clavesEstado[ciaId][claveKey]=hora;
+  // Compatibilidad con sistema de retorno
+  if(claveKey==='s610'){
+    if(!e.retornadas) e.retornadas=new Set();
+    e.retornadas.add(ciaId);
+    // Liberar el carro
+    const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[ciaId]||ciaId;
+    (e.carros||[]).forEach(carroId=>{
+      const c=CARROS.find(x=>x.id===carroId);
+      if(c&&c.cia===ciaNorm){c.estado='disponible';c.emergenciaId=null;}
+    });
+    renderCompaniasEstado();
+    updateCiaMarkers();
+    renderCompaniasForm();
+  }
   const cia=COMPANIAS.find(x=>x.id===ciaId);
-  addLog('SALIDA','lt-a',`<strong>${ciaId}${cia?' — '+cia.nombre:''}</strong> salió del cuartel (${hora}) hacia <strong>${e.id}</strong>`);
-  showNotif('🚒 En ruta',(cia?cia.num:ciaId)+' salió del cuartel a las '+hora);
+  const info=CLAVE_INFO[claveKey]||{label:claveKey,logEmoji:'📌',logMsg:'actualizó'};
+  addLog(info.label,'lt-a',`${info.logEmoji} <strong>${ciaId}${cia?' — '+cia.nombre:''}</strong> ${info.logMsg} <strong>${e.id}</strong> a las <strong>${hora}</strong>`);
+  showNotif(`${info.logEmoji} ${info.label}`,`${cia?cia.num:ciaId} · ${hora} · ${e.id}`);
   renderActivas();
 }
 
@@ -1661,7 +1709,14 @@ function cargarDatosParte(){
   document.getElementById('parte-motivo').value=e.descripcion||e.tipo||'';
   document.getElementById('parte-calle').value=e.direccion||'';
   document.getElementById('parte-tono').value=e.hora||'';
-  document.getElementById('parte-6-0').value=e.salidasCarro?Object.values(e.salidasCarro)[0]||'':'';
+  // Tomar las horas del primer carro despachado
+  const primerCia=e.companias?.[0];
+  const est=primerCia&&e.clavesEstado?e.clavesEstado[primerCia]||{}:{};
+  document.getElementById('parte-6-0').value=est.s60||'';
+  document.getElementById('parte-6-3').value=est.s63||'';
+  document.getElementById('parte-6-7').value=est.s67||'';
+  document.getElementById('parte-6-9').value=est.s69||'';
+  document.getElementById('parte-6-10').value=est.s610||'';
   // Calcular 6-9 desde retorno si existe
   const ret=e.retornadas&&e.retornadas.size>0;
   // Renderizar grid de personal
