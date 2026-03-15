@@ -1138,53 +1138,57 @@ function renderActivas(){
 
   activas.forEach(e=>{
     const pCol=e.prioridad===1?'var(--red)':e.prioridad===2?'var(--amber)':'var(--blue)';
-    // Filas de compañías: secuencia 5 estados con hora automática al hacer clic
+    // Filas de compañías: UN botón que avanza al siguiente estado de la secuencia
+    const SEQ=[
+      {key:'despacho', label:'Despachado',          emoji:'📡', col:'var(--blue)',   next:'6-0 — Salió del cuartel'},
+      {key:'s60',      label:'6-0 · Salió cuartel', emoji:'🚒', col:'var(--amber)', next:'6-3 — Llegó al lugar'},
+      {key:'s63',      label:'6-3 · Llegó al lugar',emoji:'📍', col:'#f97316',      next:'6-7 — Emergencia controlada'},
+      {key:'s67',      label:'6-7 · Controlada',    emoji:'✓',  col:'var(--teal)',  next:'6-9 — Se retira del lugar'},
+      {key:'s69',      label:'6-9 · Se retira',     emoji:'↩',  col:'var(--purple)',next:'6-10 — Volvió al cuartel'},
+      {key:'s610',     label:'6-10 · En cuartel',   emoji:'🏠', col:'var(--green)', next:null},
+    ];
+
     const ciasHTML=(e.companias||[]).map(cid=>{
       const cia=COMPANIAS.find(x=>x.id===cid);
       const color=cia?cia.color:'#888';
       const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[cid]||cid;
       const carro=(e.carros||[]).map(id=>CARROS.find(x=>x.id===id)).find(c=>c&&c.cia===ciaNorm);
-      const claves=e.clavesEstado||{};
-      const est=claves[cid]||{};  // { despacho, s60, s63, s67, s69, s610 }
+      const est=(e.clavesEstado||{})[cid]||{};
 
-      // Definición de la secuencia de estados
-      const SECUENCIA=[
-        {key:'despacho', label:'Despacho',  emoji:'📡', color:'var(--blue)',   desc:'Hora de despacho'},
-        {key:'s60',      label:'6-0',        emoji:'🚒', color:'var(--amber)', desc:'Salió del cuartel'},
-        {key:'s63',      label:'6-3',        emoji:'📍', color:'#f97316',      desc:'Llegó al lugar'},
-        {key:'s67',      label:'6-7',        emoji:'✓',  color:'var(--teal)',  desc:'Emergencia controlada'},
-        {key:'s69',      label:'6-9',        emoji:'↩',  color:'var(--purple)','desc':'En retorno'},
-        {key:'s610',     label:'6-10',       emoji:'🏠', color:'var(--green)', desc:'Disponible en cuartel'},
-      ];
+      // Encontrar cuál es el último estado completado
+      let ultimoIdx=-1;
+      for(let i=0;i<SEQ.length;i++){
+        if(est[SEQ[i].key]) ultimoIdx=i; else break;
+      }
+      const terminado=ultimoIdx===SEQ.length-1;
 
-      const botones=SECUENCIA.map(({key,label,emoji,color:c,desc})=>{
-        const hecho=est[key];
-        if(hecho){
-          return `<div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;background:${c}18;border:1px solid ${c}44;">
-            <span style="font-size:10px;">${emoji}</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:${c};">${label} ${hecho}</span>
-          </div>`;
-        } else {
-          // Solo mostrar el botón del siguiente estado disponible
-          const prevKey=SECUENCIA[SECUENCIA.indexOf(SECUENCIA.find(x=>x.key===key))-1]?.key;
-          const prevHecho=prevKey?est[prevKey]:true; // despacho siempre disponible
-          if(!prevHecho) return ''; // no mostrar si el anterior no está completo
-          return `<button onclick="marcarClaveEstado('${e.id}','${cid}','${key}')" title="${desc}" style="display:flex;align-items:center;gap:3px;padding:2px 7px;border-radius:3px;background:${c}15;border:1px solid ${c}55;color:${c};cursor:pointer;font-size:9px;font-weight:700;">
-            <span>${emoji}</span><span>${label}</span>
-          </button>`;
-        }
-      }).join('');
+      // Badges de estados completados
+      const badges=SEQ.slice(0,ultimoIdx+1).map(s=>`
+        <div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;background:${s.col}18;border:1px solid ${s.col}44;flex-shrink:0;">
+          <span style="font-size:10px;">${s.emoji}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:${s.col};">${s.label} <span style="opacity:.7;">${est[s.key]}</span></span>
+        </div>`).join('');
 
-      const todosHechos=est['s610'];
-      return `<div style="background:${todosHechos?'rgba(16,185,129,.07)':color+'0d'};border:1px solid ${todosHechos?'rgba(16,185,129,.3)':color+'33'};border-radius:4px;padding:6px 8px;margin-bottom:3px;">
-        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+      // Botón del siguiente estado (el que viene)
+      const nextIdx=ultimoIdx+1;
+      const next=SEQ[nextIdx];
+      const btnNext=next?`
+        <button onclick="marcarClaveEstado('${e.id}','${cid}','${next.key}')"
+          style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--r);background:${next.col}20;border:1px solid ${next.col}66;color:${next.col};cursor:pointer;font-size:11px;font-weight:700;width:100%;margin-top:5px;justify-content:center;">
+          <span style="font-size:13px;">${next.emoji}</span>
+          <span>${next.next||next.label}</span>
+        </button>`:'';
+
+      return `<div style="background:${terminado?'rgba(16,185,129,.07)':color+'0d'};border:1px solid ${terminado?'rgba(16,185,129,.3)':color+'33'};border-radius:5px;padding:7px 9px;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:${badges||btnNext?'6px':'0'};">
           <div class="cia-num-badge" style="background:${color}22;color:${color};">${cia?cia.num:cid}</div>
           <div class="cia-row-info">
-            <div class="cia-row-name" style="color:${todosHechos?'var(--green)':'var(--text)'};">${cia?cia.nombre:cid}</div>
+            <div class="cia-row-name" style="color:${terminado?'var(--green)':'var(--text)'};">${cia?cia.nombre:cid}</div>
             ${carro?`<div class="cia-row-carro">${carro.nombre} · ${carro.tipo}${carro.prio===2?' (apoyo)':''}</div>`:''}
           </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;">${botones}</div>
+        ${badges?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:${btnNext?'0':'0'};">${badges}</div>`:''}
+        ${btnNext}
       </div>`;
     }).join('');
 
@@ -1669,10 +1673,10 @@ function marcarClaveEstado(emergId, ciaId, claveKey){
   const hora=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
   e.clavesEstado[ciaId][claveKey]=hora;
   // Compatibilidad con sistema de retorno
-  if(claveKey==='s610'){
+  if(claveKey==='s69'){
     if(!e.retornadas) e.retornadas=new Set();
     e.retornadas.add(ciaId);
-    // Liberar el carro
+    // Liberar el carro al retirarse del lugar (6-9)
     const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[ciaId]||ciaId;
     (e.carros||[]).forEach(carroId=>{
       const c=CARROS.find(x=>x.id===carroId);
