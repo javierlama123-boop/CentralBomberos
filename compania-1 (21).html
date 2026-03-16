@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>1ª Compañía "Germania" — Frutillar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c10;--bg2:#10131a;--bg3:#161b25;--bg4:#1e2535;
+  --border:#222c3e;--border2:#2d3a52;
+  --text:#dde3f0;--text2:#8899bb;--text3:#4a5878;
+  --red:#e03e3e;--amber:#f5a623;--green:#22c55e;
+  --blue:#3b82f6;--teal:#14b8a6;--purple:#a78bfa;
+  --r:5px;--rlg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.app{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.sb-logo{padding:16px;border-bottom:1px solid var(--border);}
+.sb-badge{background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;letter-spacing:1.5px;display:inline-block;margin-bottom:8px;}
+.sb-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:900;line-height:1.2;}
+.sb-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;padding:10px 16px 4px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;color:var(--text2);font-size:12px;font-weight:500;border-left:2px solid transparent;}
+.sb-item:hover{background:var(--bg3);color:var(--text);}
+.sb-item.active{background:rgba(224,62,62,.08);color:var(--red);border-left-color:var(--red);}
+.sb-badge-count{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;}
+.sb-footer{padding:12px 16px;border-top:1px solid var(--border);}
+.sb-footer a{font-size:11px;color:var(--text3);text-decoration:none;}
+.sb-footer a:hover{color:var(--text2);}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.page-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:900;display:flex;align-items:center;gap:10px;}
+.page-title span{font-size:12px;font-weight:500;color:var(--text3);font-family:'DM Sans',sans-serif;}
+.content{flex:1;overflow-y:auto;padding:20px;}
+.page{display:none;}
+.page.active{display:block;}
+
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:14px;}
+.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--text2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rlg);padding:14px 16px;}
+.stat-n{font-family:'Syne',sans-serif;font-size:30px;font-weight:900;line-height:1;margin-bottom:4px;}
+.stat-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;}
+
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{background:var(--bg3);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg3);}
+
+.badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.badge-of{background:rgba(59,130,246,.15);color:var(--blue);}
+.badge-hon{background:rgba(167,139,250,.15);color:var(--purple);}
+.badge-bom{background:rgba(34,197,94,.15);color:var(--green);}
+.badge-asp{background:rgba(245,166,35,.15);color:var(--amber);}
+.badge-cad{background:rgba(20,184,166,.15);color:var(--teal);}
+
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);}
+.fi,.fs,.fta{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--red);}
+.fi::placeholder{color:var(--text3);}
+.fta{resize:vertical;min-height:70px;}
+.fs option{background:var(--bg3);}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-secondary{background:var(--bg3);border:1px solid var(--border);color:var(--text2);}
+.btn-secondary:hover{color:var(--text);}
+.btn-danger{background:rgba(224,62,62,.1);border:1px solid rgba(224,62,62,.3);color:var(--red);}
+.btn-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+
+.vol-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.vol-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:900;flex-shrink:0;}
+
+.tipo-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;}
+.tipo-ejercicio{background:rgba(59,130,246,.15);color:var(--blue);}
+.tipo-servicio{background:rgba(20,184,166,.15);color:var(--teal);}
+.tipo-combustible{background:rgba(245,166,35,.15);color:var(--amber);}
+.tipo-mantencion{background:rgba(167,139,250,.15);color:var(--purple);}
+.tipo-traslado{background:rgba(34,197,94,.15);color:var(--green);}
+.tipo-otro{background:rgba(74,88,120,.15);color:var(--text3);}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:520px;max-width:96vw;max-height:88vh;overflow-y:auto;}
+.modal-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}
+.modal-close{width:26px;height:26px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:18px;}
+.modal-foot{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+.notif{display:none;position:fixed;top:60px;right:14px;z-index:8000;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:12px 14px;max-width:280px;}
+.notif.show{display:block;}
+.notif-title{font-weight:700;font-size:12px;margin-bottom:3px;}
+.notif-msg{font-size:11px;color:var(--text2);}
+
+.sdiv{padding:4px 12px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg);margin-bottom:2px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-badge">🚒 1ª Cía.</div>
+    <div class="sb-title">Primera<br>Compañía</div>
+    <div class="sb-sub">"Germania" · Frutillar</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">General</div>
+    <div class="sb-item active" onclick="navTo('dashboard',this)">📊 Dashboard</div>
+    <div class="sb-section">Operaciones</div>
+    <div class="sb-item" onclick="navTo('salidas',this)">🚗 Salidas <span class="sb-badge-count" id="nav-badge-salidas" style="display:none">0</span></div>
+    <div class="sb-item" onclick="navTo('partes',this)">📄 Partes</div>
+    <div class="sb-section">Administración</div>
+    <div class="sb-item" onclick="navTo('voluntarios',this)">👥 Voluntarios</div>
+    <div class="sb-item" onclick="navTo('carros',this)">🚒 Carros</div>
+  </nav>
+  <div class="sb-footer">
+    <a href="index.html">← Central de Alarmas</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title-txt">📊 Dashboard <span>Vista general</span></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-family:'DM Mono',monospace;font-size:14px;" id="clock-top">--:--:--</div>
+      <button class="btn btn-primary btn-sm" onclick="navTo('salidas',null);abrirModalSalida()">+ Nueva Salida</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="stats-row">
+        <div class="stat"><div class="stat-n" id="ds-vol" style="color:var(--blue)">0</div><div class="stat-l">Voluntarios</div></div>
+        <div class="stat"><div class="stat-n" id="ds-car" style="color:var(--green)">0</div><div class="stat-l">Carros disp.</div></div>
+        <div class="stat"><div class="stat-n" id="ds-sal" style="color:var(--amber)">0</div><div class="stat-l">Salidas mes</div></div>
+        <div class="stat"><div class="stat-n" id="ds-par" style="color:var(--purple)">0</div><div class="stat-l">Partes</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+        <div class="card">
+          <div class="card-title">Últimas Salidas <button class="btn btn-secondary btn-sm" onclick="navTo('salidas',document.querySelector('[onclick*=salidas]'))">Ver todas</button></div>
+          <div id="ds-last-salidas"><div style="font-size:11px;color:var(--text3)">Sin salidas</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Estado de Carros</div>
+          <div id="ds-estado-carros"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Dotación por Categoría</div>
+        <div id="ds-dotacion-cats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;"></div>
+      </div>
+    </div>
+
+    <!-- SALIDAS -->
+    <div id="page-salidas" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text3)"><span id="cnt-salidas-total">0</span> salidas</div>
+        <button class="btn btn-primary" onclick="abrirModalSalida()">+ Registrar Salida</button>
+      </div>
+      <div class="card" style="padding:10px 14px;margin-bottom:10px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select class="fs" id="filtro-tipo" onchange="renderSalidas()" style="width:160px;font-size:11px;padding:5px 8px;">
+            <option value="">Todos los tipos</option>
+            <option value="ejercicio">Ejercicio</option>
+            <option value="servicio">Servicio</option>
+            <option value="combustible">Combustible</option>
+            <option value="mantencion">Mantención</option>
+            <option value="traslado">Traslado</option>
+            <option value="otro">Otro</option>
+          </select>
+          <input class="fi" id="filtro-fecha" type="month" onchange="renderSalidas()" style="width:150px;font-size:11px;padding:5px 8px;">
+          <button class="btn btn-secondary btn-sm" onclick="limpiarFiltrosSalidas()">✕ Limpiar</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="tbl">
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Carro(s)</th><th>Motivo</th><th>Salida</th><th>Regreso</th><th>KM</th><th>Conductor</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="tbl-salidas-body"><tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text3)">Sin salidas</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PARTES -->
+    <div id="page-partes" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text3)"><span id="cnt-partes">0</span> partes</div>
+      </div>
+      <div id="partes-list"><div class="card" style="text-align:center;color:var(--text3);font-size:12px;">Sin partes generados</div></div>
+    </div>
+
+    <!-- VOLUNTARIOS -->
+    <div id="page-voluntarios" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="display:flex;gap:8px;">
+          <input class="fi" id="buscar-vol" placeholder="Buscar..." oninput="renderVoluntarios()" style="width:200px;font-size:12px;padding:6px 10px;">
+          <select class="fs" id="filtro-cat-vol" onchange="renderVoluntarios()" style="width:140px;font-size:12px;padding:6px 8px;">
+            <option value="">Todas las categorías</option>
+            <option value="oficial">Oficiales</option>
+            <option value="honorario">Honorarios</option>
+            <option value="bombero">Bomberos</option>
+            <option value="aspirante">Aspirantes</option>
+            <option value="cadete">Cadetes</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:12px;color:var(--text3)" id="cnt-vol-total"></span>
+          <button class="btn btn-primary" onclick="abrirModalVoluntario(null)">+ Agregar</button>
+        </div>
+      </div>
+      <div id="vol-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px;"></div>
+    </div>
+
+    <!-- CARROS -->
+    <div id="page-carros" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:12px;color:var(--text3)" id="cnt-carros">0 unidades</span>
+        <button class="btn btn-primary" onclick="abrirModalCarro(null)">+ Agregar</button>
+      </div>
+      <div id="carros-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px;"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- MODAL VOLUNTARIO -->
+<div class="overlay" id="modal-voluntario">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-vol-titulo">Voluntario</div><button class="modal-close" onclick="closeModal('modal-voluntario')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="vol-edit-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="fg"><div class="fl">Nombre Completo</div><input class="fi" id="vol-nombre" placeholder="Apellido Nombre"></div>
+        <div class="fg"><div class="fl">N° de Bombero</div><input class="fi" id="vol-num" placeholder="Ej: 124" type="number"></div>
+        <div class="fg"><div class="fl">Categoría</div>
+          <select class="fs" id="vol-cat">
+            <option value="oficial">Oficial</option>
+            <option value="honorario">Honorario</option>
+            <option value="bombero" selected>Bombero</option>
+            <option value="aspirante">Aspirante</option>
+            <option value="cadete">Cadete</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl">Cargo</div><input class="fi" id="vol-cargo" placeholder="Ej: Capitán, Bombero..."></div>
+        <div class="fg"><div class="fl">Teléfono</div><input class="fi" id="vol-tel" placeholder="+56 9 XXXX XXXX"></div>
+        <div class="fg"><div class="fl">WhatsApp</div><input class="fi" id="vol-wsp" placeholder="+56912345678"></div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Email</div><input class="fi" id="vol-email" type="email" placeholder="email@ejemplo.com"></div>
+        <div class="fg"><div class="fl">Estado</div>
+          <select class="fs" id="vol-estado">
+            <option value="activo">Activo</option>
+            <option value="licencia">Con Licencia</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl">Fecha Ingreso</div><input class="fi" type="date" id="vol-ingreso"></div>
+        <div class="fg" style="grid-column:1/-1">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);">
+            <input type="checkbox" id="vol-conductor" style="accent-color:var(--red);width:14px;height:14px;">
+            <div><div style="font-size:12px;font-weight:600;">🚒 Habilitado para conducir</div><div style="font-size:10px;color:var(--text3)">Aparecerá en selector de conductor</div></div>
+          </label>
+        </div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Observaciones</div><textarea class="fta" id="vol-obs" placeholder="Especialidades, notas..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-voluntario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarVoluntario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CARRO -->
+<div class="overlay" id="modal-carro">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-carro-titulo">Carro</div><button class="modal-close" onclick="closeModal('modal-carro')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="carro-edit-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="fg"><div class="fl">Nombre / Código</div><input class="fi" id="c-nombre" placeholder="Ej: B1, R1"></div>
+        <div class="fg"><div class="fl">Tipo</div>
+          <select class="fs" id="c-tipo">
+            <option value="Bomba">Bomba</option><option value="Bomba Apoyo">Bomba Apoyo</option>
+            <option value="Rescate">Rescate</option><option value="Forestal">Forestal</option>
+            <option value="Escala">Escala</option><option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl">Especialidad</div>
+          <select class="fs" id="c-espec">
+            <option value="B">B — Bomba</option><option value="BX">BX — Apoyo</option>
+            <option value="R">R — Rescate</option><option value="Z">Z — Escala</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl">Prioridad</div>
+          <select class="fs" id="c-prio">
+            <option value="1">1 — Principal</option><option value="2">2 — Apoyo</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl">Patente</div><input class="fi" id="c-patente" placeholder="CBFR-B1"></div>
+        <div class="fg"><div class="fl">Año</div><input class="fi" type="number" id="c-anio" placeholder="2024"></div>
+        <div class="fg"><div class="fl">Marca / Modelo</div><input class="fi" id="c-modelo" placeholder="Mercedes Benz"></div>
+        <div class="fg"><div class="fl">KM actuales</div><input class="fi" type="number" id="c-km" placeholder="0"></div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Estado</div>
+          <select class="fs" id="c-estado">
+            <option value="disponible">Disponible</option>
+            <option value="mantencion">En Mantención</option>
+            <option value="fuera-servicio">Fuera de Servicio</option>
+          </select>
+        </div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Observaciones</div><textarea class="fta" id="c-obs"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-carro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCarro()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SALIDA -->
+<div class="overlay" id="modal-salida">
+  <div class="modal" style="width:600px;">
+    <div class="modal-head"><div class="modal-title" id="modal-salida-titulo">Registrar Salida</div><button class="modal-close" onclick="closeModal('modal-salida')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="salida-edit-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="fg"><div class="fl">Fecha</div><input class="fi" type="date" id="s-fecha"></div>
+        <div class="fg"><div class="fl">Tipo de Actividad</div>
+          <select class="fs" id="s-tipo">
+            <option value="ejercicio">🏋 Ejercicio</option>
+            <option value="servicio">🔧 Servicio</option>
+            <option value="combustible">⛽ Combustible</option>
+            <option value="mantencion">🔩 Mantención</option>
+            <option value="traslado">🚛 Traslado</option>
+            <option value="otro">📌 Otro</option>
+          </select>
+        </div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Motivo</div><input class="fi" id="s-motivo" placeholder="Descripción de la actividad"></div>
+        <div class="fg"><div class="fl">Carro(s)</div><div id="s-carros-checks" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:5px;"></div></div>
+        <div class="fg"><div class="fl">Conductor</div><select class="fs" id="s-conductor"><option value="">— Seleccionar —</option></select></div>
+        <div class="fg"><div class="fl">Hora Salida</div><input class="fi" type="time" id="s-hora-salida"></div>
+        <div class="fg"><div class="fl">Hora Regreso</div><input class="fi" type="time" id="s-hora-regreso"></div>
+        <div class="fg"><div class="fl">KM Salida</div><input class="fi" type="number" id="s-km-salida" placeholder="0"></div>
+        <div class="fg"><div class="fl">KM Regreso</div><input class="fi" type="number" id="s-km-regreso" placeholder="0"></div>
+        <div class="fg"><div class="fl">Combustible (Lts)</div><input class="fi" type="number" id="s-combustible" placeholder="0"></div>
+        <div class="fg"><div class="fl">Combustible ($)</div><input class="fi" type="number" id="s-combustible-costo" placeholder="0"></div>
+        <div class="fg"><div class="fl">Destino</div><input class="fi" id="s-destino" placeholder="Lugar de la actividad"></div>
+        <div class="fg"><div class="fl">Responsable a Cargo</div><select class="fs" id="s-responsable"><option value="">— Seleccionar —</option></select></div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="fl" style="margin-bottom:6px;">Personal Participante</div>
+        <div id="s-personal-checks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px;max-height:200px;overflow-y:auto;"></div>
+      </div>
+      <div style="margin-top:10px;"><div class="fl" style="margin-bottom:6px;">Observaciones</div><textarea class="fta" id="s-obs" style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-salida')">Cancelar</button>
+      <button class="btn btn-success" onclick="guardarSalidaEnProceso()">💾 En Proceso</button>
+      <button class="btn btn-primary" onclick="guardarSalida()">✓ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER SALIDA -->
+<div class="overlay" id="modal-ver-salida">
+  <div class="modal" style="width:600px;">
+    <div class="modal-head"><div class="modal-title">Detalle de Salida</div><button class="modal-close" onclick="closeModal('modal-ver-salida')">×</button></div>
+    <div class="modal-body" id="ver-salida-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-ver-salida')">Cerrar</button>
+      <button class="btn btn-primary" onclick="imprimirSalida()">🖨 Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"><div class="notif-title" id="notif-title"></div><div class="notif-msg" id="notif-msg"></div></div>
+
+<script>
+// ===== CONSTANTES =====
+var CAT_ORDER  = {oficial:0, honorario:1, bombero:2, aspirante:3, cadete:4};
+var CAT_LABEL  = {oficial:'Oficial', honorario:'Honorario', bombero:'Bombero', aspirante:'Aspirante', cadete:'Cadete'};
+var CAT_BADGE  = {oficial:'badge-of', honorario:'badge-hon', bombero:'badge-bom', aspirante:'badge-asp', cadete:'badge-cad'};
+var TIPO_LABEL = {ejercicio:'🏋 Ejercicio', servicio:'🔧 Servicio', combustible:'⛽ Combustible', mantencion:'🔩 Mantención', traslado:'🚛 Traslado', otro:'📌 Otro'};
+var PAGE_TITLES = {
+  dashboard: ['📊 Dashboard','Vista general'],
+  salidas:   ['🚗 Salidas','Registro de salidas'],
+  partes:    ['📄 Partes','Partes de asistencia'],
+  voluntarios:['👥 Voluntarios','Gestión de dotación'],
+  carros:    ['🚒 Carros','Gestión de unidades']
+};
+
+// ===== DATOS =====
+</script>
+<script id="datos-voluntarios">
+let voluntarios = [
+  // OFICIALES
+  {id:'P41', num:'130',nombre:'Cristóbal Manríquez Sepúlveda',cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P101',num:'160',nombre:'Raúl Loaiza Hölck',             cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P102',num:'142',nombre:'Joaquín Soto Hernández',         cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P103',num:'157',nombre:'Gabriel Gallrdo Cáceres',        cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P104',num:'154',nombre:'Fabián Cares Hidalgo',           cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P105',num:'141',nombre:'Nicolás Torres Pérez',           cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P71', num:'127',nombre:'María Fuentes Cáceres',          cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P106',num:'155',nombre:'Cristian Urrutia Santibáñez',    cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P107',num:'112',nombre:'Marco Montenegro Campos',        cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P159',num:'159',nombre:'Jaime Moreira Duran',            cargo:'Oficial',  cat:'oficial',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  // HONORARIOS
+  {id:'P110',num:'110',nombre:'Alberto Guzmán Muñoz',           cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P111',num:'111',nombre:'Tomás Vidal Abello',             cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P113',num:'113',nombre:'Marcelo Schmidt Klein',          cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P114',num:'114',nombre:'Cristóbal Gutiérrez Ellies',     cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P115',num:'115',nombre:'Cristian Usabiaga Alvarado',     cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P116',num:'116',nombre:'Ramón Vidal Oyarzo',             cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P117',num:'117',nombre:'Claudio Hausdorf Hausdorf',      cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P118',num:'118',nombre:'Mauricio Barrientos Núñez',      cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P119',num:'119',nombre:'José Carrasco Barria',           cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P120',num:'120',nombre:'Alejandro Schmidt Klein',        cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P121',num:'121',nombre:'Cristóbal Scheel Lopetegui',     cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P122',num:'122',nombre:'José Vargas Padilla',            cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P123',num:'123',nombre:'Ricardo Haro Guerrero',          cargo:'Honorario',cat:'honorario', estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  // BOMBEROS
+  {id:'P124',num:'124',nombre:'Javier Lama Díaz',               cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'+56982290186',email:'',ingreso:'',obs:''},
+  {id:'P125',num:'125',nombre:'Joaquín Díaz Nannig',            cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P126',num:'126',nombre:'Walter Brecht Winkler',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P128',num:'128',nombre:'Rodrigo Astete Contreras',       cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P129',num:'129',nombre:'Ricardo Bórquez Alvarado',       cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P131',num:'131',nombre:'Matías Miranda Arango',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P132',num:'132',nombre:'Francisco Carrasco von B.',      cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P133',num:'133',nombre:'Diego Catalán Catalán',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P134',num:'134',nombre:'Andrés Ríos Carretta',           cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P135',num:'135',nombre:'Tomás Manríquez Sepúlveda',      cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P136',num:'136',nombre:'Mauricio Troncoso Jara',         cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P137',num:'137',nombre:'Patricio Delgado González',      cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P138',num:'138',nombre:'Yuli Salas López',               cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P139',num:'139',nombre:'Cristian García Paillaleve',     cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P140',num:'140',nombre:'Gonzalo Cifuentes Vladillo',     cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P143',num:'143',nombre:'Amílcar Zubiría Baretto',        cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P144',num:'144',nombre:'Álvaro Almonacid Cancino',       cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P145',num:'145',nombre:'Fernando Pozo Virjili',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P146',num:'146',nombre:'Max Richter Gaete',              cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P147',num:'147',nombre:'Pablo Sandoval Rubilar',         cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P148',num:'148',nombre:'José Álvarez Galindo',           cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P149',num:'149',nombre:'Juan Bastidas Arteaga',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P150',num:'150',nombre:'Cristian Frêne Troquian',        cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P151',num:'151',nombre:'Bastián Valderas Meza',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P152',num:'152',nombre:'Pedro Camplá Araya',             cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P153',num:'153',nombre:'Leonardo Moreira Duran',         cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P156',num:'156',nombre:'Natalia Villarroel Ubeda',       cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P158',num:'158',nombre:'Andrés Said Garate',             cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P161',num:'161',nombre:'Felipe Araneda Burgos',          cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P162',num:'162',nombre:'Joaquín Frêne Troquian',         cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P163',num:'163',nombre:'Marcela Saavedra R.',            cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P164',num:'164',nombre:'Yasmín Garces Cid',              cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'P165',num:'165',nombre:'Víctor Acuña Picarte',           cargo:'Bombero',  cat:'bombero',   estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  // ASPIRANTES
+  {id:'PA1',num:'',nombre:'Patricio Werner Elgueta',   cargo:'Aspirante',cat:'aspirante',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PA2',num:'',nombre:'Cristóbal Carrasco von B.', cargo:'Aspirante',cat:'aspirante',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PA3',num:'',nombre:'Luis Escobar Gallardo',     cargo:'Aspirante',cat:'aspirante',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PA4',num:'',nombre:'Rolf Henríquez von B.',     cargo:'Aspirante',cat:'aspirante',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PA5',num:'',nombre:'Antonia Álvarez Zalazar',   cargo:'Aspirante',cat:'aspirante',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PA6',num:'',nombre:'Alexandra Oré Menendez',    cargo:'Aspirante',cat:'aspirante',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  // CADETES
+  {id:'PC1',num:'',nombre:'Gustavo San Martin',          cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PC2',num:'',nombre:'Silvestre Galecio Salvatierra',cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PC3',num:'',nombre:'Martina Paillaleve',           cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PC4',num:'',nombre:'Gastón Camplá Araya',          cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PC5',num:'',nombre:'Felipe Troncoso',              cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PC6',num:'',nombre:'José Franco Cerón',            cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+  {id:'PC7',num:'',nombre:'Antonella Valdera',            cargo:'Cadete',cat:'cadete',estado:'activo',tel:'',wsp:'',email:'',ingreso:'',obs:''},
+];
+</script>
+<script id="datos-carros">
+let carros = [
+  {id:'B1', nombre:'B1', tipo:'Bomba',       espec:'B', prio:1, patente:'ZP-9341', anio:'2008', modelo:'Mercedes-Benz Atego 1726', km:187420, estado:'disponible', obs:'Bomba principal. Tanque 3.000 lts.'},
+  {id:'BX1',nombre:'BX1',tipo:'Bomba Apoyo', espec:'BX',prio:2, patente:'ZP-7823', anio:'2003', modelo:'Mercedes-Benz Sprinter 416',km:241850, estado:'disponible', obs:'Carro de apoyo logístico.'},
+  {id:'R1', nombre:'R1', tipo:'Rescate',     espec:'R', prio:1, patente:'ZP-8812', anio:'2015', modelo:'Mercedes-Benz Sprinter 519', km:98340, estado:'disponible', obs:'Equipado con herramientas hidráulicas Holmatro.'}
+];
+</script>
+<script>
+var salidas = [
+  {
+    "id": "S1",
+    "fecha": "2026-03-01",
+    "tipo": "ejercicio",
+    "motivo": "Ejercicio de mangueras en cuartel",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "09:00",
+    "horaRegreso": "12:30",
+    "kmSalida": "15420",
+    "kmRegreso": "15435",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Cuartel 1ª Cía.",
+    "personal": [
+      "P41",
+      "P104",
+      "P124",
+      "P125",
+      "P128",
+      "P131",
+      "P134"
+    ],
+    "obs": "Ejercicio mensual obligatorio. Todos los carros en buen estado.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S2",
+    "fecha": "2026-03-03",
+    "tipo": "combustible",
+    "motivo": "Carga de combustible B1",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "10:15",
+    "horaRegreso": "10:55",
+    "kmSalida": "15435",
+    "kmRegreso": "15442",
+    "combustible": "80",
+    "combustibleCosto": "85000",
+    "destino": "Copec Frutillar",
+    "personal": [
+      "P104",
+      "P124"
+    ],
+    "obs": "",
+    "responsable": "P104",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S3",
+    "fecha": "2026-03-05",
+    "tipo": "mantencion",
+    "motivo": "Mantención preventiva BX1 — revisión frenos",
+    "carros": [
+      "BX1"
+    ],
+    "conductor": "P107",
+    "horaSalida": "08:00",
+    "horaRegreso": "17:00",
+    "kmSalida": "8210",
+    "kmRegreso": "8215",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Taller Mecánico Osorno",
+    "personal": [
+      "P107"
+    ],
+    "obs": "Frenos traseros reemplazados. Carro en perfectas condiciones.",
+    "responsable": "P107",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S4",
+    "fecha": "2026-03-07",
+    "tipo": "ejercicio",
+    "motivo": "Simulacro nocturno de incendio forestal",
+    "carros": [
+      "B1",
+      "BX1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "20:00",
+    "horaRegreso": "23:30",
+    "kmSalida": "15442",
+    "kmRegreso": "15468",
+    "combustible": "25",
+    "combustibleCosto": "26500",
+    "destino": "Sector Los Bajos",
+    "personal": [
+      "P41",
+      "P101",
+      "P104",
+      "P107",
+      "P124",
+      "P125",
+      "P126",
+      "P128",
+      "P129",
+      "P131"
+    ],
+    "obs": "Simulacro coordinado con 3ª Cía. Buenos resultados.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S5",
+    "fecha": "2026-03-10",
+    "tipo": "servicio",
+    "motivo": "Apoyo control de tráfico accidente Ruta 5",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "14:20",
+    "horaRegreso": "16:45",
+    "kmSalida": "15468",
+    "kmRegreso": "15491",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Ruta 5 Sur km 1012",
+    "personal": [
+      "P104",
+      "P124",
+      "P134",
+      "P136"
+    ],
+    "obs": "Colaboración con Carabineros. Sin heridos graves.",
+    "responsable": "P124",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S6",
+    "fecha": "2026-03-12",
+    "tipo": "traslado",
+    "motivo": "Traslado material para ejercicio regional",
+    "carros": [
+      "BX1"
+    ],
+    "conductor": "P107",
+    "horaSalida": "07:30",
+    "horaRegreso": "19:00",
+    "kmSalida": "8215",
+    "kmRegreso": "8318",
+    "combustible": "110",
+    "combustibleCosto": "116500",
+    "destino": "Puerto Montt — Cuartel CB",
+    "personal": [
+      "P107",
+      "P128",
+      "P135"
+    ],
+    "obs": "Material entregado sin novedades.",
+    "responsable": "P107",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S7",
+    "fecha": "2026-03-14",
+    "tipo": "ejercicio",
+    "motivo": "Ejercicio de rescate vehicular",
+    "carros": [
+      "B1",
+      "R1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "09:00",
+    "horaRegreso": "13:00",
+    "kmSalida": "15491",
+    "kmRegreso": "15510",
+    "combustible": "15",
+    "combustibleCosto": "15900",
+    "destino": "Sector industrial Frutillar",
+    "personal": [
+      "P41",
+      "P102",
+      "P104",
+      "P107",
+      "P124",
+      "P125",
+      "P126",
+      "P128",
+      "P131",
+      "P134",
+      "P136",
+      "P137"
+    ],
+    "obs": "Ejercicio conjunto con equipo de rescate. Excelente coordinación.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S8",
+    "fecha": "2026-03-14",
+    "tipo": "combustible",
+    "motivo": "Carga combustible R1",
+    "carros": [
+      "R1"
+    ],
+    "conductor": "P102",
+    "horaSalida": "15:30",
+    "horaRegreso": "16:10",
+    "kmSalida": "3890",
+    "kmRegreso": "3896",
+    "combustible": "45",
+    "combustibleCosto": "47700",
+    "destino": "Copec Frutillar",
+    "personal": [
+      "P102"
+    ],
+    "obs": "",
+    "responsable": "P102",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S9",
+    "fecha": "2026-03-16",
+    "tipo": "servicio",
+    "motivo": "Revisión hidrantes sector centro",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "10:00",
+    "horaRegreso": "12:30",
+    "kmSalida": "15510",
+    "kmRegreso": "15525",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Frutillar Bajo — Centro",
+    "personal": [
+      "P104",
+      "P124",
+      "P139",
+      "P140"
+    ],
+    "obs": "4 hidrantes revisados, 1 con baja presión — reportado a sanitaria.",
+    "responsable": "P124",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S10",
+    "fecha": "2026-03-16",
+    "tipo": "ejercicio",
+    "motivo": "Instrucción nuevos voluntarios — manejo de mangueras",
+    "carros": [],
+    "conductor": "",
+    "horaSalida": "18:00",
+    "horaRegreso": "21:00",
+    "kmSalida": "",
+    "kmRegreso": "",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Cuartel 1ª Cía.",
+    "personal": [
+      "P41",
+      "P124",
+      "PA1",
+      "PA2",
+      "PA3",
+      "PA4",
+      "PA5",
+      "PA6",
+      "PC1",
+      "PC2",
+      "PC3",
+      "PC4"
+    ],
+    "obs": "Primera instrucción formal de los aspirantes y cadetes nuevos.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S11",
+    "fecha": "2026-03-16",
+    "tipo": "mantencion",
+    "motivo": "Revisión bomba de agua B1",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "",
+    "horaSalida": "08:00",
+    "horaRegreso": "",
+    "kmSalida": "15525",
+    "kmRegreso": "",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Cuartel 1ª Cía.",
+    "personal": [
+      "P107"
+    ],
+    "obs": "En revisión — se espera diagnóstico hoy.",
+    "responsable": "P107",
+    "estado": "en-proceso"
+  },
+  {
+    "id": "S12",
+    "fecha": "2026-02-03",
+    "tipo": "ejercicio",
+    "motivo": "Ejercicio nocturno — ataque interior de incendio",
+    "carros": [
+      "B1",
+      "R1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "21:00",
+    "horaRegreso": "00:30",
+    "kmSalida": "15310",
+    "kmRegreso": "15335",
+    "combustible": "20",
+    "combustibleCosto": "21200",
+    "destino": "Cuartel 1ª Cía.",
+    "personal": [
+      "P41",
+      "P102",
+      "P104",
+      "P107",
+      "P124",
+      "P125",
+      "P128",
+      "P131",
+      "P134",
+      "P136",
+      "P137",
+      "PA1",
+      "PA2"
+    ],
+    "obs": "Primer ejercicio nocturno del año. Participación excelente.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S13",
+    "fecha": "2026-02-10",
+    "tipo": "combustible",
+    "motivo": "Carga combustible BX1 y R1",
+    "carros": [
+      "BX1",
+      "R1"
+    ],
+    "conductor": "P107",
+    "horaSalida": "09:30",
+    "horaRegreso": "10:20",
+    "kmSalida": "8180",
+    "kmRegreso": "8187",
+    "combustible": "95",
+    "combustibleCosto": "100700",
+    "destino": "Copec Frutillar",
+    "personal": [
+      "P107",
+      "P125"
+    ],
+    "obs": "",
+    "responsable": "P107",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S14",
+    "fecha": "2026-02-14",
+    "tipo": "servicio",
+    "motivo": "Apoyo en incendio forestal sector Tegualda",
+    "carros": [
+      "B1",
+      "BX1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "13:15",
+    "horaRegreso": "20:45",
+    "kmSalida": "15335",
+    "kmRegreso": "15368",
+    "combustible": "35",
+    "combustibleCosto": "37100",
+    "destino": "Sector Tegualda km 5",
+    "personal": [
+      "P41",
+      "P101",
+      "P104",
+      "P107",
+      "P124",
+      "P125",
+      "P126",
+      "P128",
+      "P131",
+      "P134",
+      "P136",
+      "P137",
+      "P139",
+      "P140"
+    ],
+    "obs": "Coordinación con 3ª Cía y CONAF. Incendio controlado a las 19:30.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S15",
+    "fecha": "2026-02-18",
+    "tipo": "mantencion",
+    "motivo": "Cambio neumáticos B1",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "",
+    "horaSalida": "08:00",
+    "horaRegreso": "13:00",
+    "kmSalida": "15368",
+    "kmRegreso": "15368",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Neumáticos Frutillar",
+    "personal": [
+      "P107",
+      "P128"
+    ],
+    "obs": "4 neumáticos traseros reemplazados. Se recomienda revisión frontal en 5.000 km.",
+    "responsable": "P107",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S16",
+    "fecha": "2026-02-22",
+    "tipo": "ejercicio",
+    "motivo": "Curso manejo defensivo — conductores habilitados",
+    "carros": [
+      "B1",
+      "BX1",
+      "R1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "08:00",
+    "horaRegreso": "17:00",
+    "kmSalida": "15368",
+    "kmRegreso": "15410",
+    "combustible": "45",
+    "combustibleCosto": "47700",
+    "destino": "Cuartel CB Puerto Montt",
+    "personal": [
+      "P104",
+      "P107",
+      "P102",
+      "P125"
+    ],
+    "obs": "Certificación vigente por 2 años para los 4 conductores.",
+    "responsable": "P104",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S17",
+    "fecha": "2026-02-25",
+    "tipo": "servicio",
+    "motivo": "Emergencia por inundación — sector bajo",
+    "carros": [
+      "B1",
+      "BX1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "04:10",
+    "horaRegreso": "09:30",
+    "kmSalida": "15410",
+    "kmRegreso": "15428",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Población Los Aromos",
+    "personal": [
+      "P41",
+      "P104",
+      "P124",
+      "P128",
+      "P131",
+      "P136",
+      "P140",
+      "PA3",
+      "PA4"
+    ],
+    "obs": "Bombeo de agua en 3 viviendas. Sin lesionados. Familia reubicada por municipalidad.",
+    "responsable": "P41",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S18",
+    "fecha": "2026-01-08",
+    "tipo": "ejercicio",
+    "motivo": "Simulacro de evacuación — edificio municipal",
+    "carros": [
+      "B1",
+      "R1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "10:00",
+    "horaRegreso": "12:00",
+    "kmSalida": "15220",
+    "kmRegreso": "15235",
+    "combustible": "",
+    "combustibleCosto": "",
+    "destino": "Municipalidad de Frutillar",
+    "personal": [
+      "P41",
+      "P101",
+      "P102",
+      "P104",
+      "P124",
+      "P131",
+      "P137"
+    ],
+    "obs": "Simulacro coordinado con municipalidad. 45 funcionarios evacuados en 4 min.",
+    "responsable": "P101",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S19",
+    "fecha": "2026-01-15",
+    "tipo": "combustible",
+    "motivo": "Carga mensual combustible B1",
+    "carros": [
+      "B1"
+    ],
+    "conductor": "P104",
+    "horaSalida": "11:00",
+    "horaRegreso": "11:40",
+    "kmSalida": "15235",
+    "kmRegreso": "15241",
+    "combustible": "80",
+    "combustibleCosto": "84800",
+    "destino": "Copec Frutillar",
+    "personal": [
+      "P104"
+    ],
+    "obs": "",
+    "responsable": "P104",
+    "estado": "cerrada"
+  },
+  {
+    "id": "S20",
+    "fecha": "2026-01-22",
+    "tipo": "traslado",
+    "motivo": "Traslado BX1 a revisión técnica",
+    "carros": [
+      "BX1"
+    ],
+    "conductor": "P107",
+    "horaSalida": "07:00",
+    "horaRegreso": "18:30",
+    "kmSalida": "8100",
+    "kmRegreso": "8180",
+    "combustible": "85",
+    "combustibleCosto": "90100",
+    "destino": "Revisión técnica Osorno",
+    "personal": [
+      "P107",
+      "P134"
+    ],
+    "obs": "Revisión aprobada. Próxima en enero 2028.",
+    "responsable": "P107",
+    "estado": "cerrada"
+  }
+];
+var partes  = [];
+var salIdCounter = 21;
+var salidaImprimirId = null;
+
+// ===== SORT HELPER =====
+function sortVoluntarios(lista) {
+  return lista.slice().sort(function(a, b) {
+    var oa = CAT_ORDER[a.cat] !== undefined ? CAT_ORDER[a.cat] : 5;
+    var ob = CAT_ORDER[b.cat] !== undefined ? CAT_ORDER[b.cat] : 5;
+    if (oa !== ob) return oa - ob;
+    return (parseInt(a.num) || 9999) - (parseInt(b.num) || 9999);
+  });
+}
+
+// ===== UTILS =====
+function hoy() { return new Date().toISOString().split('T')[0]; }
+function horaActual() {
+  var n = new Date();
+  return ('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);
+}
+var _nt;
+function notif(title, msg, color) {
+  clearTimeout(_nt);
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-title').style.color = color || 'var(--green)';
+  document.getElementById('notif-msg').textContent = msg || '';
+  document.getElementById('notif').classList.add('show');
+  _nt = setTimeout(function(){ document.getElementById('notif').classList.remove('show'); }, 3500);
+}
+setInterval(function(){
+  var n=new Date(); var el=document.getElementById('clock-top');
+  if(el) el.textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2)+':'+('0'+n.getSeconds()).slice(-2);
+}, 1000);
+
+// ===== MODALES =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(function(m){
+  m.addEventListener('click', function(e){ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ===== NAVEGACIÓN =====
+function navTo(page, el) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.sb-item').forEach(function(i){ i.classList.remove('active'); });
+  document.getElementById('page-'+page).classList.add('active');
+  if(el) el.classList.add('active');
+  var t = PAGE_TITLES[page] || [page, ''];
+  document.getElementById('page-title-txt').innerHTML = t[0]+' <span>'+t[1]+'</span>';
+  if(page==='dashboard')   renderDashboard();
+  if(page==='salidas')     renderSalidas();
+  if(page==='partes')      renderPartes();
+  if(page==='voluntarios') renderVoluntarios();
+  if(page==='carros')      renderCarros();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  var activos = voluntarios.filter(function(v){ return v.estado==='activo'; }).length;
+  var dispCar = carros.filter(function(c){ return c.estado==='disponible'; }).length;
+  var mes = new Date().toISOString().slice(0,7);
+  var salMes = salidas.filter(function(s){ return s.fecha && s.fecha.startsWith(mes); }).length;
+  document.getElementById('ds-vol').textContent = activos;
+  document.getElementById('ds-car').textContent = dispCar;
+  document.getElementById('ds-sal').textContent = salMes;
+  document.getElementById('ds-par').textContent = partes.length;
+
+  var ultimas = salidas.slice(-5).reverse();
+  var dsls = document.getElementById('ds-last-salidas');
+  if(!ultimas.length) { dsls.innerHTML='<div style="font-size:11px;color:var(--text3)">Sin salidas</div>'; }
+  else dsls.innerHTML = ultimas.map(function(s){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">'+
+      '<span class="tipo-tag tipo-'+s.tipo+'">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</span>'+
+      '<span style="font-size:11px;flex:1;color:var(--text2)">'+(s.motivo||'—')+'</span>'+
+      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--text3)">'+(s.fecha||'')+'</span>'+
+    '</div>';
+  }).join('');
+
+  var dsc = document.getElementById('ds-estado-carros');
+  dsc.innerHTML = carros.map(function(c){
+    var col = c.estado==='disponible'?'var(--green)':c.estado==='mantencion'?'var(--amber)':'var(--red)';
+    var lbl = c.estado==='disponible'?'Disponible':c.estado==='mantencion'?'Mantención':'Fuera';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">'+
+      '<div style="width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0;"></div>'+
+      '<span style="font-family:\'DM Mono\',monospace;font-size:12px">'+c.nombre+'</span>'+
+      '<span style="font-size:10px;color:var(--text3)">'+c.tipo+'</span>'+
+      '<span style="margin-left:auto;font-size:10px;font-weight:700;color:'+col+'">'+lbl+'</span>'+
+    '</div>';
+  }).join('');
+
+  var cats = ['oficial','honorario','bombero','aspirante','cadete'];
+  var catCols = {oficial:'var(--blue)',honorario:'var(--purple)',bombero:'var(--green)',aspirante:'var(--amber)',cadete:'var(--teal)'};
+  document.getElementById('ds-dotacion-cats').innerHTML = cats.map(function(cat){
+    var n = voluntarios.filter(function(v){ return v.cat===cat && v.estado==='activo'; }).length;
+    return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;">'+
+      '<div style="font-family:\'Syne\',sans-serif;font-size:26px;font-weight:900;color:'+catCols[cat]+'">'+n+'</div>'+
+      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">'+CAT_LABEL[cat]+'s</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ===== VOLUNTARIOS =====
+function renderVoluntarios() {
+  var busq = (document.getElementById('buscar-vol').value||'').toLowerCase();
+  var cat  = document.getElementById('filtro-cat-vol').value||'';
+  var lista = voluntarios.filter(function(v){
+    var mc = !cat || v.cat===cat;
+    var mb = !busq || v.nombre.toLowerCase().indexOf(busq)>=0 || (v.num+'').indexOf(busq)>=0;
+    return mc && mb;
+  });
+  lista = sortVoluntarios(lista);
+
+  document.getElementById('cnt-vol-total').textContent = lista.length+' de '+voluntarios.length;
+  var grid = document.getElementById('vol-grid');
+  grid.innerHTML = '';
+
+  if(!lista.length) {
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:20px">Sin resultados</div>';
+    return;
+  }
+
+  lista.forEach(function(v) {
+    var vid  = v.id;
+    var vnom = v.nombre;
+    var initials = v.nombre.split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
+    var catCol = {oficial:'var(--blue)',honorario:'var(--purple)',bombero:'var(--green)',aspirante:'var(--amber)',cadete:'var(--teal)'}[v.cat]||'var(--text3)';
+    var estCol = v.estado==='activo'?'var(--green)':v.estado==='licencia'?'var(--amber)':'var(--text3)';
+
+    var card = document.createElement('div');
+    card.className = 'vol-card';
+
+    var avatar = document.createElement('div');
+    avatar.className = 'vol-avatar';
+    avatar.style.cssText = 'background:'+catCol+'22;color:'+catCol+';';
+    avatar.textContent = initials;
+
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0;';
+
+    var nameRow = document.createElement('div');
+    nameRow.style.cssText = 'font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+    var nameText = document.createTextNode(v.nombre+' ');
+    var badge = document.createElement('span');
+    badge.className = 'badge '+(CAT_BADGE[v.cat]||'');
+    badge.textContent = CAT_LABEL[v.cat]||v.cat;
+    nameRow.appendChild(nameText);
+    nameRow.appendChild(badge);
+
+    var subRow = document.createElement('div');
+    subRow.style.cssText = 'font-size:10px;color:var(--text3);margin-top:2px;';
+    subRow.textContent = (v.num?'#'+v.num+' · ':'')+v.cargo+(v.conductor?' · 🚒 Conductor':'')+(v.wsp?' · 💬':'');
+
+    info.appendChild(nameRow);
+    info.appendChild(subRow);
+
+    var dot = document.createElement('div');
+    dot.style.cssText = 'width:6px;height:6px;border-radius:50%;background:'+estCol+';flex-shrink:0;';
+    dot.title = v.estado;
+
+    var btnEditar = document.createElement('button');
+    btnEditar.className = 'btn btn-secondary btn-sm';
+    btnEditar.textContent = '✏ Editar';
+    btnEditar.onclick = function() { abrirModalVoluntario(vid); };
+
+    var btnEliminar = document.createElement('button');
+    btnEliminar.className = 'btn btn-danger btn-sm';
+    btnEliminar.textContent = '🗑 Eliminar';
+    btnEliminar.onclick = function() {
+      if(window.confirm('¿Eliminar al voluntario "'+vnom+'"?\nEsta acción no se puede deshacer.')) {
+        voluntarios = voluntarios.filter(function(x){ return x.id !== vid; });
+        renderVoluntarios();
+        renderDashboard();
+        notif('Eliminado','"'+vnom+'" eliminado','var(--amber)');
+      }
+    };
+
+    var btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;';
+    btns.appendChild(dot);
+    var btnsRow = document.createElement('div');
+    btnsRow.style.cssText = 'display:flex;gap:4px;';
+    btnsRow.appendChild(btnEditar);
+    btnsRow.appendChild(btnEliminar);
+    btns.appendChild(btnsRow);
+
+    card.appendChild(avatar);
+    card.appendChild(info);
+    card.appendChild(btns);
+    grid.appendChild(card);
+  });
+}
+
+function abrirModalVoluntario(id) {
+  var v = id ? voluntarios.find(function(x){ return x.id===id; }) : null;
+  document.getElementById('modal-vol-titulo').textContent = v ? '✏ Editar Voluntario' : '👤 Nuevo Voluntario';
+  document.getElementById('vol-edit-id').value   = id||'';
+  document.getElementById('vol-nombre').value    = v ? v.nombre  : '';
+  document.getElementById('vol-num').value       = v ? v.num     : '';
+  document.getElementById('vol-cat').value       = v ? v.cat     : 'bombero';
+  document.getElementById('vol-cargo').value     = v ? v.cargo   : '';
+  document.getElementById('vol-tel').value       = v ? v.tel     : '';
+  document.getElementById('vol-wsp').value       = v ? v.wsp     : '';
+  document.getElementById('vol-email').value     = v ? v.email   : '';
+  document.getElementById('vol-estado').value    = v ? v.estado  : 'activo';
+  document.getElementById('vol-ingreso').value   = v ? v.ingreso : '';
+  document.getElementById('vol-obs').value       = v ? v.obs     : '';
+  document.getElementById('vol-conductor').checked = v ? !!v.conductor : false;
+  openModal('modal-voluntario');
+}
+
+function guardarVoluntario() {
+  var editId = document.getElementById('vol-edit-id').value;
+  var nombre = document.getElementById('vol-nombre').value.trim();
+  if(!nombre){ notif('Campo requerido','Ingresa el nombre','var(--red)'); return; }
+  var datos = {
+    nombre:    nombre,
+    num:       document.getElementById('vol-num').value,
+    cat:       document.getElementById('vol-cat').value,
+    cargo:     document.getElementById('vol-cargo').value,
+    tel:       document.getElementById('vol-tel').value,
+    wsp:       document.getElementById('vol-wsp').value,
+    email:     document.getElementById('vol-email').value,
+    estado:    document.getElementById('vol-estado').value,
+    ingreso:   document.getElementById('vol-ingreso').value,
+    obs:       document.getElementById('vol-obs').value,
+    conductor: document.getElementById('vol-conductor').checked
+  };
+  if(editId) {
+    var idx = voluntarios.findIndex(function(x){ return x.id===editId; });
+    if(idx>=0) Object.assign(voluntarios[idx], datos);
+    notif('✓ Actualizado', nombre);
+  } else {
+    datos.id = 'V'+Date.now();
+    voluntarios.push(datos);
+    notif('✓ Agregado', nombre);
+  }
+  closeModal('modal-voluntario');
+  renderVoluntarios();
+  renderDashboard();
+}
+
+// ===== CARROS =====
+function renderCarros() {
+  document.getElementById('cnt-carros').textContent = carros.length+' unidades';
+  var grid = document.getElementById('carros-grid');
+  grid.innerHTML = '';
+
+  if(!carros.length) {
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:20px">Sin carros</div>';
+    return;
+  }
+
+  carros.forEach(function(c) {
+    var cid  = c.id;
+    var cnom = c.nombre;
+    var estCol = c.estado==='disponible'?'var(--green)':c.estado==='mantencion'?'var(--amber)':'var(--red)';
+    var estLbl = c.estado==='disponible'?'Disponible':c.estado==='mantencion'?'En Mantención':'Fuera de Servicio';
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.padding = '14px';
+
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:10px;';
+
+    var icon = document.createElement('div');
+    icon.style.cssText = "font-family:'Syne',sans-serif;font-size:22px;font-weight:900;width:48px;height:48px;border-radius:8px;background:rgba(224,62,62,.1);color:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;";
+    icon.textContent = c.nombre;
+
+    var info = document.createElement('div');
+    info.style.flex = '1';
+    info.innerHTML = '<div style="font-size:14px;font-weight:700;">'+c.tipo+'</div>'+
+      '<div style="font-size:10px;color:var(--text3)">Espec: '+c.espec+' · Prio: '+c.prio+(c.patente?' · '+c.patente:'')+'</div>';
+
+    var dot = document.createElement('div');
+    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:'+estCol+';';
+    dot.title = estLbl;
+
+    header.appendChild(icon);
+    header.appendChild(info);
+    header.appendChild(dot);
+
+    var details = document.createElement('div');
+    details.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--text2);margin-bottom:8px;';
+    details.innerHTML =
+      (c.modelo?'<div>📌 '+c.modelo+'</div>':'')+
+      (c.anio?'<div>📅 '+c.anio+'</div>':'')+
+      (c.km?'<div>🔢 '+c.km.toLocaleString()+' km</div>':'')+
+      '<div style="color:'+estCol+';font-weight:700;">'+estLbl+'</div>';
+
+    var btnEditar = document.createElement('button');
+    btnEditar.className = 'btn btn-secondary btn-sm';
+    btnEditar.style.flex = '1';
+    btnEditar.textContent = '✏ Editar';
+    btnEditar.onclick = function() { abrirModalCarro(cid); };
+
+    var btnEliminar = document.createElement('button');
+    btnEliminar.className = 'btn btn-danger btn-sm';
+    btnEliminar.textContent = '🗑 Eliminar';
+    btnEliminar.onclick = function() {
+      if(window.confirm('¿Eliminar el carro "'+cnom+'"?')) {
+        carros = carros.filter(function(x){ return x.id !== cid; });
+        renderCarros();
+        renderDashboard();
+        notif('Eliminado','"'+cnom+'" eliminado','var(--amber)');
+      }
+    };
+
+    var btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:6px;';
+    btns.appendChild(btnEditar);
+    btns.appendChild(btnEliminar);
+
+    card.appendChild(header);
+    card.appendChild(details);
+    if(c.obs){ var obsDiv=document.createElement('div');obsDiv.style.cssText='font-size:10px;color:var(--text3);margin-bottom:8px;';obsDiv.textContent=c.obs;card.appendChild(obsDiv); }
+    card.appendChild(btns);
+    grid.appendChild(card);
+  });
+}
+
+function abrirModalCarro(id) {
+  var c = id ? carros.find(function(x){ return x.id===id; }) : null;
+  document.getElementById('modal-carro-titulo').textContent = c ? '✏ Editar Carro' : '🚒 Nuevo Carro';
+  document.getElementById('carro-edit-id').value  = id||'';
+  document.getElementById('c-nombre').value  = c ? c.nombre  : '';
+  document.getElementById('c-tipo').value    = c ? c.tipo    : 'Bomba';
+  document.getElementById('c-espec').value   = c ? c.espec   : 'B';
+  document.getElementById('c-prio').value    = c ? c.prio    : '1';
+  document.getElementById('c-patente').value = c ? c.patente : '';
+  document.getElementById('c-anio').value    = c ? c.anio    : '';
+  document.getElementById('c-modelo').value  = c ? c.modelo  : '';
+  document.getElementById('c-km').value      = c ? c.km      : 0;
+  document.getElementById('c-estado').value  = c ? c.estado  : 'disponible';
+  document.getElementById('c-obs').value     = c ? c.obs     : '';
+  openModal('modal-carro');
+}
+
+function guardarCarro() {
+  var editId = document.getElementById('carro-edit-id').value;
+  var nombre = document.getElementById('c-nombre').value.trim();
+  if(!nombre){ notif('Campo requerido','Ingresa el nombre del carro','var(--red)'); return; }
+  var datos = {
+    nombre:  nombre,
+    tipo:    document.getElementById('c-tipo').value,
+    espec:   document.getElementById('c-espec').value,
+    prio:    parseInt(document.getElementById('c-prio').value),
+    patente: document.getElementById('c-patente').value,
+    anio:    document.getElementById('c-anio').value,
+    modelo:  document.getElementById('c-modelo').value,
+    km:      parseInt(document.getElementById('c-km').value)||0,
+    estado:  document.getElementById('c-estado').value,
+    obs:     document.getElementById('c-obs').value
+  };
+  if(editId) {
+    var idx = carros.findIndex(function(x){ return x.id===editId; });
+    if(idx>=0) Object.assign(carros[idx], datos);
+    notif('✓ Actualizado', nombre);
+  } else {
+    datos.id = 'C'+Date.now();
+    carros.push(datos);
+    notif('✓ Agregado', nombre);
+  }
+  closeModal('modal-carro');
+  renderCarros();
+  renderDashboard();
+  poblarFiltroCarros();
+}
+
+// ===== SALIDAS =====
+function poblarFiltroCarros() {
+  var checks = document.getElementById('s-carros-checks');
+  if(checks) {
+    checks.innerHTML = '';
+    carros.forEach(function(c){
+      var lbl = document.createElement('label');
+      lbl.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:11px;cursor:pointer;';
+      lbl.innerHTML = '<input type="checkbox" value="'+c.id+'" style="accent-color:var(--red);"> '+c.nombre+' — '+c.tipo;
+      checks.appendChild(lbl);
+    });
+  }
+  poblarSelectPersonal('s-conductor', true);
+  poblarSelectPersonal('s-responsable', false);
+}
+
+function poblarSelectPersonal(selId, soloConductores) {
+  var sel = document.getElementById(selId);
+  if(!sel) return;
+  var prev = sel.value;
+  sel.innerHTML = '<option value="">— Seleccionar —</option>';
+  var lista = voluntarios.filter(function(v){
+    return v.estado==='activo' && (!soloConductores || v.conductor);
+  });
+  sortVoluntarios(lista).forEach(function(v){
+    var o = document.createElement('option');
+    o.value = v.id;
+    o.textContent = v.nombre+(v.num?' (#'+v.num+')':'');
+    if(v.id===prev) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function poblarPersonalSalida() {
+  var div = document.getElementById('s-personal-checks');
+  if(!div) return;
+  div.innerHTML = '';
+  sortVoluntarios(voluntarios.filter(function(v){ return v.estado==='activo'; })).forEach(function(v){
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:2px 0;';
+    lbl.innerHTML = '<input type="checkbox" value="'+v.id+'" style="accent-color:var(--red);"> '+v.nombre+(v.num?' (#'+v.num+')':'');
+    div.appendChild(lbl);
+  });
+}
+
+function abrirModalSalida(id) {
+  var s = id ? salidas.find(function(x){ return x.id===id; }) : null;
+  document.getElementById('modal-salida-titulo').textContent = s ? '✏ Editar Salida' : '🚗 Registrar Salida';
+  document.getElementById('salida-edit-id').value = id||'';
+  document.getElementById('s-fecha').value = s ? s.fecha : hoy();
+  document.getElementById('s-tipo').value = s ? s.tipo : 'ejercicio';
+  document.getElementById('s-motivo').value = s ? s.motivo : '';
+  document.getElementById('s-hora-salida').value = s ? s.horaSalida : horaActual();
+  document.getElementById('s-hora-regreso').value = s ? s.horaRegreso : '';
+  document.getElementById('s-km-salida').value = s ? s.kmSalida : '';
+  document.getElementById('s-km-regreso').value = s ? s.kmRegreso : '';
+  document.getElementById('s-combustible').value = s ? s.combustible : '';
+  document.getElementById('s-combustible-costo').value = s ? s.combustibleCosto : '';
+  document.getElementById('s-destino').value = s ? s.destino : '';
+  document.getElementById('s-obs').value = s ? s.obs : '';
+  poblarFiltroCarros();
+  poblarPersonalSalida();
+  if(s) {
+    document.querySelectorAll('#s-carros-checks input').forEach(function(cb){
+      cb.checked = (s.carros||[]).indexOf(cb.value)>=0;
+    });
+    document.querySelectorAll('#s-personal-checks input').forEach(function(cb){
+      cb.checked = (s.personal||[]).indexOf(cb.value)>=0;
+    });
+    document.getElementById('s-conductor').value = s.conductor||'';
+    document.getElementById('s-responsable').value = s.responsable||'';
+  }
+  openModal('modal-salida');
+}
+
+function getSalidaFormData() {
+  return {
+    fecha:    document.getElementById('s-fecha').value,
+    tipo:     document.getElementById('s-tipo').value,
+    motivo:   document.getElementById('s-motivo').value,
+    carros:   Array.from(document.querySelectorAll('#s-carros-checks input:checked')).map(function(x){return x.value;}),
+    conductor:document.getElementById('s-conductor').value,
+    horaSalida:document.getElementById('s-hora-salida').value,
+    horaRegreso:document.getElementById('s-hora-regreso').value,
+    kmSalida: document.getElementById('s-km-salida').value,
+    kmRegreso:document.getElementById('s-km-regreso').value,
+    combustible:document.getElementById('s-combustible').value,
+    combustibleCosto:document.getElementById('s-combustible-costo').value,
+    destino:  document.getElementById('s-destino').value,
+    personal: Array.from(document.querySelectorAll('#s-personal-checks input:checked')).map(function(x){return x.value;}),
+    obs:      document.getElementById('s-obs').value,
+    responsable:document.getElementById('s-responsable').value
+  };
+}
+
+function guardarSalida() {
+  var editId = document.getElementById('salida-edit-id').value;
+  var datos = getSalidaFormData();
+  if(!datos.fecha){ notif('Campo requerido','Selecciona la fecha','var(--red)'); return; }
+  datos.estado = 'cerrada';
+  if(editId) {
+    var idx = salidas.findIndex(function(x){ return x.id===editId; });
+    if(idx>=0) Object.assign(salidas[idx], datos);
+    notif('✓ Salida actualizada','');
+  } else {
+    datos.id = 'S'+salIdCounter++;
+    salidas.push(datos);
+    notif('✓ Salida registrada', TIPO_LABEL[datos.tipo]||datos.tipo);
+  }
+  closeModal('modal-salida');
+  renderSalidas();
+  renderDashboard();
+  actualizarBadgeSalidas();
+}
+
+function guardarSalidaEnProceso() {
+  var editId = document.getElementById('salida-edit-id').value;
+  var datos = getSalidaFormData();
+  if(!datos.fecha){ notif('Campo requerido','Selecciona la fecha','var(--red)'); return; }
+  datos.estado = 'en-proceso';
+  if(editId) {
+    var idx = salidas.findIndex(function(x){ return x.id===editId; });
+    if(idx>=0) Object.assign(salidas[idx], datos);
+  } else {
+    datos.id = 'S'+salIdCounter++;
+    salidas.push(datos);
+  }
+  closeModal('modal-salida');
+  renderSalidas();
+  renderDashboard();
+  actualizarBadgeSalidas();
+  notif('🚗 En proceso','Recuerda registrar el regreso.');
+}
+
+function actualizarBadgeSalidas() {
+  var n = salidas.filter(function(s){ return s.estado==='en-proceso'; }).length;
+  var b = document.getElementById('nav-badge-salidas');
+  if(b){ b.textContent=n; b.style.display=n?'':'none'; }
+}
+
+function renderSalidas() {
+  var tipo  = (document.getElementById('filtro-tipo')||{}).value||'';
+  var fecha = (document.getElementById('filtro-fecha')||{}).value||'';
+  var lista = salidas.filter(function(s){
+    return (!tipo||s.tipo===tipo) && (!fecha||s.fecha&&s.fecha.startsWith(fecha));
+  }).sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); });
+  document.getElementById('cnt-salidas-total').textContent = lista.length;
+  var tbody = document.getElementById('tbl-salidas-body');
+  if(!lista.length){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text3)">Sin salidas</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  lista.forEach(function(s){
+    var condNombre = s.conductor ? (voluntarios.find(function(x){return x.id===s.conductor;})||{}).nombre||s.conductor : '—';
+    var carrosStr = (s.carros||[]).join(', ')||'—';
+    var km = (s.kmSalida&&s.kmRegreso) ? (parseInt(s.kmRegreso)-parseInt(s.kmSalida))+' km' : '—';
+    var estCol = s.estado==='en-proceso'?'var(--amber)':'var(--green)';
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-weight:600">'+s.fecha+'</td>'+
+      '<td><span class="tipo-tag tipo-'+s.tipo+'">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</span></td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+carrosStr+'</td>'+
+      '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(s.motivo||'—')+'</td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+(s.horaSalida||'—')+'</td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+(s.horaRegreso||'<span style="color:var(--amber)">Pendiente</span>')+'</td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+km+'</td>'+
+      '<td>'+condNombre+'</td>'+
+      '<td><span style="font-size:10px;font-weight:700;color:'+estCol+'">'+(s.estado==='en-proceso'?'En proceso':'Cerrada')+'</span></td>'+
+      '<td></td>';
+
+    var tdBtns = tr.querySelector('td:last-child');
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;gap:4px;';
+
+    var bVer = document.createElement('button');
+    bVer.className='btn btn-secondary btn-sm'; bVer.textContent='👁';
+    bVer.onclick = (function(sid){ return function(){ verSalida(sid); }; })(s.id);
+
+    var bEdit = document.createElement('button');
+    bEdit.className='btn btn-secondary btn-sm'; bEdit.textContent='✏';
+    bEdit.onclick = (function(sid){ return function(){ abrirModalSalida(sid); }; })(s.id);
+
+    var bDel = document.createElement('button');
+    bDel.className='btn btn-danger btn-sm'; bDel.textContent='×';
+    bDel.onclick = (function(sid, smot){ return function(){
+      if(window.confirm('¿Eliminar esta salida?')){ salidas=salidas.filter(function(x){return x.id!==sid;}); renderSalidas(); renderDashboard(); actualizarBadgeSalidas(); }
+    }; })(s.id, s.motivo);
+
+    div.appendChild(bVer); div.appendChild(bEdit); div.appendChild(bDel);
+    tdBtns.appendChild(div);
+    tbody.appendChild(tr);
+  });
+}
+
+function limpiarFiltrosSalidas() {
+  document.getElementById('filtro-tipo').value='';
+  document.getElementById('filtro-fecha').value='';
+  renderSalidas();
+}
+
+function verSalida(id) {
+  var s = salidas.find(function(x){return x.id===id;}); if(!s) return;
+  salidaImprimirId = id;
+  var condNombre = s.conductor?(voluntarios.find(function(x){return x.id===s.conductor;})||{}).nombre||s.conductor:'—';
+  var respNombre = s.responsable?(voluntarios.find(function(x){return x.id===s.responsable;})||{}).nombre||s.responsable:'—';
+  var carrosNombres = (s.carros||[]).map(function(cid){var c=carros.find(function(x){return x.id===cid;});return c?c.nombre+' ('+c.tipo+')':cid;}).join(', ')||'—';
+  var personalNombres = (s.personal||[]).map(function(pid){var p=voluntarios.find(function(x){return x.id===pid;});return p?p.nombre:pid;});
+  var km = (s.kmSalida&&s.kmRegreso)?(parseInt(s.kmRegreso)-parseInt(s.kmSalida)):null;
+  document.getElementById('ver-salida-body').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Fecha</div><div style="font-size:13px;font-weight:600">'+s.fecha+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Tipo</div><span class="tipo-tag tipo-'+s.tipo+'">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</span></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border);grid-column:1/-1"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Motivo</div><div style="font-size:12px">'+(s.motivo||'—')+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Carro(s)</div><div style="font-size:12px;font-family:\'DM Mono\',monospace">'+carrosNombres+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Conductor</div><div style="font-size:12px">'+condNombre+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Salida → Regreso</div><div style="font-size:12px;font-family:\'DM Mono\',monospace">'+(s.horaSalida||'—')+' → '+(s.horaRegreso||'Pendiente')+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">KM</div><div style="font-size:12px">'+( km!==null?km+' km':'—')+'</div></div>'+
+    (s.combustible?'<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Combustible</div><div style="font-size:12px">'+s.combustible+' Lts'+(s.combustibleCosto?' · $'+Number(s.combustibleCosto).toLocaleString('es-CL'):'')+'</div></div>':'')+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Responsable</div><div style="font-size:12px">'+respNombre+'</div></div>'+
+    '</div>'+
+    (personalNombres.length?'<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border);margin-bottom:8px"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Personal ('+personalNombres.length+')</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+personalNombres.map(function(n){return '<span style="background:var(--bg4);border:1px solid var(--border);padding:2px 8px;border-radius:3px;font-size:11px">'+n+'</span>';}).join('')+'</div></div>':'')+
+    (s.obs?'<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Observaciones</div><div style="font-size:12px;line-height:1.6">'+s.obs+'</div></div>':'');
+  openModal('modal-ver-salida');
+}
+
+function imprimirSalida() {
+  var s = salidas.find(function(x){return x.id===salidaImprimirId;}); if(!s) return;
+  var condNombre = s.conductor?(voluntarios.find(function(x){return x.id===s.conductor;})||{}).nombre||s.conductor:'—';
+  var respNombre = s.responsable?(voluntarios.find(function(x){return x.id===s.responsable;})||{}).nombre||s.responsable:'—';
+  var carrosNombres = (s.carros||[]).map(function(cid){var c=carros.find(function(x){return x.id===cid;});return c?c.nombre+' — '+c.tipo:cid;}).join(', ')||'—';
+  var personalNombres = (s.personal||[]).map(function(pid){var p=voluntarios.find(function(x){return x.id===pid;});return p?p.nombre+(p.num?' (#'+p.num+')':''):pid;});
+  var km = (s.kmSalida&&s.kmRegreso)?(parseInt(s.kmRegreso)-parseInt(s.kmSalida)):null;
+  var w = window.open('','_blank','width=800,height=600');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Salida '+s.id+'</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;font-size:11px;padding:15mm;color:#000;}.g{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}.f{border:1px solid #ccc;padding:6px 8px;}.fl{font-size:8px;color:#666;text-transform:uppercase;}.fv{font-size:11px;font-weight:600;}.firma{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:20px;}.firma-line{border-bottom:1px solid #000;height:30px;}.firma-lbl{font-size:9px;color:#555;margin-top:4px;}@media print{button{display:none;}}</style></head><body>'+
+    '<button onclick="window.print()" style="position:fixed;top:8px;right:8px;background:#e03e3e;color:#fff;border:none;padding:6px 14px;cursor:pointer;font-weight:700;border-radius:4px;">🖨 Imprimir</button>'+
+    '<h1 style="font-size:14px;margin-bottom:4px">1ª Compañía "Germania" de Frutillar</h1>'+
+    '<h2 style="font-size:10px;color:#666;margin-bottom:12px">Registro de Salida — '+s.id+'</h2>'+
+    '<div class="g">'+
+    '<div class="f"><div class="fl">Fecha</div><div class="fv">'+s.fecha+'</div></div>'+
+    '<div class="f"><div class="fl">Tipo</div><div class="fv">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</div></div>'+
+    '<div class="f" style="grid-column:1/-1"><div class="fl">Motivo</div><div class="fv">'+(s.motivo||'—')+'</div></div>'+
+    '<div class="f"><div class="fl">Carro(s)</div><div class="fv">'+carrosNombres+'</div></div>'+
+    '<div class="f"><div class="fl">Conductor</div><div class="fv">'+condNombre+'</div></div>'+
+    '<div class="f"><div class="fl">Hora Salida</div><div class="fv">'+(s.horaSalida||'—')+'</div></div>'+
+    '<div class="f"><div class="fl">Hora Regreso</div><div class="fv">'+(s.horaRegreso||'Pendiente')+'</div></div>'+
+    (km!==null?'<div class="f"><div class="fl">KM Recorridos</div><div class="fv">'+km+' km</div></div>':'')+
+    (s.combustible?'<div class="f"><div class="fl">Combustible</div><div class="fv">'+s.combustible+' Lts'+(s.combustibleCosto?' · $'+Number(s.combustibleCosto).toLocaleString('es-CL'):'')+'</div></div>':'')+
+    '<div class="f"><div class="fl">Responsable</div><div class="fv">'+respNombre+'</div></div>'+
+    (s.obs?'<div class="f" style="grid-column:1/-1"><div class="fl">Observaciones</div><div class="fv">'+s.obs+'</div></div>':'')+
+    '</div>'+
+    (personalNombres.length?'<div style="margin-bottom:10px"><div style="font-size:9px;color:#555;text-transform:uppercase;margin-bottom:5px">Personal ('+personalNombres.length+')</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+personalNombres.map(function(n){return '<span style="border:1px solid #ccc;padding:2px 6px;font-size:10px">'+n+'</span>';}).join('')+'</div></div>':'')+
+    '<div class="firma">'+
+    '<div><div class="firma-line"></div><div class="firma-lbl">Conductor — '+condNombre+'</div></div>'+
+    '<div><div class="firma-line"></div><div class="firma-lbl">Responsable — '+respNombre+'</div></div>'+
+    '</div></body></html>');
+  w.document.close();
+}
+
+// ===== PARTES =====
+function leerPartesCAD() {
+  try { var r=localStorage.getItem('cad_partes_b1'); return r?JSON.parse(r):[]; } catch(e){ return []; }
+}
+function renderPartes() {
+  var partesCAD = leerPartesCAD();
+  var todos = partes.concat(partesCAD);
+  document.getElementById('cnt-partes').textContent = todos.length;
+  var el = document.getElementById('partes-list');
+  if(!todos.length){
+    el.innerHTML='<div class="card" style="text-align:center;color:var(--text3);font-size:12px;padding:20px">Sin partes. Los partes generados desde la Central de Alarmas aparecerán aquí automáticamente.</div>';
+    return;
+  }
+  el.innerHTML = todos.sort(function(a,b){return (b.fecha||b.fechaEmerg||'').localeCompare(a.fecha||a.fechaEmerg||'');}).map(function(p){
+    return '<div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">'+
+      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:rgba(224,62,62,.12);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:\'Syne\',sans-serif;font-size:12px;font-weight:900;">'+(p.emergId?'CAD':'MAN')+'</div>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:12px;font-weight:700;">'+(p.id||p.emergId||'—')+'</div>'+
+        '<div style="font-size:12px;color:var(--text2)">📍 '+(p.direccion||p.calle||'—')+'</div>'+
+        '<div style="font-size:10px;color:var(--text3)">'+(p.fecha||p.fechaEmerg||'—')+(p.hora?' · '+p.hora:'')+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ===== INIT =====
+function init() {
+  var mes = new Date().toISOString().slice(0,7);
+  var fFecha = document.getElementById('filtro-fecha');
+  if(fFecha) fFecha.value = mes;
+  poblarFiltroCarros();
+  renderDashboard();
+  actualizarBadgeSalidas();
+}
+init();
+</script>
+</body>
+</html>
