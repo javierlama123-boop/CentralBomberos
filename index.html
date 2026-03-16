@@ -544,8 +544,13 @@ _Central de Alarmas Frutillar_</textarea>
         <div class="fgroup"><div class="flabel">Calle / Dirección</div><input class="finput" id="parte-calle" placeholder="Ej: Av. Philippi 420" style="font-size:12px;"></div>
         <div class="fgroup"><div class="flabel">Población o Villa</div><input class="finput" id="parte-poblacion" placeholder="Ej: Frutillar Bajo" style="font-size:12px;"></div>
         <div class="fgroup"><div class="flabel">Propietario / Arrendatario</div><input class="finput" id="parte-propietario" placeholder="Nombre" style="font-size:12px;"></div>
-        <div class="fgroup"><div class="flabel">OBAC C.B.F.</div><input class="finput" id="parte-obac-cbf" placeholder="Nombre" style="font-size:12px;"></div>
-        <div class="fgroup"><div class="flabel">OBAC Compañía</div><input class="finput" id="parte-obac-cia" placeholder="Nombre" style="font-size:12px;"></div>
+        <div class="fgroup">
+          <div class="flabel">Oficial / Bombero a Cargo (OBAC)</div>
+          <select class="fselect" id="parte-oficial-sel" style="font-size:12px;">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+        <div class="fgroup"><div class="flabel">OBAC CBF</div><input class="finput" id="parte-obac-cbf-nombre" placeholder="Nombre del OBAC CBF" style="font-size:12px;"></div>
         <div class="fgroup"><div class="flabel">Litros utilizados</div><input class="finput" id="parte-litros" placeholder="0" type="number" style="font-size:12px;"></div>
         <div class="fgroup"><div class="flabel">Saldo tarjeta</div><input class="finput" id="parte-saldo" placeholder="$0" style="font-size:12px;"></div>
       </div>
@@ -594,21 +599,10 @@ _Central de Alarmas Frutillar_</textarea>
       </div>
     </div>
 
-    <!-- Roles operacionales -->
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;margin-bottom:14px;">
-      <div class="panel-title" style="margin-bottom:12px;">🎖 Roles del Servicio</div>
+      <div class="panel-title" style="margin-bottom:12px;">🚒 Datos del Carro</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:10px;">Los selectores se actualizan automáticamente al marcar voluntarios participantes arriba.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="fgroup">
-          <div class="flabel">Oficial / Bombero a Cargo</div>
-          <select class="fselect" id="parte-oficial-sel" style="font-size:12px;">
-            <option value="">— Seleccionar —</option>
-          </select>
-        </div>
-        <div class="fgroup">
-          <div class="flabel">Cargo del responsable</div>
-          <input class="finput" id="parte-oficial-cargo" placeholder="Ej: Capitán, Teniente..." style="font-size:12px;">
-        </div>
         <div class="fgroup" id="grupo-conductores">
           <div class="flabel">Conductor del carro</div>
           <select class="fselect" id="parte-conductor-sel" style="font-size:12px;">
@@ -616,11 +610,24 @@ _Central de Alarmas Frutillar_</textarea>
           </select>
         </div>
         <div class="fgroup">
-          <div class="flabel">Tomó estadística</div>
-          <select class="fselect" id="parte-estadistica-sel" style="font-size:12px;">
-            <option value="">— Seleccionar —</option>
-          </select>
+          <div class="flabel">KM Salida <span style="color:var(--text3);font-size:9px;font-weight:400;">(se autocompleta con el KM actual del carro)</span></div>
+          <input class="finput" type="number" id="parte-km-salida" placeholder="0" style="font-size:12px;">
         </div>
+        <div class="fgroup">
+          <div class="flabel">KM Llegada</div>
+          <input class="finput" type="number" id="parte-km-llegada" placeholder="0" style="font-size:12px;">
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;margin-bottom:14px;">
+      <div class="panel-title" style="margin-bottom:12px;">📊 Estadística</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;">Voluntario que tomó las estadísticas durante el servicio.</div>
+      <div class="fgroup" style="max-width:400px;">
+        <div class="flabel">Tomó Estadística</div>
+        <select class="fselect" id="parte-estadistica-sel" style="font-size:12px;">
+          <option value="">— Seleccionar —</option>
+        </select>
       </div>
     </div>
   </div>
@@ -2577,6 +2584,20 @@ function marcarClaveEstado(emergId, ciaId, claveKey){
   const n=new Date();
   const hora=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
   e.clavesEstado[ciaId][claveKey]=hora;
+  // Al marcar 6-10: solicitar KM de llegada y actualizar el odómetro del carro
+  if(claveKey==='s610'){
+    const kmLlegadaStr=window.prompt('Ingrese el KM de llegada al cuartel para este carro:','');
+    if(kmLlegadaStr && !isNaN(parseInt(kmLlegadaStr))){
+      const kmLlegada=parseInt(kmLlegadaStr);
+      e.kmLlegada=kmLlegada;
+      // Actualizar odómetro del carro
+      const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[ciaId]||ciaId;
+      (e.carros||[]).forEach(function(carroId){
+        const c=CARROS.find(x=>x.id===carroId);
+        if(c&&c.cia===ciaNorm){ c.km=kmLlegada; }
+      });
+    }
+  }
   // Compatibilidad con sistema de retorno
   if(claveKey==='s69'){
     if(!e.retornadas) e.retornadas=new Set();
@@ -2626,8 +2647,14 @@ function cargarDatosParte(){
   document.getElementById('parte-6-7').value=est.s67||'';
   document.getElementById('parte-6-9').value=est.s69||'';
   document.getElementById('parte-6-10').value=est.s610||'';
-  // Calcular 6-9 desde retorno si existe
-  const ret=e.retornadas&&e.retornadas.size>0;
+  // Autocompletar KM salida desde el primer carro despachado en esta emergencia
+  const primerCarro=(e.carros||[]).map(cid=>CARROS.find(x=>x.id===cid)).find(c=>c);
+  if(primerCarro && primerCarro.km){
+    document.getElementById('parte-km-salida').value=primerCarro.km;
+  } else {
+    document.getElementById('parte-km-salida').value='';
+  }
+  document.getElementById('parte-km-llegada').value=e.kmLlegada||'';
   // Renderizar grid de personal
   renderPartePersonal(e);
 }
@@ -2710,8 +2737,7 @@ function actualizarSelectoresRoles(e){
   if(selOf && !selOf.onchange){
     selOf.onchange=()=>{
       const p=personal.find(x=>x.id===selOf.value);
-      const cargoIn=document.getElementById('parte-oficial-cargo');
-      if(cargoIn&&p) cargoIn.value=p.cargo;
+      // campo oficial-cargo eliminado
     };
   }
 }
@@ -2730,8 +2756,8 @@ function generarPartePDF(){
     calle:   document.getElementById('parte-calle').value,
     poblacion: document.getElementById('parte-poblacion').value,
     propietario: document.getElementById('parte-propietario').value,
-    obacCbf: document.getElementById('parte-obac-cbf').value,
-    obacCia: document.getElementById('parte-obac-cia').value,
+    obacCbf: (()=>{const sel=document.getElementById('parte-oficial-sel');const p=personal.find(x=>x.id===sel?.value);return p?p.nombre:''})(),
+    obacCbfNombre: document.getElementById('parte-obac-cbf-nombre')?.value||'',
     litros:  document.getElementById('parte-litros').value,
     saldo:   document.getElementById('parte-saldo').value,
     tono:    document.getElementById('parte-tono').value,
@@ -2741,11 +2767,18 @@ function generarPartePDF(){
     s69:     document.getElementById('parte-6-9').value,
     s610:    document.getElementById('parte-6-10').value,
     resumen: document.getElementById('parte-resumen').value,
+    kmSalida:  document.getElementById('parte-km-salida').value,
+    kmLlegada: document.getElementById('parte-km-llegada').value,
     oficialNombre: (()=>{const sel=document.getElementById('parte-oficial-sel');const p=personal.find(x=>x.id===sel?.value);return p?p.nombre:'';})(),
-    oficialCargo:  document.getElementById('parte-oficial-cargo')?.value||'',
     conductor:     (()=>{const sel=document.getElementById('parte-conductor-sel');const p=personal.find(x=>x.id===sel?.value);return p?p.nombre:'';})(),
     estadistica:   (()=>{const sel=document.getElementById('parte-estadistica-sel');const p=personal.find(x=>x.id===sel?.value);return p?p.nombre:'';})(),
   };
+
+  // Actualizar KM del carro con el KM de llegada ingresado
+  if(datos.kmLlegada && parseInt(datos.kmLlegada) > 0){
+    const primerCarro2=(e.carros||[]).map(cid=>CARROS.find(x=>x.id===cid)).find(c=>c);
+    if(primerCarro2){ primerCarro2.km=parseInt(datos.kmLlegada); e.kmLlegada=parseInt(datos.kmLlegada); }
+  }
 
   // Materiales
   const recuperar=[], tripular=[];
@@ -2881,9 +2914,11 @@ function generarPartePDF(){
 <div style="display:grid;grid-template-columns:1fr 2fr;gap:4px;margin-bottom:4px;">
   <div class="field"><div class="field-label">Clave</div><div class="field-value">${datos.clave}</div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
-    <div class="field"><div class="field-label">OBAC C.B.F.</div><div class="field-value">${datos.obacCbf}</div></div>
-    <div class="field"><div class="field-label">OBAC Cía.</div><div class="field-value">${datos.obacCia}</div></div>
+    <div class="field"><div class="field-label">Oficial / Bombero a Cargo</div><div class="field-value">${datos.obacCbf}</div></div>
+    <div class="field"><div class="field-label">OBAC CBF</div><div class="field-value">${datos.obacCbfNombre}</div></div>
     <div class="field"><div class="field-label">6-14 Litros</div><div class="field-value">${datos.litros}</div></div>
+    <div class="field"><div class="field-label">KM Salida</div><div class="field-value">${datos.kmSalida}</div></div>
+    <div class="field"><div class="field-label">KM Llegada</div><div class="field-value">${datos.kmLlegada}</div></div>
   </div>
 </div>
 
@@ -2946,15 +2981,25 @@ ${recuperar.length||tripular.length?`
       <tr><td style="border:1px solid #666;padding:3px 10px;font-size:9px;font-weight:700;">VOLUNTARIOS</td><td style="border:1px solid #666;padding:3px 20px;font-size:11px;font-weight:700;">${noOficiales.length}</td></tr>
       <tr><td style="border:1px solid #666;padding:3px 10px;font-size:9px;font-weight:700;background:#eee;">TOTAL</td><td style="border:1px solid #666;padding:3px 20px;font-size:13px;font-weight:700;background:#eee;">${voluntarios.length}</td></tr>
     </table>
-    <div style="font-size:9px;color:#555;margin-top:6px;">Tomó estadística: <strong>${datos.estadistica||'___________________________'}</strong></div>
-    ${datos.conductor?`<div style="font-size:9px;color:#555;margin-top:3px;">Conductor: <strong>${datos.conductor}</strong></div>`:''}
+    ${datos.conductor?`<div style="font-size:9px;color:#555;margin-top:6px;">Conductor: <strong>${datos.conductor}</strong></div>`:''}
+    <div style="font-size:9px;color:#555;margin-top:3px;">KM Salida: <strong>${datos.kmSalida||'—'}</strong> &nbsp;·&nbsp; KM Llegada: <strong>${datos.kmLlegada||'—'}</strong></div>
   </div>
   <div style="text-align:center;">
-    <div style="font-size:10px;font-weight:700;margin-bottom:25px;">Oficial o Bombero a Cargo</div>
+    <div style="font-size:10px;font-weight:700;margin-bottom:25px;">Oficial / Bombero a Cargo (OBAC)</div>
     <div style="border-bottom:1px solid #000;width:220px;margin:0 auto;"></div>
     <div style="font-size:10px;font-weight:700;margin-top:4px;">${datos.oficialNombre||'________________________________'}</div>
-    <div style="font-size:9px;color:#555;">${datos.oficialCargo||'________________________________'}</div>
     <div style="font-size:9px;color:#555;margin-top:2px;">FIRMA</div>
+  </div>
+</div>
+
+<div style="margin-top:14px;border-top:1px solid #ccc;padding-top:10px;">
+  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#555;margin-bottom:8px;">Tomó Estadística</div>
+  <div style="display:flex;align-items:flex-end;gap:30px;">
+    <div style="text-align:center;">
+      <div style="border-bottom:1px solid #000;width:200px;margin:0 auto;height:20px;"></div>
+      <div style="font-size:10px;font-weight:700;margin-top:4px;">${datos.estadistica||'________________________________'}</div>
+      <div style="font-size:9px;color:#555;margin-top:2px;">FIRMA</div>
+    </div>
   </div>
 </div>
 
