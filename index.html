@@ -1743,12 +1743,39 @@ function updateCiaMarkers(){
   });
 }
 
-map.on('click',e=>{
-  clickedLatLng={lat:e.latlng.lat,lng:e.latlng.lng};
-  document.getElementById('direccion').value=`${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
-  if(clickMarker) map.removeLayer(clickMarker);
-  clickMarker=L.marker([e.latlng.lat,e.latlng.lng],{icon:L.divIcon({html:'<div style="width:12px;height:12px;background:var(--red,#e53935);border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 4px rgba(229,57,53,.3);"></div>',className:'',iconAnchor:[6,6]})}).addTo(map);
-  showNotif('📍 Ubicación marcada',`${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`);
+map.on('click', async function(e) {
+  clickedLatLng = {lat: e.latlng.lat, lng: e.latlng.lng};
+  if (clickMarker) map.removeLayer(clickMarker);
+  clickMarker = L.marker([e.latlng.lat, e.latlng.lng], {icon: L.divIcon({
+    html: '<div style="width:12px;height:12px;background:var(--red,#e53935);border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 4px rgba(229,57,53,.3);"></div>',
+    className: '', iconAnchor: [6,6]
+  })}).addTo(map);
+
+  // Reverse geocoding → llenar campo dirección
+  var dir = await reverseGeocode(e.latlng.lat, e.latlng.lng);
+  if (dir) {
+    document.getElementById('direccion').value = dir;
+  } else {
+    document.getElementById('direccion').value = e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
+  }
+
+  // Autodetectar zona y seleccionarla en el selector
+  var zona = detectarZona(e.latlng.lat, e.latlng.lng);
+  if (zona) {
+    var sel = document.getElementById('zona-geografica');
+    if (sel) {
+      // Buscar la opción que coincida
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === zona) {
+          sel.value = zona;
+          onZonaChange();
+          break;
+        }
+      }
+    }
+  }
+
+  showNotif('📍 Ubicación marcada', dir || (e.latlng.lat.toFixed(4) + ', ' + e.latlng.lng.toFixed(4)));
 });
 map.on('mousemove',e=>{
   const el=document.getElementById('coords-display');
@@ -1787,6 +1814,154 @@ function tipoEmoji(tipo){
 }
 
 // ===== GEOCODIFICACIÓN =====
+// ===== SECTORES GEOGRÁFICOS DE FRUTILLAR =====
+// Polígonos aproximados basados en límites reales de cada sector
+const SECTORES_GEO = [
+  {
+    zona: 'Frutillar Bajo (sur municipalidad)',
+    // Sector sur del centro de Frutillar Bajo — al sur de la municipalidad (Av. Carlos Richter)
+    centro: {lat:-41.1280, lng:-73.0520},
+    zoom: 15,
+    poly: [[-41.1230,-73.0570],[-41.1230,-73.0460],[-41.1340,-73.0460],[-41.1340,-73.0570]],
+  },
+  {
+    zona: 'Frutillar Bajo (norte municipalidad)',
+    // Sector norte del centro de Frutillar Bajo — al norte de la municipalidad
+    centro: {lat:-41.1195, lng:-73.0510},
+    zoom: 15,
+    poly: [[-41.1100,-73.0570],[-41.1100,-73.0460],[-41.1230,-73.0460],[-41.1230,-73.0570]],
+  },
+  {
+    zona: 'Frutillar Alto / Ruta 5',
+    // Frutillar Alto — zona alta al este de la Ruta 5
+    centro: {lat:-41.1200, lng:-73.0430},
+    zoom: 14,
+    poly: [[-41.1050,-73.0550],[-41.1050,-73.0300],[-41.1380,-73.0300],[-41.1380,-73.0460],[-41.1230,-73.0460],[-41.1230,-73.0550]],
+  },
+  {
+    zona: 'Frutillar alto centro',
+    centro: {lat:-41.1200, lng:-73.0430},
+    zoom: 14,
+    poly: [[-41.1050,-73.0550],[-41.1050,-73.0300],[-41.1280,-73.0300],[-41.1280,-73.0460],[-41.1230,-73.0460],[-41.1230,-73.0550]],
+  },
+  {
+    zona: 'Frutillar alto , pantanosa',
+    centro: {lat:-41.1310, lng:-73.0370},
+    zoom: 14,
+    poly: [[-41.1280,-73.0460],[-41.1280,-73.0300],[-41.1420,-73.0300],[-41.1420,-73.0460]],
+  },
+  {
+    zona: 'Ruta 5 (hacia Casma/Pellines)',
+    centro: {lat:-41.1100, lng:-73.0500},
+    zoom: 13,
+    poly: [[-41.0700,-73.0600],[-41.0700,-73.0350],[-41.1100,-73.0350],[-41.1100,-73.0600]],
+  },
+  {
+    zona: 'Ruta 5 hacia Casma',
+    centro: {lat:-41.1000, lng:-73.0500},
+    zoom: 13,
+    poly: [[-41.0700,-73.0600],[-41.0700,-73.0350],[-41.1100,-73.0350],[-41.1100,-73.0600]],
+  },
+  {
+    zona: 'Ruta 5 hacia Pellines',
+    centro: {lat:-41.1430, lng:-73.0490},
+    zoom: 13,
+    poly: [[-41.1380,-73.0600],[-41.1380,-73.0350],[-41.1600,-73.0350],[-41.1600,-73.0600]],
+  },
+  {
+    zona: 'Ruta Tegualda',
+    centro: {lat:-41.1150, lng:-73.0200},
+    zoom: 13,
+    poly: [[-41.0900,-73.0350],[-41.0900,-73.0000],[-41.1400,-73.0000],[-41.1400,-73.0350]],
+  },
+  {
+    zona: 'Ruta Quilanto (cancha balmaceda)',
+    centro: {lat:-41.1550, lng:-73.0600},
+    zoom: 13,
+    poly: [[-41.1400,-73.0750],[-41.1400,-73.0450],[-41.1700,-73.0450],[-41.1700,-73.0750]],
+  },
+  {
+    zona: 'Sector Los Bajos',
+    centro: {lat:-41.1420, lng:-73.0620},
+    zoom: 14,
+    poly: [[-41.1340,-73.0700],[-41.1340,-73.0520],[-41.1550,-73.0520],[-41.1550,-73.0700]],
+  },
+  {
+    zona: 'Sector Casma',
+    centro: {lat:-41.0780, lng:-73.0750},
+    zoom: 13,
+    poly: [[-41.0500,-73.1000],[-41.0500,-73.0500],[-41.1100,-73.0500],[-41.1100,-73.1000]],
+  },
+  {
+    zona: 'Sector Quilanto',
+    centro: {lat:-41.1600, lng:-73.0780},
+    zoom: 13,
+    poly: [[-41.1500,-73.1000],[-41.1500,-73.0600],[-41.1800,-73.0600],[-41.1800,-73.1000]],
+  },
+  {
+    zona: 'FRUTILLAR GENERAL',
+    centro: {lat:-41.1262, lng:-73.0518},
+    zoom: 13,
+    poly: [[-41.0500,-73.1200],[-41.0500,-72.9800],[-41.2000,-72.9800],[-41.2000,-73.1200]],
+  },
+];
+
+// Detectar zona a partir de coordenadas
+function detectarZona(lat, lng) {
+  // Comprobar cada polígono usando ray-casting
+  for (var i = 0; i < SECTORES_GEO.length; i++) {
+    var s = SECTORES_GEO[i];
+    if (puntoDentroDePoligono(lat, lng, s.poly)) {
+      return s.zona;
+    }
+  }
+  // Fallback: sector más cercano por distancia al centro
+  var mejor = null, mejorDist = Infinity;
+  SECTORES_GEO.forEach(function(s) {
+    var d = Math.pow(lat - s.centro.lat, 2) + Math.pow(lng - s.centro.lng, 2);
+    if (d < mejorDist) { mejorDist = d; mejor = s; }
+  });
+  return mejor ? mejor.zona : '';
+}
+
+// Ray-casting para punto dentro de polígono
+function puntoDentroDePoligono(lat, lng, poly) {
+  var x = lat, y = lng, inside = false;
+  for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    var xi = poly[i][0], yi = poly[i][1];
+    var xj = poly[j][0], yj = poly[j][1];
+    var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// Mover mapa al sector seleccionado en el formulario
+function viajarASector(zonaStr) {
+  var s = SECTORES_GEO.find(function(x) { return x.zona === zonaStr; });
+  if (s) map.setView([s.centro.lat, s.centro.lng], s.zoom);
+}
+
+// Reverse geocoding: coordenadas → dirección
+async function reverseGeocode(lat, lng) {
+  try {
+    var r = await fetch(
+      'https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json&accept-language=es',
+      {headers:{'Accept-Language':'es'}}
+    );
+    var d = await r.json();
+    if (d && d.address) {
+      var road   = d.address.road || d.address.pedestrian || d.address.path || '';
+      var num    = d.address.house_number || '';
+      var barrio = d.address.suburb || d.address.neighbourhood || d.address.village || '';
+      var partes = [road, num].filter(Boolean).join(' ');
+      if (barrio && partes) partes += ', ' + barrio;
+      return partes || d.display_name.split(',').slice(0,2).join(',').trim();
+    }
+  } catch(e) {}
+  return '';
+}
+
 async function debounceGeocode(){
   clearTimeout(geocodeTimer);
   const q=document.getElementById('direccion').value.trim();
@@ -1811,6 +1986,16 @@ function selectGeocode(i){
   map.setView([r.lat,r.lon],17);
   if(clickMarker) map.removeLayer(clickMarker);
   clickMarker=L.marker([r.lat,r.lon],{icon:L.divIcon({html:'<div style="width:12px;height:12px;background:#e53935;border:2px solid #fff;border-radius:50%;"></div>',className:'',iconAnchor:[6,6]})}).addTo(map);
+  // Autodetectar zona desde coordenadas
+  var zona = detectarZona(parseFloat(r.lat), parseFloat(r.lon));
+  if (zona) {
+    var sel = document.getElementById('zona-geografica');
+    if (sel) {
+      for (var j = 0; j < sel.options.length; j++) {
+        if (sel.options[j].value === zona) { sel.value = zona; onZonaChange(); break; }
+      }
+    }
+  }
 }
 document.getElementById('geocode-results').addEventListener('mouseleave',()=>{
   setTimeout(()=>{document.getElementById('geocode-results').style.display='none';},200);
@@ -1868,6 +2053,10 @@ function onZonaChange(){
   const zona=document.getElementById('zona-geografica').value;
   const ds=document.getElementById('div-sugerido');
   if(!zona){ds.style.display='none';return;}
+
+  // Mover mapa al sector seleccionado
+  viajarASector(zona);
+
   const reg=(TABLA_DESPACHO[tipo]||[]).find(r=>r.clave===clave&&r.zona===zona);
   if(!reg){ds.style.display='none';return;}
   sugerido=reg.despacho||[];
