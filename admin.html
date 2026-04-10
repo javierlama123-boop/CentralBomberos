@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Sistema CAD Bomberos</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--bg4:#242840;
+  --border:#2a2f4a;--border2:#353b5c;
+  --text:#e8eaf6;--text2:#8b92bb;--text3:#555d85;
+  --red:#e53935;--amber:#f59e0b;--green:#10b981;--blue:#3b82f6;--purple:#8b5cf6;
+  --r:6px;--rlg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px;width:100%;max-width:380px;}
+.login-logo{text-align:center;font-size:48px;margin-bottom:12px;}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;text-align:center;margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--text3);text-align:center;margin-bottom:28px;}
+.fgroup{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.flabel{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
+.finput{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:9px 11px;font-size:13px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .15s;}
+.finput:focus{border-color:var(--red);}
+.finput::placeholder{color:var(--text3);}
+.fselect{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:9px 11px;font-size:13px;font-family:'Barlow',sans-serif;outline:none;width:100%;}
+.fselect option{background:var(--bg3);}
+.btn-pri{background:var(--red);border:none;color:#fff;border-radius:var(--r);padding:10px 18px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%;margin-top:4px;}
+.btn-pri:hover{background:#c62828;}
+.btn-pri:disabled{background:var(--bg4);color:var(--text3);cursor:default;}
+.btn-sec{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:var(--r);padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-sec:hover{background:var(--bg4);}
+.btn-green{background:var(--green);border:none;color:#fff;border-radius:var(--r);padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-blue{background:var(--blue);border:none;color:#fff;border-radius:var(--r);padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-danger{background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:var(--r);padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;}
+.btn-danger:hover{background:rgba(229,57,53,.2);}
+.btn-amber{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--amber);border-radius:var(--r);padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;}
+.login-error{background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:var(--r);padding:9px 12px;font-size:12px;display:none;text-align:center;margin-bottom:12px;}
+
+/* ── LAYOUT ── */
+.app{display:none;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100;}
+.logo{background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:900;padding:4px 10px;border-radius:var(--r);letter-spacing:1px;}
+.rol-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;letter-spacing:.5px;}
+.rol-badge.admin-cad{background:var(--blue);}
+.rol-badge.admin-cuartel{background:var(--green);}
+.main-layout{display:flex;flex:1;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);flex-shrink:0;padding:16px 0;}
+.sidebar-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:12px 16px 6px;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .15s;border-left:2px solid transparent;}
+.sidebar-item:hover{background:var(--bg3);color:var(--text);}
+.sidebar-item.active{background:var(--bg3);color:var(--text);border-left-color:var(--red);}
+.sidebar-item .ico{font-size:14px;width:18px;text-align:center;}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.page{display:none;}
+.page.active{display:block;}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px 16px;}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+.stat-card.red .stat-num{color:var(--red);}
+.stat-card.green .stat-num{color:var(--green);}
+.stat-card.blue .stat-num{color:var(--blue);}
+.stat-card.amber .stat-num{color:var(--amber);}
+
+/* ── TABLA ── */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;}
+.table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.table-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);}
+.search-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:12px;font-family:'Barlow',sans-serif;outline:none;width:200px;}
+.search-input:focus{border-color:var(--border2);}
+table{width:100%;border-collapse:collapse;}
+th{background:var(--bg3);padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge.superadmin{background:rgba(139,92,246,.15);color:var(--purple);}
+.badge.admin-cad{background:rgba(59,130,246,.15);color:var(--blue);}
+.badge.admin-cuartel{background:rgba(245,158,11,.15);color:var(--amber);}
+.badge.operadora{background:rgba(229,57,53,.15);color:var(--red);}
+.badge.oficial{background:rgba(20,184,166,.15);color:var(--teal,#14b8a6);}
+.badge.voluntario{background:rgba(139,145,187,.15);color:var(--text2);}
+.badge.activo{background:rgba(16,185,129,.15);color:var(--green);}
+.badge.inactivo{background:rgba(85,93,133,.15);color:var(--text3);}
+.actions{display:flex;gap:6px;}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);width:500px;max-width:95vw;max-height:85vh;overflow-y:auto;}
+.modal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;}
+.modal-close{width:26px;height:26px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:18px;}
+.modal-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.form-row{display:flex;gap:10px;margin-bottom:14px;}
+.form-row .fgroup{flex:1;}
+.fgroup{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.fgroup:last-child{margin-bottom:0;}
+
+/* ── CUERPOS ── */
+.cuerpo-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:12px;transition:border-color .15s;}
+.cuerpo-card:hover{border-color:var(--border2);}
+.cuerpo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cuerpo-nombre{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;}
+.cuerpo-ciudad{font-size:11px;color:var(--text3);}
+.cias-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.cia-chip{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.cia-dot{width:8px;height:8px;border-radius:50%;}
+
+/* ── NOTIF ── */
+.notif{display:none;position:fixed;top:16px;right:16px;z-index:9999;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:12px 16px;min-width:260px;animation:nIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);}
+.notif.show{display:flex;gap:10px;align-items:flex-start;}
+@keyframes nIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+.notif-ico{font-size:18px;flex-shrink:0;}
+.notif-title{font-size:12px;font-weight:700;margin-bottom:2px;}
+.notif-msg{font-size:11px;color:var(--text2);}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;gap:8px;color:var(--text3);font-size:13px;padding:20px 0;}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
+.empty-state-ico{font-size:36px;margin-bottom:10px;opacity:.3;}
+
+/* ── STATS CHARTS ── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;}
+.chart-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;}
+.bar-label{width:100px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;background:var(--bg3);border-radius:4px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;background:var(--red);transition:width .5s ease;}
+.bar-val{width:30px;text-align:right;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:11px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">🔐</div>
+    <div class="login-title">Panel de Administración</div>
+    <div class="login-sub">Sistema CAD · Bomberos Chile</div>
+    <div class="login-error" id="login-error"></div>
+    <div class="fgroup">
+      <div class="flabel">Correo electrónico</div>
+      <input class="finput" id="login-email" type="email" placeholder="admin@cbfrutillar.cl" autocomplete="email" value="javier@cbfrutillar.cl"/>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">Contraseña</div>
+      <input class="finput" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <button class="btn-pri" id="btn-login" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="logo">🚒 CAD</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">Panel de Administración</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="topbar-rol-badge" class="rol-badge">SUPERADMIN</div>
+      <div style="font-size:12px;color:var(--text2);" id="topbar-email">—</div>
+      <button class="btn-sec" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-section">General</div>
+      <div class="sidebar-item active" onclick="showPage('dashboard',this)" id="nav-dashboard">
+        <span class="ico">📊</span> Dashboard
+      </div>
+
+      <!-- Solo superadmin -->
+      <div id="nav-section-super" style="display:none;">
+        <div class="sidebar-section">Superadmin</div>
+        <div class="sidebar-item" onclick="showPage('cuerpos',this)" id="nav-cuerpos">
+          <span class="ico">🏛️</span> Cuerpos de Bomberos
+        </div>
+        <div class="sidebar-item" onclick="showPage('admins',this)" id="nav-admins">
+          <span class="ico">👑</span> Administradores
+        </div>
+        <div class="sidebar-item" onclick="showPage('stats-global',this)" id="nav-stats-global">
+          <span class="ico">📈</span> Estadísticas Globales
+        </div>
+      </div>
+
+      <!-- Admin CAD / Superadmin -->
+      <div id="nav-section-cad" style="display:none;">
+        <div class="sidebar-section">Central de Alarmas</div>
+        <div class="sidebar-item" onclick="showPage('operadoras',this)" id="nav-operadoras">
+          <span class="ico">📡</span> Operadoras
+        </div>
+        <div class="sidebar-item" onclick="showPage('emergencias-admin',this)" id="nav-emergencias-admin">
+          <span class="ico">🚨</span> Historial Emergencias
+        </div>
+      </div>
+
+      <!-- Admin Cuartel / Superadmin -->
+      <div id="nav-section-cuartel" style="display:none;">
+        <div class="sidebar-section">Cuarteles</div>
+        <div class="sidebar-item" onclick="showPage('voluntarios-admin',this)" id="nav-voluntarios-admin">
+          <span class="ico">👥</span> Voluntarios
+        </div>
+        <div class="sidebar-item" onclick="showPage('companias-admin',this)" id="nav-companias-admin">
+          <span class="ico">🚒</span> Compañías
+        </div>
+      </div>
+
+      <div class="sidebar-section">Mi Cuenta</div>
+      <div class="sidebar-item" onclick="showPage('mi-cuenta',this)" id="nav-mi-cuenta">
+        <span class="ico">⚙️</span> Mi Cuenta
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="dash-sub">Bienvenido al panel de administración</div>
+        <div class="stats-grid" id="dash-stats">
+          <div class="loading"><div class="spinner"></div>Cargando...</div>
+        </div>
+        <div class="chart-grid" id="dash-charts"></div>
+      </div>
+
+      <!-- CUERPOS DE BOMBEROS -->
+      <div class="page" id="page-cuerpos">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Cuerpos de Bomberos</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-cuerpo')">+ Nuevo Cuerpo</button>
+        </div>
+        <div class="page-sub">Gestión de todos los cuerpos registrados en el sistema</div>
+        <div id="lista-cuerpos"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- ADMINISTRADORES -->
+      <div class="page" id="page-admins">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Administradores</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-admin')">+ Nuevo Admin</button>
+        </div>
+        <div class="page-sub">Superadmins y administradores por módulo</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Todos los administradores</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-admins')"/>
+          </div>
+          <table id="tabla-admins">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Cuerpo / Compañía</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-admins"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- OPERADORAS -->
+      <div class="page" id="page-operadoras">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Operadoras CAD</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-usuario','operadora')">+ Nueva Operadora</button>
+        </div>
+        <div class="page-sub">Gestión de operadoras de la central de alarmas</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Operadoras registradas</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-operadoras')"/>
+          </div>
+          <table id="tabla-operadoras">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Cuerpo</th><th>Último acceso</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-operadoras"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VOLUNTARIOS -->
+      <div class="page" id="page-voluntarios-admin">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Voluntarios</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-usuario','voluntario')">+ Nuevo Voluntario</button>
+        </div>
+        <div class="page-sub">Gestión de voluntarios por compañía</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Todos los voluntarios</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-voluntarios')"/>
+          </div>
+          <table id="tabla-voluntarios">
+            <thead><tr><th>Nº</th><th>Nombre</th><th>Cargo</th><th>Compañía</th><th>Disponibilidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-voluntarios"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COMPAÑÍAS -->
+      <div class="page" id="page-companias-admin">
+        <div class="page-title">Compañías</div>
+        <div class="page-sub">Compañías registradas y módulos generados</div>
+        <div id="lista-companias-admin"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- HISTORIAL EMERGENCIAS -->
+      <div class="page" id="page-emergencias-admin">
+        <div class="page-title">Historial de Emergencias</div>
+        <div class="page-sub">Todas las emergencias registradas en el sistema</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Emergencias</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-emergencias-admin')"/>
+          </div>
+          <table id="tabla-emergencias-admin">
+            <thead><tr><th>ID</th><th>Tipo</th><th>Dirección</th><th>Compañías</th><th>Hora</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-emergencias"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ESTADÍSTICAS GLOBALES -->
+      <div class="page" id="page-stats-global">
+        <div class="page-title">Estadísticas Globales</div>
+        <div class="page-sub">Métricas de todos los cuerpos de bomberos</div>
+        <div id="stats-global-content"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- MI CUENTA -->
+      <div class="page" id="page-mi-cuenta">
+        <div class="page-title">Mi Cuenta</div>
+        <div class="page-sub">Configuración de tu cuenta de administrador</div>
+        <div style="max-width:480px;">
+          <div class="table-wrap" style="margin-bottom:16px;">
+            <div style="padding:16px;">
+              <div class="fgroup">
+                <div class="flabel">Nombre</div>
+                <input class="finput" id="mc-nombre" placeholder="Tu nombre"/>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Email</div>
+                <input class="finput" id="mc-email" type="email" disabled style="opacity:.6;"/>
+              </div>
+              <button class="btn-pri" style="width:auto;padding:9px 20px;" onclick="guardarCuenta()">Guardar cambios</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <div style="padding:16px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;">Cambiar Contraseña</div>
+              <div class="fgroup">
+                <div class="flabel">Nueva contraseña</div>
+                <input class="finput" id="mc-pass1" type="password" placeholder="Mínimo 6 caracteres"/>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Confirmar contraseña</div>
+                <input class="finput" id="mc-pass2" type="password" placeholder="Repetir contraseña"/>
+              </div>
+              <button class="btn-sec" onclick="cambiarPassword()">Cambiar contraseña</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-layout -->
+</div><!-- /app -->
+
+<!-- MODALES -->
+
+<!-- Modal: Nuevo Cuerpo -->
+<div class="modal-overlay" id="modal-nuevo-cuerpo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nuevo Cuerpo de Bomberos</div>
+      <button class="modal-close" onclick="closeModal('modal-nuevo-cuerpo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Nombre del Cuerpo</div>
+          <input class="finput" id="nc-nombre" placeholder="Ej: Cuerpo de Bomberos de Osorno"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Ciudad / Localidad</div>
+          <input class="finput" id="nc-ciudad" placeholder="Ej: Osorno"/>
+        </div>
+        <div class="fgroup">
+          <div class="flabel">Región</div>
+          <input class="finput" id="nc-region" placeholder="Ej: Los Lagos"/>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Número de Compañías</div>
+        <select class="fselect" id="nc-ncias">
+          <option value="1">1 Compañía</option>
+          <option value="2">2 Compañías</option>
+          <option value="3">3 Compañías</option>
+          <option value="4">4 Compañías</option>
+          <option value="5">5 Compañías</option>
+          <option value="6" selected>6 Compañías</option>
+          <option value="7">7 Compañías</option>
+          <option value="8">8 Compañías</option>
+          <option value="9">9 Compañías</option>
+          <option value="10">10 Compañías</option>
+        </select>
+      </div>
+      <div id="cias-nombres-form" style="margin-top:8px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-nuevo-cuerpo')">Cancelar</button>
+      <button class="btn-green" onclick="crearCuerpo()">Crear Cuerpo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nuevo Admin -->
+<div class="modal-overlay" id="modal-nuevo-admin">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nuevo Administrador</div>
+      <button class="modal-close" onclick="closeModal('modal-nuevo-admin')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Nombre completo</div>
+          <input class="finput" id="na-nombre" placeholder="Nombre y apellido"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Email</div>
+          <input class="finput" id="na-email" type="email" placeholder="admin@cbfrutillar.cl"/>
+        </div>
+        <div class="fgroup">
+          <div class="flabel">Contraseña inicial</div>
+          <input class="finput" id="na-pass" type="password" placeholder="Mínimo 6 caracteres"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Rol</div>
+          <select class="fselect" id="na-rol" onchange="onAdminRolChange()">
+            <option value="superadmin">Superadmin</option>
+            <option value="admin-cad">Admin CAD</option>
+            <option value="admin-cuartel">Admin Cuartel</option>
+          </select>
+        </div>
+        <div class="fgroup" id="na-cuerpo-group" style="display:none;">
+          <div class="flabel">Cuerpo de Bomberos</div>
+          <select class="fselect" id="na-cuerpo"></select>
+        </div>
+      </div>
+      <div class="fgroup" id="na-cia-group" style="display:none;">
+        <div class="flabel">Compañía</div>
+        <select class="fselect" id="na-cia"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-nuevo-admin')">Cancelar</button>
+      <button class="btn-green" onclick="crearAdmin()">Crear Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nuevo Usuario (Operadora / Voluntario) -->
+<div class="modal-overlay" id="modal-nuevo-usuario">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-usuario-title">Nuevo Usuario</div>
+      <button class="modal-close" onclick="closeModal('modal-nuevo-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Nombre completo</div>
+          <input class="finput" id="nu-nombre" placeholder="Nombre y apellido"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup">
+          <div class="flabel">Email</div>
+          <input class="finput" id="nu-email" type="email" placeholder="nombre@cbfrutillar.cl"/>
+        </div>
+        <div class="fgroup">
+          <div class="flabel">Contraseña inicial</div>
+          <input class="finput" id="nu-pass" type="password" placeholder="Mínimo 6 caracteres"/>
+        </div>
+      </div>
+      <div id="nu-extra-fields"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-nuevo-usuario')">Cancelar</button>
+      <button class="btn-green" id="btn-crear-usuario" onclick="crearUsuario()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar Usuario -->
+<div class="modal-overlay" id="modal-editar-usuario">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Editar Usuario</div>
+      <button class="modal-close" onclick="closeModal('modal-editar-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-uid"/>
+      <div class="fgroup">
+        <div class="flabel">Nombre completo</div>
+        <input class="finput" id="edit-nombre"/>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Email</div>
+        <input class="finput" id="edit-email" disabled style="opacity:.6;"/>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Estado</div>
+        <select class="fselect" id="edit-activo">
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--amber);margin-top:8px;">
+        ⚠️ Para restablecer la contraseña, usa el botón "Reset Pass" en la tabla.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-editar-usuario')">Cancelar</button>
+      <button class="btn-pri" onclick="guardarUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div class="notif" id="notif">
+  <div class="notif-ico" id="notif-ico">ℹ️</div>
+  <div><div class="notif-title" id="notif-title">—</div><div class="notif-msg" id="notif-msg">—</div></div>
+</div>
+
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+         createUserWithEmailAndPassword, sendPasswordResetEmail, updatePassword }
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc,
+         updateDoc, deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp, limit }
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const FB = {
+  apiKey           : "AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY",
+  authDomain       : "cad-bomberos-frutillar.firebaseapp.com",
+  projectId        : "cad-bomberos-frutillar",
+  storageBucket    : "cad-bomberos-frutillar.firebasestorage.app",
+  messagingSenderId: "70874334886",
+  appId            : "1:70874334886:web:8afa79fc1ef371b5ffd667"
+};
+const app  = initializeApp(FB);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+var usuarioActual = null;
+var perfilActual  = null;
+var tipoModalUsuario = 'operadora';
+
+// ── COLORES COMPAÑÍAS ─────────────────────────────────────────
+var CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
+
+// ── AUTH ──────────────────────────────────────────────────────
+onAuthStateChanged(auth, async function(user) {
+  if (user) {
+    usuarioActual = user;
+    var snap = await getDoc(doc(db, 'usuarios_admin', user.uid));
+    if (snap.exists()) {
+      perfilActual = snap.data();
+      iniciarApp();
+    } else {
+      showNotif('⚠️','Sin acceso','No tienes permisos de administrador.');
+      await signOut(auth);
+    }
+  } else {
+    mostrarLogin();
+  }
+});
+
+// ── SUPERADMIN HARDCODEADO (solo pruebas) ──────────────────
+var SUPERADMIN_EMAIL = 'javier@cbfrutillar.cl';
+var SUPERADMIN_PASS  = 'admin';
+
+window.doLogin = async function() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass  = document.getElementById('login-pass').value;
+  var btn   = document.getElementById('btn-login');
+  var err   = document.getElementById('login-error');
+  if (!email || !pass) { err.textContent='Completa los campos'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Ingresando...';
+  err.style.display='none';
+  // Acceso directo superadmin hardcodeado
+  if (email===SUPERADMIN_EMAIL && pass===SUPERADMIN_PASS) {
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
+    perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
+    iniciarApp();
+    btn.disabled=false; btn.textContent='Ingresar';
+    return;
+  }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.textContent = 'Email o contraseña incorrectos';
+    err.style.display = 'block';
+    btn.disabled=false; btn.textContent='Ingresar';
+  }
+};
+
+window.doLogout = async function() {
+  await signOut(auth);
+};
+
+function mostrarLogin() {
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function iniciarApp() {
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  var rol = perfilActual.rol || 'superadmin';
+  // Mostrar secciones según rol
+  if (rol === 'superadmin') {
+    document.getElementById('nav-section-super').style.display  = 'block';
+    document.getElementById('nav-section-cad').style.display    = 'block';
+    document.getElementById('nav-section-cuartel').style.display= 'block';
+    document.getElementById('topbar-rol-badge').textContent     = 'SUPERADMIN';
+    document.getElementById('topbar-rol-badge').className       = 'rol-badge';
+  } else if (rol === 'admin-cad') {
+    document.getElementById('nav-section-cad').style.display    = 'block';
+    document.getElementById('topbar-rol-badge').textContent     = 'ADMIN CAD';
+    document.getElementById('topbar-rol-badge').className       = 'rol-badge admin-cad';
+  } else if (rol === 'admin-cuartel') {
+    document.getElementById('nav-section-cuartel').style.display= 'block';
+    document.getElementById('topbar-rol-badge').textContent     = 'ADMIN CUARTEL';
+    document.getElementById('topbar-rol-badge').className       = 'rol-badge admin-cuartel';
+  }
+  document.getElementById('topbar-email').textContent = perfilActual.nombre || usuarioActual.email;
+  document.getElementById('mc-email').value  = usuarioActual.email;
+  document.getElementById('mc-nombre').value = perfilActual.nombre || '';
+  cargarDashboard();
+}
+
+// ── NAVEGACIÓN ────────────────────────────────────────────────
+window.showPage = function(name, el) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('page-'+name).classList.add('active');
+  if (el) el.classList.add('active');
+  // Cargar datos al cambiar de página
+  var loaders = {
+    'cuerpos'           : cargarCuerpos,
+    'admins'            : cargarAdmins,
+    'operadoras'        : cargarOperadoras,
+    'voluntarios-admin' : cargarVoluntariosAdmin,
+    'companias-admin'   : cargarCompaniasAdmin,
+    'emergencias-admin' : cargarEmergenciasAdmin,
+    'stats-global'      : cargarStatsGlobal
+  };
+  if (loaders[name]) loaders[name]();
+};
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+async function cargarDashboard() {
+  var grid   = document.getElementById('dash-stats');
+  var charts = document.getElementById('dash-charts');
+  try {
+    var [cuerposSnap, usersSnap, emergSnap, volSnap] = await Promise.all([
+      getDocs(collection(db, 'cuerpos')),
+      getDocs(collection(db, 'usuarios_admin')),
+      getDocs(query(collection(db, 'emergencias'), orderBy('timestamp','desc'), limit(100))),
+      getDocs(collection(db, 'voluntarios'))
+    ]);
+    var activas = 0;
+    emergSnap.forEach(function(d){ if(d.data().estado==='activa') activas++; });
+
+    grid.innerHTML =
+      stat('🏛️', cuerposSnap.size, 'Cuerpos registrados', 'blue') +
+      stat('👥', volSnap.size, 'Voluntarios totales', 'green') +
+      stat('🚨', emergSnap.size, 'Emergencias totales', 'red') +
+      stat('📡', activas, 'Emergencias activas', 'amber');
+
+    // Gráfico emergencias por tipo
+    var porTipo = {};
+    emergSnap.forEach(function(d){ var t=d.data().tipo||'—'; porTipo[t]=(porTipo[t]||0)+1; });
+    var tiposOrdenados = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+    var maxTipo = tiposOrdenados.length ? tiposOrdenados[0][1] : 1;
+
+    charts.innerHTML =
+      '<div class="chart-card"><div class="chart-title">Emergencias por tipo</div>' +
+      tiposOrdenados.map(function(e){
+        return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxTipo*100)+'%"></div></div>' +
+          '<div class="bar-val">'+e[1]+'</div></div>';
+      }).join('') + '</div>' +
+      '<div class="chart-card"><div class="chart-title">Resumen del sistema</div>' +
+      resumen('Cuerpos activos', cuerposSnap.size) +
+      resumen('Admins registrados', usersSnap.size) +
+      resumen('Total emergencias', emergSnap.size) +
+      resumen('Voluntarios activos', volSnap.size) +
+      '</div>';
+  } catch(e) {
+    grid.innerHTML = '<div style="color:var(--text3);font-size:12px;">Error cargando datos: '+e.message+'</div>';
+  }
+}
+
+function stat(ico,num,lbl,color){
+  return '<div class="stat-card '+color+'"><div style="font-size:20px;margin-bottom:6px;">'+ico+'</div>'+
+    '<div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div></div>';
+}
+function resumen(lbl,val){
+  return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">'+
+    '<span style="color:var(--text2);">'+lbl+'</span><span style="font-weight:700;">'+val+'</span></div>';
+}
+
+// ── CUERPOS ───────────────────────────────────────────────────
+async function cargarCuerpos() {
+  var cont = document.getElementById('lista-cuerpos');
+  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+  var snap = await getDocs(query(collection(db,'cuerpos'), orderBy('nombre')));
+  if (snap.empty) {
+    cont.innerHTML = '<div class="empty-state"><div class="empty-state-ico">🏛️</div><div>No hay cuerpos registrados.<br>Crea el primero.</div></div>';
+    return;
+  }
+  cont.innerHTML = '';
+  snap.forEach(function(d) {
+    var c = Object.assign({ id: d.id }, d.data());
+    var cias = c.companias || [];
+    var card = document.createElement('div');
+    card.className = 'cuerpo-card';
+    card.innerHTML =
+      '<div class="cuerpo-header">' +
+        '<div><div class="cuerpo-nombre">'+c.nombre+'</div><div class="cuerpo-ciudad">📍 '+c.ciudad+', '+c.region+'</div></div>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<button class="btn-amber" onclick="editarCuerpo(\''+d.id+'\')">Editar</button>' +
+          '<button class="btn-danger" onclick="eliminarCuerpo(\''+d.id+'\',\''+c.nombre+'\')">Eliminar</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">'+cias.length+' compañía'+(cias.length!==1?'s':'')+'</div>' +
+      '<div class="cias-grid">' +
+        cias.map(function(cia,i){
+          return '<div class="cia-chip"><div class="cia-dot" style="background:'+CIA_COLORS[i%CIA_COLORS.length]+';"></div>'+cia.nombre+'</div>';
+        }).join('') +
+      '</div>';
+    cont.appendChild(card);
+  });
+}
+
+// Generar campos de nombre por compañía
+document.getElementById('nc-ncias').addEventListener('change', function() {
+  generarCamposCompanias(parseInt(this.value));
+});
+
+function generarCamposCompanias(n) {
+  var cont = document.getElementById('cias-nombres-form');
+  cont.innerHTML = '<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Nombres de compañías</div>';
+  var nombres = ['1ª Compañía','2ª Compañía','3ª Compañía','4ª Compañía','5ª Compañía','6ª Compañía','7ª Compañía','8ª Compañía','9ª Compañía','10ª Compañía'];
+  for (var i=0; i<n; i++) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center;';
+    row.innerHTML =
+      '<div style="width:24px;height:24px;border-radius:50%;background:'+CIA_COLORS[i%CIA_COLORS.length]+';flex-shrink:0;"></div>' +
+      '<input class="finput" style="flex:1;" id="cia-nombre-'+i+'" value="'+nombres[i]+'" placeholder="Nombre de la '+nombres[i]+'"/>';
+    cont.appendChild(row);
+  }
+}
+generarCamposCompanias(6);
+
+window.crearCuerpo = async function() {
+  var nombre = document.getElementById('nc-nombre').value.trim();
+  var ciudad = document.getElementById('nc-ciudad').value.trim();
+  var region = document.getElementById('nc-region').value.trim();
+  var nCias  = parseInt(document.getElementById('nc-ncias').value);
+  if (!nombre || !ciudad) { showNotif('⚠️','Campos requeridos','Completa nombre y ciudad.'); return; }
+  var companias = [];
+  for (var i=0; i<nCias; i++) {
+    var nomCia = document.getElementById('cia-nombre-'+i).value.trim() || (i+1)+'ª Compañía';
+    companias.push({ id:'B-'+(i+1), nombre: nomCia, num:(i+1)+'ª', color: CIA_COLORS[i%CIA_COLORS.length] });
+  }
+  try {
+    var ref = await addDoc(collection(db,'cuerpos'), {
+      nombre, ciudad, region, companias,
+      nCompanias: nCias,
+      activo: true,
+      creado: serverTimestamp()
+    });
+    showNotif('✅','Cuerpo creado','Se crearon '+nCias+' compañías automáticamente.');
+    closeModal('modal-nuevo-cuerpo');
+    cargarCuerpos();
+  } catch(e) {
+    showNotif('❌','Error',e.message);
+  }
+};
+
+window.eliminarCuerpo = async function(id, nombre) {
+  if (!confirm('¿Eliminar el cuerpo "'+nombre+'"? Esta acción no se puede deshacer.')) return;
+  await deleteDoc(doc(db,'cuerpos',id));
+  showNotif('🗑️','Eliminado','Cuerpo "'+nombre+'" eliminado.');
+  cargarCuerpos();
+};
+
+// ── ADMINS ────────────────────────────────────────────────────
+async function cargarAdmins() {
+  var tbody = document.getElementById('tbody-admins');
+  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap = await getDocs(collection(db,'usuarios_admin'));
+  if (snap.empty) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin administradores registrados</td></tr>'; return; }
+  tbody.innerHTML = '';
+  snap.forEach(function(d) {
+    var u = Object.assign({ uid: d.id }, d.data());
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-weight:600;">'+u.nombre+'</td>' +
+      '<td style="color:var(--text2);font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+u.email+'</td>' +
+      '<td><span class="badge '+u.rol+'">'+u.rol+'</span></td>' +
+      '<td style="color:var(--text3);font-size:11px;">'+(u.cuerpo||'Global')+'</td>' +
+      '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>' +
+      '<td><div class="actions">' +
+        '<button class="btn-amber" onclick="editarUsuario(\''+d.id+'\',\'admin\')">Editar</button>' +
+        '<button class="btn-sec" onclick="resetPass(\''+u.email+'\')">Reset Pass</button>' +
+        '<button class="btn-danger" onclick="desactivarUsuario(\''+d.id+'\',\'usuarios_admin\')">'+
+          (u.activo?'Desactivar':'Activar')+'</button>' +
+      '</div></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+window.crearAdmin = async function() {
+  var nombre = document.getElementById('na-nombre').value.trim();
+  var email  = document.getElementById('na-email').value.trim();
+  var pass   = document.getElementById('na-pass').value.trim();
+  var rol    = document.getElementById('na-rol').value;
+  var cuerpo = document.getElementById('na-cuerpo').value || '';
+  var cia    = document.getElementById('na-cia').value || '';
+  if (!nombre||!email||!pass) { showNotif('⚠️','Campos requeridos','Completa todos los campos.'); return; }
+  try {
+    var cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db,'usuarios_admin',cred.user.uid), {
+      nombre, email, rol, cuerpo, cia, activo:true, creado:serverTimestamp()
+    });
+    showNotif('✅','Admin creado',nombre+' registrado como '+rol);
+    closeModal('modal-nuevo-admin');
+    cargarAdmins();
+  } catch(e) {
+    showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);
+  }
+};
+
+window.onAdminRolChange = function() {
+  var rol = document.getElementById('na-rol').value;
+  var cuerpoGroup = document.getElementById('na-cuerpo-group');
+  var ciaGroup    = document.getElementById('na-cia-group');
+  cuerpoGroup.style.display = (rol==='admin-cad'||rol==='admin-cuartel') ? 'block' : 'none';
+  ciaGroup.style.display    = rol==='admin-cuartel' ? 'block' : 'none';
+  if (rol !== 'superadmin') cargarSelectCuerpos('na-cuerpo');
+};
+
+async function cargarSelectCuerpos(selectId) {
+  var sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">— Seleccionar —</option>';
+  var snap = await getDocs(collection(db,'cuerpos'));
+  snap.forEach(function(d){ var opt=document.createElement('option'); opt.value=d.id; opt.textContent=d.data().nombre; sel.appendChild(opt); });
+}
+
+// ── OPERADORAS ────────────────────────────────────────────────
+async function cargarOperadoras() {
+  var tbody = document.getElementById('tbody-operadoras');
+  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var q = query(collection(db,'usuarios_admin'), where('rol','==','operadora'));
+  var snap = await getDocs(q);
+  if (snap.empty) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin operadoras registradas</td></tr>'; return; }
+  tbody.innerHTML='';
+  snap.forEach(function(d) {
+    var u = Object.assign({ uid:d.id }, d.data());
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-weight:600;">'+u.nombre+'</td>' +
+      '<td style="color:var(--text2);font-size:11px;font-family:\'JetBrains Mono\',monospace;">'+u.email+'</td>' +
+      '<td style="color:var(--text3);font-size:11px;">'+(u.cuerpo||'—')+'</td>' +
+      '<td style="color:var(--text3);font-size:11px;">'+(u.ultimoAcceso||'Nunca')+'</td>' +
+      '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>' +
+      '<td><div class="actions">' +
+        '<button class="btn-amber" onclick="editarUsuario(\''+d.id+'\',\'admin\')">Editar</button>' +
+        '<button class="btn-sec" onclick="resetPass(\''+u.email+'\')">Reset Pass</button>' +
+        '<button class="btn-danger" onclick="desactivarUsuario(\''+d.id+'\',\'usuarios_admin\')">'+
+          (u.activo?'Desactivar':'Activar')+'</button>' +
+      '</div></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── VOLUNTARIOS ───────────────────────────────────────────────
+async function cargarVoluntariosAdmin() {
+  var tbody = document.getElementById('tbody-voluntarios');
+  tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap = await getDocs(query(collection(db,'voluntarios'), orderBy('cia')));
+  if (snap.empty) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">Sin voluntarios registrados</td></tr>'; return; }
+  tbody.innerHTML='';
+  snap.forEach(function(d) {
+    var v = Object.assign({ uid:d.id }, d.data());
+    var dispColor = v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
+    var dispIco   = v.disponibilidad==='disponible'?'✅':v.disponibilidad==='casa'?'🏠':'❌';
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+(v.num||'—')+'</td>' +
+      '<td style="font-weight:600;">'+v.nombre+'</td>' +
+      '<td><span class="badge '+(v.cat||'voluntario')+'">'+(v.cargo||'Bombero')+'</span></td>' +
+      '<td style="font-size:11px;font-weight:700;">'+(v.cia||'—')+'</td>' +
+      '<td style="color:'+dispColor+';font-size:11px;">'+dispIco+' '+(v.disponibilidad||'—')+'</td>' +
+      '<td><span class="badge '+(v.activo!==false?'activo':'inactivo')+'">'+(v.activo!==false?'Activo':'Inactivo')+'</span></td>' +
+      '<td><div class="actions">' +
+        '<button class="btn-amber" onclick="editarUsuario(\''+d.id+'\',\'voluntario\')">Editar</button>' +
+        '<button class="btn-sec" onclick="resetPass(\''+v.email+'\')">Reset Pass</button>' +
+        '<button class="btn-danger" onclick="desactivarUsuario(\''+d.id+'\',\'voluntarios\')">'+
+          (v.activo!==false?'Desactivar':'Activar')+'</button>' +
+      '</div></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── COMPAÑÍAS ADMIN ───────────────────────────────────────────
+async function cargarCompaniasAdmin() {
+  var cont = document.getElementById('lista-companias-admin');
+  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+  var snap = await getDocs(collection(db,'cuerpos'));
+  if (snap.empty) { cont.innerHTML='<div class="empty-state"><div class="empty-state-ico">🚒</div><div>Sin compañías registradas.</div></div>'; return; }
+  cont.innerHTML = '';
+  snap.forEach(function(d) {
+    var c = Object.assign({ id:d.id }, d.data());
+    var cias = c.companias || [];
+    var card = document.createElement('div');
+    card.className = 'cuerpo-card';
+    card.innerHTML =
+      '<div class="cuerpo-header"><div><div class="cuerpo-nombre">'+c.nombre+'</div><div class="cuerpo-ciudad">'+c.ciudad+'</div></div></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;">' +
+      cias.map(function(cia,i){
+        return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+            '<div style="width:10px;height:10px;border-radius:50%;background:'+cia.color+';"></div>' +
+            '<div style="font-size:12px;font-weight:700;">'+cia.nombre+'</div>' +
+          '</div>' +
+          '<div style="font-size:10px;color:var(--text3);">ID: '+cia.id+'</div>' +
+          '<div style="font-size:10px;color:var(--blue);margin-top:4px;cursor:pointer;">📄 compania-'+cia.id.replace('B-','')+'.html</div>' +
+        '</div>';
+      }).join('') + '</div>';
+    cont.appendChild(card);
+  });
+}
+
+// ── EMERGENCIAS ADMIN ─────────────────────────────────────────
+async function cargarEmergenciasAdmin() {
+  var tbody = document.getElementById('tbody-emergencias');
+  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap = await getDocs(query(collection(db,'emergencias'), orderBy('timestamp','desc'), limit(50)));
+  if (snap.empty) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin emergencias registradas</td></tr>'; return; }
+  tbody.innerHTML='';
+  snap.forEach(function(d) {
+    var e = Object.assign({ id:d.id }, d.data());
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;">'+(e.cadId||e.id)+'</td>' +
+      '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>' +
+      '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>' +
+      '<td style="font-size:11px;color:var(--text2);">'+(e.companias||[]).join(', ')+'</td>' +
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+(e.hora||'—')+'</td>' +
+      '<td><span class="badge '+(e.estado==='activa'?'operadora':'inactivo')+'">'+(e.estado||'—')+'</span></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── STATS GLOBAL ──────────────────────────────────────────────
+async function cargarStatsGlobal() {
+  var cont = document.getElementById('stats-global-content');
+  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+  var [emergSnap, volSnap, cuerposSnap] = await Promise.all([
+    getDocs(collection(db,'emergencias')),
+    getDocs(collection(db,'voluntarios')),
+    getDocs(collection(db,'cuerpos'))
+  ]);
+  var activas=0; var cerradas=0;
+  emergSnap.forEach(function(d){ if(d.data().estado==='activa') activas++; else cerradas++; });
+  cont.innerHTML =
+    '<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">' +
+      stat('🏛️',cuerposSnap.size,'Cuerpos','blue') +
+      stat('👥',volSnap.size,'Voluntarios totales','green') +
+      stat('🚨',emergSnap.size,'Total emergencias','red') +
+    '</div>' +
+    '<div class="chart-card"><div class="chart-title">Resumen sistema</div>' +
+    resumen('Emergencias activas', activas) +
+    resumen('Emergencias cerradas', cerradas) +
+    resumen('Cuerpos registrados', cuerposSnap.size) +
+    resumen('Voluntarios en sistema', volSnap.size) +
+    '</div>';
+}
+
+// ── USUARIO (editar/crear/reset) ──────────────────────────────
+window.openModal = function(id, tipo) {
+  if (id==='modal-nuevo-usuario' && tipo) {
+    tipoModalUsuario = tipo;
+    document.getElementById('modal-usuario-title').textContent = tipo==='operadora' ? 'Nueva Operadora' : 'Nuevo Voluntario';
+    var extra = document.getElementById('nu-extra-fields');
+    if (tipo==='voluntario') {
+      extra.innerHTML =
+        '<div class="form-row">' +
+          '<div class="fgroup"><div class="flabel">Compañía</div>' +
+            '<select class="fselect" id="nu-cia"><option value="B-1">B-1 · 1ª Cía</option><option value="B-2">B-2 · 2ª Cía</option><option value="B-3">B-3 · 3ª Cía</option><option value="B-4">B-4 · 4ª Cía</option><option value="B-5">B-5 · 5ª Cía</option><option value="B-6">B-6 · 6ª Cía</option></select>' +
+          '</div>' +
+          '<div class="fgroup"><div class="flabel">Cargo</div>' +
+            '<select class="fselect" id="nu-cargo"><option>Bombero</option><option>Oficial</option><option>Aspirante</option><option>Cadete</option><option>Honorario</option></select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="fgroup"><div class="flabel">Número de voluntario</div><input class="finput" id="nu-num" placeholder="Ej: 124"/></div>';
+    } else {
+      extra.innerHTML = '';
+    }
+  }
+  document.getElementById(id).classList.add('open');
+};
+
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove('open');
+};
+
+window.crearUsuario = async function() {
+  var nombre = document.getElementById('nu-nombre').value.trim();
+  var email  = document.getElementById('nu-email').value.trim();
+  var pass   = document.getElementById('nu-pass').value.trim();
+  if (!nombre||!email||!pass) { showNotif('⚠️','Campos requeridos','Completa nombre, email y contraseña.'); return; }
+  try {
+    var cred = await createUserWithEmailAndPassword(auth, email, pass);
+    if (tipoModalUsuario==='operadora') {
+      await setDoc(doc(db,'usuarios_admin',cred.user.uid), {
+        nombre, email, rol:'operadora', activo:true, creado:serverTimestamp()
+      });
+      cargarOperadoras();
+    } else {
+      var cia    = document.getElementById('nu-cia')?.value    || 'B-1';
+      var cargo  = document.getElementById('nu-cargo')?.value  || 'Bombero';
+      var num    = document.getElementById('nu-num')?.value    || '';
+      await setDoc(doc(db,'voluntarios',cred.user.uid), {
+        nombre, email, cia, cargo, num, cat:cargo.toLowerCase(),
+        rol:'voluntario', disponibilidad:'disponible', activo:true,
+        prefs:{ noche:false, fds:true, sonido:'siren' },
+        creado:serverTimestamp()
+      });
+      cargarVoluntariosAdmin();
+    }
+    showNotif('✅','Usuario creado',nombre+' registrado correctamente.');
+    closeModal('modal-nuevo-usuario');
+  } catch(e) {
+    showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);
+  }
+};
+
+window.editarUsuario = async function(uid, coleccion) {
+  var col = coleccion==='voluntario' ? 'voluntarios' : 'usuarios_admin';
+  var snap = await getDoc(doc(db,col,uid));
+  if (!snap.exists()) return;
+  var u = snap.data();
+  document.getElementById('edit-uid').value     = uid+'|'+col;
+  document.getElementById('edit-nombre').value  = u.nombre||'';
+  document.getElementById('edit-email').value   = u.email||'';
+  document.getElementById('edit-activo').value  = String(u.activo!==false);
+  openModal('modal-editar-usuario');
+};
+
+window.guardarUsuario = async function() {
+  var uidCol = document.getElementById('edit-uid').value.split('|');
+  var uid=uidCol[0]; var col=uidCol[1];
+  var nombre = document.getElementById('edit-nombre').value.trim();
+  var activo = document.getElementById('edit-activo').value === 'true';
+  await updateDoc(doc(db,col,uid), { nombre, activo });
+  showNotif('✅','Guardado','Usuario actualizado.');
+  closeModal('modal-editar-usuario');
+  if (col==='voluntarios') cargarVoluntariosAdmin(); else cargarAdmins();
+};
+
+window.desactivarUsuario = async function(uid, col) {
+  var snap = await getDoc(doc(db,col,uid));
+  var activo = snap.data().activo !== false;
+  await updateDoc(doc(db,col,uid), { activo: !activo });
+  showNotif('✅', activo?'Desactivado':'Activado', 'Estado del usuario actualizado.');
+  if (col==='voluntarios') cargarVoluntariosAdmin(); else cargarAdmins();
+};
+
+window.resetPass = async function(email) {
+  if (!email) return;
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showNotif('📧','Email enviado','Se envió enlace de restablecimiento a '+email);
+  } catch(e) {
+    showNotif('❌','Error',e.message);
+  }
+};
+
+// ── MI CUENTA ─────────────────────────────────────────────────
+window.guardarCuenta = async function() {
+  var nombre = document.getElementById('mc-nombre').value.trim();
+  await updateDoc(doc(db,'usuarios_admin',usuarioActual.uid), { nombre });
+  showNotif('✅','Guardado','Datos actualizados.');
+};
+
+window.cambiarPassword = async function() {
+  var p1 = document.getElementById('mc-pass1').value;
+  var p2 = document.getElementById('mc-pass2').value;
+  if (p1.length < 6) { showNotif('⚠️','Contraseña corta','Mínimo 6 caracteres.'); return; }
+  if (p1 !== p2) { showNotif('⚠️','No coinciden','Las contraseñas no coinciden.'); return; }
+  try {
+    await updatePassword(usuarioActual, p1);
+    showNotif('✅','Contraseña cambiada','Tu contraseña fue actualizada.');
+    document.getElementById('mc-pass1').value='';
+    document.getElementById('mc-pass2').value='';
+  } catch(e) {
+    showNotif('❌','Error',e.message);
+  }
+};
+
+// ── HELPERS ───────────────────────────────────────────────────
+window.filtrarTabla = function(input, tablaId) {
+  var filtro = input.value.toLowerCase();
+  var filas  = document.getElementById(tablaId).querySelectorAll('tbody tr');
+  filas.forEach(function(tr) {
+    tr.style.display = tr.textContent.toLowerCase().includes(filtro) ? '' : 'none';
+  });
+};
+
+var notifTimer = null;
+function showNotif(ico, title, msg) {
+  document.getElementById('notif-ico').textContent   = ico;
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-msg').textContent   = msg;
+  var el = document.getElementById('notif');
+  el.classList.add('show');
+  if (notifTimer) clearTimeout(notifTimer);
+  notifTimer = setTimeout(function(){ el.classList.remove('show'); }, 3500);
+}
+
+// Cerrar modales al click fuera
+document.querySelectorAll('.modal-overlay').forEach(function(m){
+  m.addEventListener('click', function(e){ if(e.target===this) closeModal(this.id); });
+});
+</script>
+</body>
+</html>
