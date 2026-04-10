@@ -780,12 +780,12 @@ _Central de Alarmas Frutillar_</textarea>
     <div class="ia-header-ico">🤖</div>
     <div class="ia-header-info">
       <div class="ia-header-title">Asistente IA · Emergencias</div>
-      <div class="ia-header-sub">GEMINI 2.0 FLASH · APOYO CAD FRUTILLAR</div>
+      <div class="ia-header-sub">LLAMA 3.3 · GROQ · APOYO CAD FRUTILLAR</div>
     </div>
     <button class="ia-close" onclick="toggleIAPanel()" title="Cerrar">✕</button>
   </div>
   <div class="ia-apikey-bar">
-    <input class="ia-apikey-input" id="ia-key-input" type="password" placeholder="API Key Gemini (Google AI Studio)…" />
+    <input class="ia-apikey-input" id="ia-key-input" type="password" placeholder="API Key Groq (console.groq.com)…" />
     <button class="ia-apikey-btn" onclick="saveIAKey()">Guardar</button>
     <button class="ia-apikey-btn" style="background:var(--bg4);border:1px solid var(--border);" onclick="clearIAChat()" title="Limpiar chat">🗑</button>
   </div>
@@ -3359,7 +3359,7 @@ init();
 setTimeout(function(){ initIAChat(); }, 0);
 
 // ===== CHAT IA GEMINI =====
-var iaApiKey = localStorage.getItem('ia_gemini_key') || '';
+var iaApiKey = localStorage.getItem('ia_groq_key') || '';
 var iaChatHistory = [];
 var iaSending = false;
 
@@ -3406,7 +3406,7 @@ function saveIAKey(){
   var val = keyInput.value.trim();
   if(!val){ showNotif('⚠️ API Key vacía','Ingresa tu API key de Gemini (Google AI Studio)'); return; }
   iaApiKey = val;
-  localStorage.setItem('ia_gemini_key', val);
+  localStorage.setItem('ia_groq_key', val);
   showNotif('✅ API Key guardada','El asistente IA está listo para usar.');
 }
 
@@ -3493,27 +3493,37 @@ function sendIAMessage(textOverride){
   // Burbuja de "pensando"
   appendIABubble('Analizando...', 'bot', true);
 
-  // Construir payload para Gemini
-  var payload = {
-    system_instruction: { parts: [{ text: IA_SYSTEM_PROMPT }] },
-    contents: iaChatHistory
-  };
+  // Construir payload para Groq (formato OpenAI)
+  var messages = [{ role: 'system', content: IA_SYSTEM_PROMPT }];
+  for(var i=0; i<iaChatHistory.length; i++){
+    var entry = iaChatHistory[i];
+    var groqRole = (entry.role === 'model') ? 'assistant' : 'user';
+    messages.push({ role: groqRole, content: entry.parts[0].text });
+  }
 
-  var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + iaApiKey;
+  var url = 'https://api.groq.com/openai/v1/chat/completions';
 
   fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + iaApiKey
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: messages,
+      max_tokens: 1024,
+      temperature: 0.7
+    })
   }).then(function(res){ return res.json(); }).then(function(data){
     var thinking = document.getElementById('ia-thinking-bubble');
     if(thinking && thinking.parentNode) thinking.parentNode.removeChild(thinking);
 
     if(data.error){
-      appendIABubble('⚠️ Error: ' + (data.error.message || 'No se pudo conectar con Gemini.'), 'bot', false);
+      appendIABubble('⚠️ Error: ' + (data.error.message || 'No se pudo conectar con Groq.'), 'bot', false);
     } else {
       var reply = '';
-      try { reply = data.candidates[0].content.parts[0].text; } catch(e){ reply = 'Sin respuesta del modelo.'; }
+      try { reply = data.choices[0].message.content; } catch(e){ reply = 'Sin respuesta del modelo.'; }
       iaChatHistory.push({ role:'model', parts:[{ text: reply }] });
       appendIABubble(reply, 'bot', false);
     }
