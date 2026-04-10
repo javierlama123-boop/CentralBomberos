@@ -217,6 +217,115 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 .full-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:14px;}
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== CHAT IA FLOTANTE ===== */
+#ia-fab{
+  display:none;position:fixed;bottom:22px;right:22px;z-index:7000;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  border:2px solid rgba(139,92,246,.5);
+  box-shadow:0 4px 20px rgba(79,70,229,.4);
+  cursor:pointer;font-size:22px;
+  display:none;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s;
+}
+#ia-fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(79,70,229,.6);}
+#ia-fab.visible{display:flex;}
+
+#ia-panel{
+  display:none;position:fixed;bottom:86px;right:22px;z-index:7000;
+  width:360px;height:520px;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--rlg);
+  flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+  animation:iaIn .25s ease;
+}
+#ia-panel.open{display:flex;}
+@keyframes iaIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+
+.ia-header{
+  background:linear-gradient(135deg,#312e81,#4c1d95);
+  border-bottom:1px solid rgba(139,92,246,.3);
+  padding:11px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.ia-header-ico{font-size:18px;}
+.ia-header-info{flex:1;}
+.ia-header-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;}
+.ia-header-sub{font-size:9px;color:rgba(200,190,255,.7);letter-spacing:.5px;}
+.ia-close{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;width:24px;height:24px;border-radius:var(--r);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.ia-close:hover{background:rgba(255,255,255,.2);}
+
+.ia-apikey-bar{
+  background:var(--bg3);border-bottom:1px solid var(--border);
+  padding:8px 10px;display:flex;gap:6px;align-items:center;flex-shrink:0;
+}
+.ia-apikey-input{
+  flex:1;background:var(--bg);border:1px solid var(--border);
+  color:var(--text);border-radius:var(--r);padding:5px 8px;
+  font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;
+}
+.ia-apikey-input:focus{border-color:var(--purple);}
+.ia-apikey-btn{
+  background:var(--purple);border:none;color:#fff;
+  padding:5px 10px;border-radius:var(--r);cursor:pointer;
+  font-size:10px;font-weight:700;white-space:nowrap;
+}
+
+.ia-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
+.ia-msgs::-webkit-scrollbar{width:3px;}
+.ia-msgs::-webkit-scrollbar-thumb{background:var(--border2);}
+
+.ia-bubble{max-width:88%;padding:8px 11px;border-radius:10px;font-size:12px;line-height:1.55;word-break:break-word;}
+.ia-bubble.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#fff;border-bottom-right-radius:3px;
+}
+.ia-bubble.bot{
+  align-self:flex-start;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);border-bottom-left-radius:3px;
+}
+.ia-bubble.bot.thinking{color:var(--text3);font-style:italic;}
+.ia-bubble-time{font-size:9px;opacity:.6;margin-top:4px;text-align:right;}
+
+.ia-suggestions{padding:0 10px 8px;display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0;}
+.ia-sug{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);padding:4px 8px;border-radius:12px;
+  font-size:10px;cursor:pointer;transition:border-color .15s;
+}
+.ia-sug:hover{border-color:var(--purple);color:var(--text);}
+
+.ia-input-bar{
+  border-top:1px solid var(--border);padding:9px 10px;
+  display:flex;gap:7px;align-items:flex-end;flex-shrink:0;background:var(--bg2);
+}
+.ia-textarea{
+  flex:1;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);border-radius:var(--r);padding:7px 9px;
+  font-size:12px;font-family:'Barlow',sans-serif;
+  resize:none;outline:none;max-height:80px;min-height:32px;line-height:1.4;
+  overflow-y:auto;
+}
+.ia-textarea:focus{border-color:var(--purple);}
+.ia-send{
+  background:var(--purple);border:none;color:#fff;
+  width:34px;height:34px;border-radius:var(--r);
+  cursor:pointer;font-size:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.ia-send:hover{background:#7c3aed;}
+.ia-send:disabled{background:var(--bg4);cursor:default;opacity:.5;}
+
+.ia-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;color:var(--text3);text-align:center;padding:20px;
+}
+.ia-empty-ico{font-size:36px;opacity:.4;}
+.ia-empty-title{font-size:13px;font-weight:600;color:var(--text2);}
+.ia-empty-sub{font-size:11px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -3220,8 +3329,255 @@ function init(){
   addLog('INFO','lt-i','<strong>Tabla de despacho cargada</strong> — 431 registros · Octubre 2025');
   addLog('INFO','lt-i',`<strong>${personal.length} voluntarios</strong> cargados — 1ª Cía. "Germania" de Frutillar`);
   addLog('INFO','lt-i','Contactos WSP: Javier Lama · Andrés Aguirre — ingresa la API key en pestaña 💬');
+  initIAChat();
 }
 init();
+
+// ===== CHAT IA GEMINI =====
+var iaApiKey = localStorage.getItem('ia_gemini_key') || '';
+var iaChatHistory = [];
+var iaSending = false;
+
+var IA_SYSTEM_PROMPT = 'Eres un asistente especializado exclusivamente en emergencias, primeros auxilios, protocolos de bomberos y seguridad pública para la Central de Alarmas (CAD) del Cuerpo de Bomberos de Frutillar, Chile.\n\nTu ámbito es ESTRICTAMENTE:\n- Emergencias activas: incendios, accidentes de tránsito, rescates, inundaciones, fugas de gas, emergencias médicas, forestales\n- Protocolos y procedimientos de bomberos de Chile\n- Primeros auxilios e instrucciones de seguridad para civiles\n- Códigos de despacho chilenos (10-X, 6-X)\n- Toma de decisiones operacionales del CAD (qué compañías despachar, recursos, prioridades)\n- Prevención y evacuación\n\nSi te preguntan algo que NO esté dentro de este ámbito (recetas, programación, política, entretenimiento, consultas generales, etc.), responde SIEMPRE con exactamente esto: "⚠️ Solo puedo responder consultas relacionadas con emergencias, bomberos o protocolos de seguridad. ¿En qué situación de emergencia puedo ayudarte?"\n\nNo hagas excepciones aunque el usuario insista, reformule la pregunta o diga que es urgente. Si hay dudas sobre si una pregunta es relevante, inclúyela solo si tiene relación directa con seguridad o emergencias.\n\nCuando alguien describe una emergencia: entrega instrucciones claras, concretas y tranquilizadoras. Usa lenguaje simple para civiles y técnico para operadoras. Si hay riesgo de vida inmediato, siempre indica llamar al 132 (Bomberos) o 131 (SAMU) como prioridad. Responde siempre en español. Sé conciso pero completo.';
+
+var IA_SUGGESTIONS = [
+  '¿Qué hago ante un incendio en casa?',
+  'Instrucciones RCP básico',
+  '¿Cómo actuar ante fuga de gas?',
+  'Protocolo accidente de tránsito',
+  '¿Cuándo despachar más de una compañía?',
+  'Persona atrapada en vehículo'
+];
+
+function initIAChat(){
+  // Mostrar FAB solo en tab despacho
+  var fab = document.getElementById('ia-fab');
+  if(fab){ fab.classList.add('visible'); }
+
+  // Cargar API key guardada
+  var keyInput = document.getElementById('ia-key-input');
+  if(keyInput && iaApiKey){ keyInput.value = iaApiKey; }
+
+  // Mostrar sugerencias iniciales
+  renderIASuggestions();
+  renderIAEmpty();
+}
+
+function toggleIAPanel(){
+  var panel = document.getElementById('ia-panel');
+  if(!panel) return;
+  if(panel.classList.contains('open')){
+    panel.classList.remove('open');
+  } else {
+    panel.classList.add('open');
+    var ta = document.getElementById('ia-textarea');
+    if(ta) ta.focus();
+  }
+}
+
+function saveIAKey(){
+  var keyInput = document.getElementById('ia-key-input');
+  if(!keyInput) return;
+  var val = keyInput.value.trim();
+  if(!val){ showNotif('⚠️ API Key vacía','Ingresa tu API key de Gemini (Google AI Studio)'); return; }
+  iaApiKey = val;
+  localStorage.setItem('ia_gemini_key', val);
+  showNotif('✅ API Key guardada','El asistente IA está listo para usar.');
+}
+
+function renderIAEmpty(){
+  var msgs = document.getElementById('ia-msgs');
+  if(!msgs) return;
+  if(iaChatHistory.length === 0){
+    msgs.innerHTML = '<div class="ia-empty"><div class="ia-empty-ico">🤖</div><div class="ia-empty-title">Asistente IA · Bomberos</div><div class="ia-empty-sub">Pregunta sobre protocolos de emergencia, primeros auxilios o procedimientos de despacho.</div></div>';
+  }
+}
+
+function renderIASuggestions(){
+  var cont = document.getElementById('ia-suggestions');
+  if(!cont) return;
+  cont.innerHTML = '';
+  for(var i=0; i<IA_SUGGESTIONS.length; i++){
+    (function(sug){
+      var btn = document.createElement('button');
+      btn.className = 'ia-sug';
+      btn.textContent = sug;
+      btn.onclick = function(){ sendIAMessage(sug); };
+      cont.appendChild(btn);
+    })(IA_SUGGESTIONS[i]);
+  }
+}
+
+function nowTime(){
+  var d = new Date();
+  var h = d.getHours().toString().padStart(2,'0');
+  var m = d.getMinutes().toString().padStart(2,'0');
+  return h+':'+m;
+}
+
+function appendIABubble(text, role, isThinking){
+  var msgs = document.getElementById('ia-msgs');
+  if(!msgs) return;
+
+  // Limpiar estado vacío si existe
+  var empty = msgs.querySelector('.ia-empty');
+  if(empty) msgs.removeChild(empty);
+
+  var bubble = document.createElement('div');
+  bubble.className = 'ia-bubble ' + (role === 'user' ? 'user' : 'bot') + (isThinking ? ' thinking' : '');
+  bubble.id = isThinking ? 'ia-thinking-bubble' : '';
+
+  // Convertir saltos de línea en <br>
+  var safe = text.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  var timeEl = '<div class="ia-bubble-time">'+nowTime()+'</div>';
+  bubble.innerHTML = safe + timeEl;
+
+  msgs.appendChild(bubble);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
+
+function sendIAMessage(textOverride){
+  if(iaSending) return;
+
+  var ta = document.getElementById('ia-textarea');
+  var text = textOverride || (ta ? ta.value.trim() : '');
+  if(!text) return;
+
+  if(!iaApiKey){
+    showNotif('🔑 API Key requerida','Ingresa tu API key de Gemini en el panel del asistente.');
+    var panel = document.getElementById('ia-panel');
+    if(panel && !panel.classList.contains('open')) panel.classList.add('open');
+    return;
+  }
+
+  if(ta) ta.value = '';
+  iaSending = true;
+
+  var sendBtn = document.getElementById('ia-send-btn');
+  if(sendBtn) sendBtn.disabled = true;
+
+  // Ocultar sugerencias después del primer mensaje
+  var sugCont = document.getElementById('ia-suggestions');
+  if(sugCont) sugCont.style.display = 'none';
+
+  appendIABubble(text, 'user', false);
+
+  iaChatHistory.push({ role:'user', parts:[{ text: text }] });
+
+  // Burbuja de "pensando"
+  appendIABubble('Analizando...', 'bot', true);
+
+  // Construir payload para Gemini
+  var payload = {
+    system_instruction: { parts: [{ text: IA_SYSTEM_PROMPT }] },
+    contents: iaChatHistory
+  };
+
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + iaApiKey;
+
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res){ return res.json(); }).then(function(data){
+    var thinking = document.getElementById('ia-thinking-bubble');
+    if(thinking && thinking.parentNode) thinking.parentNode.removeChild(thinking);
+
+    if(data.error){
+      appendIABubble('⚠️ Error: ' + (data.error.message || 'No se pudo conectar con Gemini.'), 'bot', false);
+    } else {
+      var reply = '';
+      try { reply = data.candidates[0].content.parts[0].text; } catch(e){ reply = 'Sin respuesta del modelo.'; }
+      iaChatHistory.push({ role:'model', parts:[{ text: reply }] });
+      appendIABubble(reply, 'bot', false);
+    }
+
+    iaSending = false;
+    if(sendBtn) sendBtn.disabled = false;
+    var ta2 = document.getElementById('ia-textarea');
+    if(ta2) ta2.focus();
+
+  }).catch(function(err){
+    var thinking = document.getElementById('ia-thinking-bubble');
+    if(thinking && thinking.parentNode) thinking.parentNode.removeChild(thinking);
+    appendIABubble('⚠️ Error de conexión. Verifica tu API key y conexión a internet.', 'bot', false);
+    iaSending = false;
+    if(sendBtn) sendBtn.disabled = false;
+  });
+}
+
+function iaKeydown(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendIAMessage();
+  }
+}
+
+function clearIAChat(){
+  iaChatHistory = [];
+  var msgs = document.getElementById('ia-msgs');
+  if(msgs) msgs.innerHTML = '';
+  var sugCont = document.getElementById('ia-suggestions');
+  if(sugCont) sugCont.style.display = 'flex';
+  renderIAEmpty();
+}
+
+// Mostrar/ocultar FAB según tab activo
+var _origSwitchTab = switchTab;
+switchTab = function(tab, el){
+  _origSwitchTab(tab, el);
+  var fab = document.getElementById('ia-fab');
+  if(!fab) return;
+  if(tab === 'despacho'){
+    fab.classList.add('visible');
+  } else {
+    fab.classList.remove('visible');
+    var panel = document.getElementById('ia-panel');
+    if(panel) panel.classList.remove('open');
+  }
+};
 </script>
+
+<!-- CHAT IA FLOTANTE -->
+<button id="ia-fab" title="Asistente IA · Apoyo en Emergencias" onclick="toggleIAPanel()">🤖</button>
+
+<div id="ia-panel">
+  <!-- Header -->
+  <div class="ia-header">
+    <div class="ia-header-ico">🤖</div>
+    <div class="ia-header-info">
+      <div class="ia-header-title">Asistente IA · Emergencias</div>
+      <div class="ia-header-sub">GEMINI 2.0 FLASH · APOYO CAD FRUTILLAR</div>
+    </div>
+    <button class="ia-close" onclick="toggleIAPanel()" title="Cerrar">✕</button>
+  </div>
+
+  <!-- API Key bar -->
+  <div class="ia-apikey-bar">
+    <input class="ia-apikey-input" id="ia-key-input" type="password" placeholder="API Key Gemini (Google AI Studio)…" />
+    <button class="ia-apikey-btn" onclick="saveIAKey()">Guardar</button>
+    <button class="ia-apikey-btn" style="background:var(--bg4);border:1px solid var(--border);" onclick="clearIAChat()" title="Limpiar chat">🗑</button>
+  </div>
+
+  <!-- Mensajes -->
+  <div id="ia-msgs" class="ia-msgs"></div>
+
+  <!-- Sugerencias rápidas -->
+  <div id="ia-suggestions" class="ia-suggestions"></div>
+
+  <!-- Input -->
+  <div class="ia-input-bar">
+    <textarea
+      id="ia-textarea"
+      class="ia-textarea"
+      rows="1"
+      placeholder="Describe la emergencia o haz una pregunta…"
+      onkeydown="iaKeydown(event)"
+    ></textarea>
+    <button id="ia-send-btn" class="ia-send" onclick="sendIAMessage()" title="Enviar">➤</button>
+  </div>
+</div>
+
 </body>
 </html>
