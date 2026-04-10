@@ -220,7 +220,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 
 /* ===== CHAT IA FLOTANTE ===== */
 #ia-fab{
-  display:none;position:fixed;bottom:22px;right:22px;z-index:7000;
+  position:fixed;bottom:22px;right:22px;z-index:7000;
   width:52px;height:52px;border-radius:50%;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
   border:2px solid rgba(139,92,246,.5);
@@ -230,7 +230,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
   transition:transform .2s,box-shadow .2s;
 }
 #ia-fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(79,70,229,.6);}
-#ia-fab.visible{display:flex;}
+#ia-fab.visible{display:flex !important;}
 
 #ia-panel{
   display:none;position:fixed;bottom:86px;right:22px;z-index:7000;
@@ -3352,7 +3352,7 @@ var IA_SUGGESTIONS = [
 function initIAChat(){
   // Mostrar FAB solo en tab despacho
   var fab = document.getElementById('ia-fab');
-  if(fab){ fab.classList.add('visible'); }
+  if(fab){ fab.style.display="flex"; fab.classList.add("visible"); }
 
   // Cargar API key guardada
   var keyInput = document.getElementById('ia-key-input');
@@ -3530,9 +3530,9 @@ switchTab = function(tab, el){
   var fab = document.getElementById('ia-fab');
   if(!fab) return;
   if(tab === 'despacho'){
-    fab.classList.add('visible');
+    fab.style.display='flex'; fab.classList.add('visible');
   } else {
-    fab.classList.remove('visible');
+    fab.style.display='none'; fab.classList.remove('visible');
     var panel = document.getElementById('ia-panel');
     if(panel) panel.classList.remove('open');
   }
