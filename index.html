@@ -3356,7 +3356,7 @@ function init(){
   addLog('INFO','lt-i','Contactos WSP: Javier Lama · Andrés Aguirre — ingresa la API key en pestaña 💬');
 }
 init();
-document.addEventListener('DOMContentLoaded', function(){ initIAChat(); });
+setTimeout(function(){ initIAChat(); }, 0);
 
 // ===== CHAT IA GEMINI =====
 var iaApiKey = localStorage.getItem('ia_gemini_key') || '';
