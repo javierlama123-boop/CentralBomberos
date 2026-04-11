@@ -315,9 +315,65 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
       <!-- COMPAÑÍAS -->
       <div class="page" id="page-companias-admin">
-        <div class="page-title">Compañías</div>
-        <div class="page-sub">Compañías registradas y módulos generados</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Compañías</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-cuerpo')">+ Nuevo Cuerpo</button>
+        </div>
+        <div class="page-sub">Compañías registradas por cuerpo de bomberos</div>
         <div id="lista-companias-admin"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- DETALLE COMPAÑÍA -->
+      <div class="page" id="page-detalle-cia">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <button class="btn-sec" onclick="showPage('companias-admin',document.getElementById('nav-companias-admin'))" style="padding:6px 10px;font-size:12px;">← Volver</button>
+          <div class="page-title" id="detalle-cia-titulo">Compañía</div>
+        </div>
+        <div class="page-sub" id="detalle-cia-sub">—</div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;" id="detalle-cia-stats">
+          <div class="loading"><div class="spinner"></div>Cargando...</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <!-- Voluntarios -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">👥 Voluntarios</div>
+              <span style="font-size:11px;color:var(--text3);" id="detalle-vol-cnt">0</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nº</th><th>Nombre</th><th>Cargo</th><th>Disponibilidad</th></tr></thead>
+                <tbody id="detalle-vol-tbody"><tr><td colspan="4" style="text-align:center;color:var(--text3);padding:12px;">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Carros -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">🚒 Carros</div>
+              <span style="font-size:11px;color:var(--text3);" id="detalle-carros-cnt">0</span>
+            </div>
+            <div id="detalle-carros-list" class="table-wrap">
+              <table>
+                <thead><tr><th>Código</th><th>Tipo</th><th>Patente</th><th>KM</th><th>Estado</th></tr></thead>
+                <tbody id="detalle-carros-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Últimas emergencias -->
+        <div style="margin-top:16px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">🚨 Últimas Emergencias</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Tipo</th><th>Dirección</th><th>Hora</th><th>Estado</th></tr></thead>
+              <tbody id="detalle-emerg-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- HISTORIAL EMERGENCIAS -->
@@ -592,8 +648,6 @@ var CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#
 
 // ── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async function(user) {
-  // Ignorar SIEMPRE si es sesión de superadmin hardcodeado
-  if (_isSuperadminSession()) return;
   if (user) {
     usuarioActual = user;
     if (user.isAnonymous) return;
@@ -602,21 +656,41 @@ onAuthStateChanged(auth, async function(user) {
       if (snap.exists()) {
         perfilActual = snap.data();
         if (perfilActual.activo !== false) {
+          _superadminHardcoded = false;
+          sessionStorage.removeItem('_sa_hc');
           iniciarApp();
         } else {
           showNotif('⚠️','Cuenta desactivada','Tu cuenta no está activa.');
           await signOut(auth);
         }
+      } else if (_isSuperadminSession()) {
+        // Es el superadmin hardcodeado con sesión Firebase real pero sin doc
+        // Crear el documento automáticamente
+        await setDoc(doc(db, 'usuarios_admin', user.uid), {
+          nombre  : 'Javier Lama',
+          email   : user.email,
+          rol     : 'superadmin',
+          activo  : true,
+          creado  : serverTimestamp()
+        });
+        perfilActual = { nombre:'Javier Lama', rol:'superadmin', activo:true };
+        iniciarApp();
       } else {
         showNotif('⚠️','Sin acceso','No tienes permisos de administrador.');
         await signOut(auth);
       }
     } catch(e) {
       console.error('[Admin] Error:', e.message);
-      mostrarLogin();
+      if (_isSuperadminSession()) {
+        // Aunque falle Firestore, entrar igual con perfil hardcodeado
+        perfilActual = { nombre:'Javier Lama', rol:'superadmin', activo:true };
+        iniciarApp();
+      } else {
+        mostrarLogin();
+      }
     }
   } else {
-    mostrarLogin();
+    if (!_isSuperadminSession()) mostrarLogin();
   }
 });
 
@@ -715,16 +789,6 @@ window.showPage = function(name, el) {
 async function cargarDashboard() {
   var grid   = document.getElementById('dash-stats');
   var charts = document.getElementById('dash-charts');
-  // Si no hay auth real, mostrar datos vacíos con opción de autenticar
-  if (_superadminHardcoded && !auth.currentUser) {
-    grid.innerHTML =
-      stat('🏛️','—','Cuerpos registrados','blue') +
-      stat('👥','—','Voluntarios totales','green') +
-      stat('🚨','—','Emergencias totales','red') +
-      stat('📡','—','Emergencias activas','amber');
-    charts.innerHTML = '<div style="grid-column:1/-1;background:var(--bg2);border:1px solid var(--amber);border-radius:var(--rlg);padding:16px;color:var(--amber);font-size:12px;">⚠️ Para ver estadísticas reales, crea una cuenta en Firebase Auth con email <strong>'+SUPERADMIN_EMAIL+'</strong> usando el archivo <strong>setup-superadmin.html</strong> y luego vuelve a iniciar sesión.</div>';
-    return;
-  }
   try {
     var [cuerposSnap, usersSnap, emergSnap, volSnap] = await Promise.all([
       getDocs(collection(db, 'cuerpos')),
@@ -983,30 +1047,186 @@ async function cargarVoluntariosAdmin() {
 async function cargarCompaniasAdmin() {
   var cont = document.getElementById('lista-companias-admin');
   cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
-  var snap = await getDocs(collection(db,'cuerpos'));
-  if (snap.empty) { cont.innerHTML='<div class="empty-state"><div class="empty-state-ico">🚒</div><div>Sin compañías registradas.</div></div>'; return; }
+  var snap = await getDocs(query(collection(db,'cuerpos'), orderBy('nombre')));
+  if (snap.empty) {
+    cont.innerHTML = '<div class="empty-state"><div class="empty-state-ico">🏛️</div><div>Sin cuerpos registrados.<br><button class="btn-green" onclick="openModal('modal-nuevo-cuerpo')" style="margin-top:12px;">+ Crear primer cuerpo</button></div></div>';
+    return;
+  }
   cont.innerHTML = '';
   snap.forEach(function(d) {
     var c = Object.assign({ id:d.id }, d.data());
     var cias = c.companias || [];
-    var card = document.createElement('div');
-    card.className = 'cuerpo-card';
-    card.innerHTML =
-      '<div class="cuerpo-header"><div><div class="cuerpo-nombre">'+c.nombre+'</div><div class="cuerpo-ciudad">'+c.ciudad+'</div></div></div>' +
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;">' +
-      cias.map(function(cia,i){
-        return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;">' +
-          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
-            '<div style="width:10px;height:10px;border-radius:50%;background:'+cia.color+';"></div>' +
-            '<div style="font-size:12px;font-weight:700;">'+cia.nombre+'</div>' +
+    var cuerpoCard = document.createElement('div');
+    cuerpoCard.className = 'cuerpo-card';
+    cuerpoCard.style.marginBottom = '20px';
+    cuerpoCard.innerHTML =
+      '<div class="cuerpo-header">' +
+        '<div>' +
+          '<div class="cuerpo-nombre">'+c.nombre+'</div>' +
+          '<div class="cuerpo-ciudad">📍 '+c.ciudad+', '+c.region+' · '+cias.length+' compañía'+(cias.length!==1?'s':'')+'</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<button class="btn-amber" onclick="editarCuerpo(''+d.id+'')">Editar</button>' +
+          '<button class="btn-danger" onclick="eliminarCuerpo(''+d.id+'',''+c.nombre.replace(/'/g,'')+'')">Eliminar</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:12px;">' +
+      cias.map(function(cia, i) {
+        return '<div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid '+cia.color+';border-radius:var(--r);padding:12px;cursor:pointer;transition:border-color .15s;" ' +
+          'onclick="verDetalleCompania(''+d.id+'',''+cia.id+'',''+cia.nombre+'',''+cia.color+'')" ' +
+          'title="Ver detalle de '+cia.nombre+'">' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+            '<div style="width:12px;height:12px;border-radius:50%;background:'+cia.color+';flex-shrink:0;"></div>' +
+            '<div style="font-size:13px;font-weight:700;">'+cia.nombre+'</div>' +
           '</div>' +
-          '<div style="font-size:10px;color:var(--text3);">ID: '+cia.id+'</div>' +
-          '<div style="font-size:10px;color:var(--blue);margin-top:4px;cursor:pointer;">📄 compania-'+cia.id.replace('B-','')+'.html</div>' +
+          '<div style="font-size:10px;color:var(--text3);margin-bottom:8px;">ID: '+cia.id+'</div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+            '<a href="compania-'+cia.id.replace('B-','')+'.html" target="_blank" ' +
+               'style="font-size:10px;color:var(--blue);text-decoration:none;" ' +
+               'onclick="event.stopPropagation()">📄 Abrir módulo →</a>' +
+            '<button style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" ' +
+               'onclick="event.stopPropagation();eliminarCompania(''+d.id+'','+i+',''+cia.nombre.replace(/'/g,'')+'')">Eliminar</button>' +
+          '</div>' +
         '</div>';
-      }).join('') + '</div>';
-    cont.appendChild(card);
+      }).join('') +
+      '</div>' +
+      '<div style="margin-top:10px;">' +
+        '<button class="btn-sec" style="font-size:11px;padding:5px 10px;" onclick="agregarCompania(''+d.id+'')">+ Agregar Compañía</button>' +
+      '</div>';
+    cont.appendChild(cuerpoCard);
   });
 }
+
+// ── VER DETALLE COMPAÑÍA ──────────────────────────────────────
+window.verDetalleCompania = async function(cuerpoId, ciaId, ciaNombre, ciaColor) {
+  // Mostrar página detalle
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('page-detalle-cia').classList.add('active');
+  document.getElementById('detalle-cia-titulo').textContent = ciaNombre;
+  document.getElementById('detalle-cia-titulo').style.color = ciaColor;
+  document.getElementById('detalle-cia-sub').textContent = 'ID: '+ciaId+' · Cuerpo: '+cuerpoId;
+
+  // Stats
+  var statsEl = document.getElementById('detalle-cia-stats');
+  statsEl.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+
+  try {
+    var [volSnap, carrosSnap, emergSnap] = await Promise.all([
+      getDocs(query(collection(db,'voluntarios'), where('cia','==',ciaId))),
+      getDocs(query(collection(db,'carros_cia'), where('cia','==',ciaId))),
+      getDocs(query(collection(db,'emergencias'), where('companias','array-contains',ciaId), orderBy('timestamp','desc'), limit(10)))
+    ]);
+
+    // Stats
+    var activos    = 0; volSnap.forEach(function(d){ if(d.data().activo!==false) activos++; });
+    var disponibles= 0; carrosSnap.forEach(function(d){ if(d.data().estado==='disponible') disponibles++; });
+    statsEl.innerHTML =
+      stat('👥', volSnap.size, 'Voluntarios', 'blue') +
+      stat('✅', activos, 'Activos', 'green') +
+      stat('🚒', carrosSnap.size, 'Carros', 'red') +
+      stat('🟢', disponibles, 'Disponibles', 'amber');
+
+    // Voluntarios
+    document.getElementById('detalle-vol-cnt').textContent = volSnap.size + ' total';
+    var volTbody = document.getElementById('detalle-vol-tbody');
+    volTbody.innerHTML = '';
+    if (volSnap.empty) {
+      volTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:12px;">Sin voluntarios registrados</td></tr>';
+    } else {
+      var vols = [];
+      volSnap.forEach(function(d){ vols.push(Object.assign({uid:d.id},d.data())); });
+      vols.sort(function(a,b){ return (a.num||999)-(b.num||999); });
+      vols.forEach(function(v) {
+        var dispColor = v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;">'+(v.num||'—')+'</td>' +
+          '<td style="font-weight:600;font-size:12px;">'+v.nombre+'</td>' +
+          '<td><span class="badge '+(v.cat||'voluntario')+'" style="font-size:9px;">'+(v.cargo||'Bombero')+'</span></td>' +
+          '<td style="color:'+dispColor+';font-size:11px;">'+(v.disponibilidad||'—')+'</td>';
+        volTbody.appendChild(tr);
+      });
+    }
+
+    // Carros
+    document.getElementById('detalle-carros-cnt').textContent = carrosSnap.size + ' total';
+    var carrosTbody = document.getElementById('detalle-carros-tbody');
+    carrosTbody.innerHTML = '';
+    if (carrosSnap.empty) {
+      carrosTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Sin carros registrados</td></tr>';
+    } else {
+      carrosSnap.forEach(function(d) {
+        var c = d.data();
+        var estColor = c.estado==='disponible'?'var(--green)':c.estado==='mantencion'?'var(--amber)':'var(--red)';
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="font-weight:700;font-size:12px;">'+(c.nombre||'—')+'</td>' +
+          '<td style="font-size:11px;color:var(--text2);">'+(c.tipo||'—')+'</td>' +
+          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;">'+(c.patente||'—')+'</td>' +
+          '<td style="font-size:11px;">'+(c.km||0).toLocaleString()+' km</td>' +
+          '<td style="color:'+estColor+';font-size:11px;">'+(c.estado||'—')+'</td>';
+        carrosTbody.appendChild(tr);
+      });
+    }
+
+    // Emergencias
+    var emergTbody = document.getElementById('detalle-emerg-tbody');
+    emergTbody.innerHTML = '';
+    if (emergSnap.empty) {
+      emergTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Sin emergencias registradas</td></tr>';
+    } else {
+      emergSnap.forEach(function(d) {
+        var e = d.data();
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;">'+(e.cadId||d.id)+'</td>' +
+          '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>' +
+          '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>' +
+          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;">'+(e.hora||'—')+'</td>' +
+          '<td><span class="badge '+(e.estado==='activa'?'operadora':'inactivo')+'">'+(e.estado||'—')+'</span></td>';
+        emergTbody.appendChild(tr);
+      });
+    }
+  } catch(err) {
+    statsEl.innerHTML = '<div style="color:var(--text3);font-size:12px;grid-column:1/-1;">Error cargando datos: '+err.message+'</div>';
+  }
+};
+
+// ── AGREGAR COMPAÑÍA A CUERPO EXISTENTE ───────────────────────
+window.agregarCompania = async function(cuerpoId) {
+  var nombre = prompt('Nombre de la nueva compañía (ej: 7ª Compañía):');
+  if (!nombre || !nombre.trim()) return;
+  try {
+    var snap = await getDocs(query(collection(db,'cuerpos')));
+    var cuerpoData = null;
+    snap.forEach(function(d){ if(d.id===cuerpoId) cuerpoData = d.data(); });
+    if (!cuerpoData) return;
+    var cias = cuerpoData.companias || [];
+    var nextNum = cias.length + 1;
+    var colors = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
+    cias.push({ id:'B-'+nextNum, nombre:nombre.trim(), num:nextNum+'ª', color:colors[(nextNum-1)%colors.length] });
+    await updateDoc(doc(db,'cuerpos',cuerpoId), { companias:cias, nCompanias:cias.length });
+    showNotif('✅','Compañía agregada',nombre.trim()+' agregada correctamente.');
+    cargarCompaniasAdmin();
+  } catch(e) { showNotif('❌','Error',e.message); }
+};
+
+// ── ELIMINAR COMPAÑÍA INDIVIDUAL ──────────────────────────────
+window.eliminarCompania = async function(cuerpoId, index, nombre) {
+  if (!confirm('¿Eliminar la compañía "'+nombre+'"? Esta acción no se puede deshacer.')) return;
+  try {
+    var snap = await getDocs(collection(db,'cuerpos'));
+    var cuerpoData = null;
+    snap.forEach(function(d){ if(d.id===cuerpoId) cuerpoData = d.data(); });
+    if (!cuerpoData) return;
+    var cias = cuerpoData.companias || [];
+    cias.splice(index, 1);
+    await updateDoc(doc(db,'cuerpos',cuerpoId), { companias:cias, nCompanias:cias.length });
+    showNotif('🗑️','Compañía eliminada',nombre+' eliminada.');
+    cargarCompaniasAdmin();
+  } catch(e) { showNotif('❌','Error',e.message); }
+};
 
 // ── EMERGENCIAS ADMIN ─────────────────────────────────────────
 async function cargarEmergenciasAdmin() {
