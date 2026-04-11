@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin · Sistema CAD Bomberos</title>
+<!-- versión: 2026-04-11 00:58 -->
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -144,7 +145,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .bar-label{width:100px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bar-track{flex:1;background:var(--bg3);border-radius:4px;height:8px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;background:var(--red);transition:width .5s ease;}
-.bar-val{width:30px;text-align:right;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:11px;}
+.bar-val{width:30px;text-align:right;color:var(--text3);font-family:JetBrains Mono,monospace;font-size:11px;}
 </style>
 </head>
 <body>
@@ -1076,8 +1077,8 @@ async function cargarCompaniasAdmin() {
           '<div class="cuerpo-ciudad">📍 '+c.ciudad+', '+c.region+' · '+cias.length+' compañía'+(cias.length!==1?'s':'')+'</div>' +
         '</div>' +
         '<div style="display:flex;gap:8px;">' +
-          '<button class="btn-amber" onclick="editarCuerpo(''+d.id+'')">Editar</button>' +
-          '<button class="btn-danger" onclick="eliminarCuerpo(''+d.id+'',''+c.nombre.replace(/'/g,'')+'')">Eliminar</button>' +
+          '<button class="btn-amber" data-id="'+d.id+'" onclick="editarCuerpo(this.dataset.id)">Editar</button>' +
+          '<button class="btn-danger" data-id="'+d.id+'" data-nombre="'+c.nombre+'" onclick="eliminarCuerpo(this.dataset.id,this.dataset.nombre)">Eliminar</button>' +
         '</div>' +
       '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:12px;">' +
@@ -1096,13 +1097,13 @@ async function cargarCompaniasAdmin() {
                'style="font-size:10px;color:var(--blue);text-decoration:none;" ' +
                'onclick="event.stopPropagation()">📄 Abrir módulo →</a>' +
             '<button style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" ' +
-               'onclick="event.stopPropagation();eliminarCompania(''+d.id+'','+i+',''+cia.nombre.replace(/'/g,'')+'')">Eliminar</button>' +
+               '<button data-cuerpo2="'+d.id+'" data-idx="'+i+'" data-cia2="'+cia.nombre+'" style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" onclick="event.stopPropagation();eliminarCompania(this.dataset.cuerpo2,this.dataset.idx,this.dataset.cia2)">Eliminar</button>' +
           '</div>' +
         '</div>';
       }).join('') +
       '</div>' +
       '<div style="margin-top:10px;">' +
-        '<button class="btn-sec" style="font-size:11px;padding:5px 10px;" onclick="agregarCompania(''+d.id+'')">+ Agregar Compañía</button>' +
+        '<button class="btn-sec" style="font-size:11px;padding:5px 10px;" data-id="'+d.id+'" onclick="agregarCompania(this.dataset.id)">+ Agregar Compañía</button>' +
       '</div>';
     cont.appendChild(cuerpoCard);
   });
@@ -1152,7 +1153,7 @@ window.verDetalleCompania = async function(cuerpoId, ciaId, ciaNombre, ciaColor)
         var dispColor = v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;">'+(v.num||'—')+'</td>' +
+          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(v.num||'—')+'</td>' +
           '<td style="font-weight:600;font-size:12px;">'+v.nombre+'</td>' +
           '<td><span class="badge '+(v.cat||'voluntario')+'" style="font-size:9px;">'+(v.cargo||'Bombero')+'</span></td>' +
           '<td style="color:'+dispColor+';font-size:11px;">'+(v.disponibilidad||'—')+'</td>';
@@ -1174,7 +1175,7 @@ window.verDetalleCompania = async function(cuerpoId, ciaId, ciaNombre, ciaColor)
         tr.innerHTML =
           '<td style="font-weight:700;font-size:12px;">'+(c.nombre||'—')+'</td>' +
           '<td style="font-size:11px;color:var(--text2);">'+(c.tipo||'—')+'</td>' +
-          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;">'+(c.patente||'—')+'</td>' +
+          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(c.patente||'—')+'</td>' +
           '<td style="font-size:11px;">'+(c.km||0).toLocaleString()+' km</td>' +
           '<td style="color:'+estColor+';font-size:11px;">'+(c.estado||'—')+'</td>';
         carrosTbody.appendChild(tr);
@@ -1191,10 +1192,10 @@ window.verDetalleCompania = async function(cuerpoId, ciaId, ciaNombre, ciaColor)
         var e = d.data();
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;">'+(e.cadId||d.id)+'</td>' +
+          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;">'+(e.cadId||d.id)+'</td>' +
           '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>' +
           '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>' +
-          '<td style="font-family:'JetBrains Mono',monospace;font-size:11px;">'+(e.hora||'—')+'</td>' +
+          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(e.hora||'—')+'</td>' +
           '<td><span class="badge '+(e.estado==='activa'?'operadora':'inactivo')+'">'+(e.estado||'—')+'</span></td>';
         emergTbody.appendChild(tr);
       });
