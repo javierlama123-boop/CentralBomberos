@@ -587,7 +587,17 @@ var CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#
 // ── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async function(user) {
   if (user) {
+    // Si ya está configurado como superadmin hardcodeado, no hacer nada
+    if (perfilActual && perfilActual.rol === 'superadmin') return;
     usuarioActual = user;
+    // Usuario anónimo — solo permitir si vino del flujo hardcodeado
+    if (user.isAnonymous) {
+      if (!perfilActual) {
+        await signOut(auth);
+        mostrarLogin();
+      }
+      return;
+    }
     var snap = await getDoc(doc(db, 'usuarios_admin', user.uid));
     if (snap.exists()) {
       perfilActual = snap.data();
@@ -597,7 +607,7 @@ onAuthStateChanged(auth, async function(user) {
       await signOut(auth);
     }
   } else {
-    mostrarLogin();
+    if (!perfilActual) mostrarLogin();
   }
 });
 
@@ -613,15 +623,27 @@ window.doLogin = async function() {
   if (!email || !pass) { err.textContent='Completa los campos'; err.style.display='block'; return; }
   btn.disabled=true; btn.textContent='Ingresando...';
   err.style.display='none';
-  // Acceso directo superadmin hardcodeado
+  // Acceso directo superadmin hardcodeado — usa signInAnonymously para Firebase
   if (email===SUPERADMIN_EMAIL && pass===SUPERADMIN_PASS) {
-    usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
-    perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
-    document.getElementById('login-wrap').style.display = 'none';
-    document.getElementById('app').style.display        = 'flex';
-    iniciarApp();
-    // También cargar datos Firebase sin auth
-    cargarDatosAdminFirebase();
+    try {
+      // Login anónimo para tener sesión Firebase real y poder leer Firestore
+      const { signInAnonymously } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+      await signInAnonymously(auth);
+      // onAuthStateChanged se encargará del resto, pero sobreescribimos el perfil
+      usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
+      perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
+      document.getElementById('login-wrap').style.display = 'none';
+      document.getElementById('app').style.display        = 'flex';
+      iniciarApp();
+    } catch(e) {
+      // Si falla el anónimo, igual entramos pero sin Firebase
+      usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
+      perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
+      document.getElementById('login-wrap').style.display = 'none';
+      document.getElementById('app').style.display        = 'flex';
+      iniciarApp();
+      console.warn('[Admin] Auth anónima falló:', e.message);
+    }
     btn.disabled=false; btn.textContent='Ingresar';
     return;
   }
@@ -639,14 +661,7 @@ window.doLogout = async function() {
   location.reload();
 };
 
-// Carga datos Firebase sin necesitar auth (para superadmin hardcodeado)
-async function cargarDatosAdminFirebase() {
-  try {
-    // Iniciar sesión anónima para poder leer Firestore
-    var { signInAnonymously } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    await signInAnonymously(auth).catch(function(){});
-  } catch(e) { console.warn('[Admin] Auth anónima no disponible:', e.message); }
-}
+
 
 function mostrarLogin() {
   document.getElementById('login-wrap').style.display = 'flex';
