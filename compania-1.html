@@ -107,9 +107,50 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 
 .sdiv{padding:4px 12px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg);margin-bottom:2px;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── LOGIN ── */
+.login-overlay{display:flex;position:fixed;inset:0;background:var(--bg);z-index:99999;align-items:center;justify-content:center;}
+.login-overlay.hidden{display:none;}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px;width:100%;max-width:360px;}
+.login-logo{text-align:center;font-size:52px;margin-bottom:12px;}
+.login-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:900;text-align:center;margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--text3);text-align:center;margin-bottom:24px;}
+.login-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.login-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
+.login-btn{background:var(--red);border:none;color:#fff;border-radius:var(--r);padding:11px;font-family:'Syne',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%;margin-top:6px;}
+.login-btn:hover{opacity:.9;}
+.login-btn:disabled{background:var(--bg4);color:var(--text3);cursor:default;}
+.login-err{background:rgba(224,62,62,.1);border:1px solid rgba(224,62,62,.3);color:var(--red);border-radius:var(--r);padding:8px 12px;font-size:11px;display:none;text-align:center;margin-bottom:10px;}
+.login-links{display:flex;justify-content:space-between;margin-top:12px;}
+.login-link{font-size:11px;color:var(--text3);cursor:pointer;text-decoration:underline;}
+
 </style>
 </head>
 <body>
+
+<!-- LOGIN OVERLAY CUARTEL -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">🚒</div>
+    <div class="login-title">1ª Compañía</div>
+    <div class="login-sub">"Germania" · Frutillar</div>
+    <div class="login-err" id="cia-login-err"></div>
+    <div class="login-field">
+      <div class="login-lbl">Correo electrónico</div>
+      <input class="fi" id="cia-email" type="email" placeholder="oficial@cbfrutillar.cl" value="javier@cbfrutillar.cl" autocomplete="email" style="font-size:13px;padding:9px 11px;"/>
+    </div>
+    <div class="login-field">
+      <div class="login-lbl">Contraseña</div>
+      <input class="fi" id="cia-pass" type="password" placeholder="••••••••" autocomplete="current-password" style="font-size:13px;padding:9px 11px;" onkeydown="if(event.key==='Enter') ciaLogin()"/>
+    </div>
+    <button class="login-btn" id="cia-login-btn" onclick="ciaLogin()">Ingresar</button>
+    <div class="login-links">
+      <span class="login-link" onclick="ciaResetPass()">¿Olvidaste tu contraseña?</span>
+      <a href="admin.html" style="font-size:11px;color:var(--text3);">Panel Admin →</a>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
 <!-- SIDEBAR -->
@@ -1721,6 +1762,247 @@ function init() {
   actualizarBadgeSalidas();
 }
 init();
+</script>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc,
+         updateDoc, deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp, limit }
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const FB = {
+  apiKey:'AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY',
+  authDomain:'cad-bomberos-frutillar.firebaseapp.com',
+  projectId:'cad-bomberos-frutillar',
+  storageBucket:'cad-bomberos-frutillar.firebasestorage.app',
+  messagingSenderId:'70874334886',
+  appId:'1:70874334886:web:8afa79fc1ef371b5ffd667'
+};
+const fbApp  = initializeApp(FB);
+const fbAuth = getAuth(fbApp);
+const fbDb   = getFirestore(fbApp);
+
+const CIA_ID  = 'B-1';
+const CIA_COL = 'compania_b1'; // colección Firestore para esta compañía
+
+// ── SUPERADMIN HARDCODEADO (solo pruebas) ──────────────────
+var SA_EMAIL = 'javier@cbfrutillar.cl';
+var SA_PASS  = 'admin';
+
+// ── AUTH ──────────────────────────────────────────────────
+onAuthStateChanged(fbAuth, async function(user) {
+  if (user) {
+    // Verificar rol permitido
+    var snap = await getDoc(doc(fbDb, 'usuarios_admin', user.uid));
+    var perfil = snap.exists() ? snap.data() : null;
+    // También acepta voluntarios con rol oficial/capitan de esta compañía
+    var volSnap = await getDoc(doc(fbDb, 'voluntarios', user.uid));
+    var volPerfil = volSnap.exists() ? volSnap.data() : null;
+    var rolesOk = perfil && ['superadmin','admin-cad','admin-cuartel'].includes(perfil.rol) && perfil.activo !== false;
+    var oficialOk = volPerfil && ['oficial','capitan','teniente'].includes(volPerfil.rol) && volPerfil.cia === CIA_ID && volPerfil.activo !== false;
+    if (rolesOk || oficialOk) {
+      var nombre = (perfil||volPerfil).nombre || user.email;
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('cia-user-nombre').textContent = nombre.split(' ')[0];
+      cargarDatosFirebase();
+    } else {
+      document.getElementById('cia-login-err').textContent = 'Sin permisos para acceder a este módulo.';
+      document.getElementById('cia-login-err').style.display = 'block';
+      await signOut(fbAuth);
+    }
+  } else {
+    document.getElementById('login-overlay').classList.remove('hidden');
+  }
+});
+
+window.ciaLogin = async function() {
+  var email = document.getElementById('cia-email').value.trim();
+  var pass  = document.getElementById('cia-pass').value;
+  var btn   = document.getElementById('cia-login-btn');
+  var err   = document.getElementById('cia-login-err');
+  if (!email||!pass){ err.textContent='Ingresa tu correo y contraseña'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Ingresando...';
+  err.style.display='none';
+  // Superadmin hardcodeado
+  if (email===SA_EMAIL && pass===SA_PASS) {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('cia-user-nombre').textContent = 'Javier';
+    cargarDatosFirebase();
+    btn.disabled=false; btn.textContent='Ingresar';
+    return;
+  }
+  try {
+    await signInWithEmailAndPassword(fbAuth, email, pass);
+  } catch(e) {
+    err.textContent = 'Correo o contraseña incorrectos';
+    err.style.display = 'block';
+    btn.disabled=false; btn.textContent='Ingresar';
+  }
+};
+
+window.ciaLogout = async function() {
+  await signOut(fbAuth);
+};
+
+window.ciaResetPass = async function() {
+  var email = document.getElementById('cia-email').value.trim();
+  if (!email) { document.getElementById('cia-login-err').textContent='Ingresa tu email primero'; document.getElementById('cia-login-err').style.display='block'; return; }
+  await sendPasswordResetEmail(fbAuth, email);
+  document.getElementById('cia-login-err').style.cssText='display:block;background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green);';
+  document.getElementById('cia-login-err').textContent='Email enviado. Revisa tu bandeja.';
+};
+
+// ── CARGA DATOS DESDE FIREBASE ────────────────────────────
+async function cargarDatosFirebase() {
+  try {
+    // Voluntarios
+    var volSnap = await getDocs(query(collection(fbDb,'voluntarios'), where('cia','==',CIA_ID)));
+    if (!volSnap.empty) {
+      voluntarios = [];
+      volSnap.forEach(function(d) {
+        var v = Object.assign({ id: d.id, fbId: d.id }, d.data());
+        // Compatibilidad con estructura existente
+        if (!v.estado) v.estado = v.activo !== false ? 'activo' : 'inactivo';
+        voluntarios.push(v);
+      });
+      renderVoluntarios();
+      renderDashboard();
+      notif('☁️ Firebase', voluntarios.length + ' voluntarios cargados');
+    }
+    // Carros
+    var carrosSnap = await getDocs(query(collection(fbDb,'carros_cia'), where('cia','==',CIA_ID)));
+    if (!carrosSnap.empty) {
+      carros = [];
+      carrosSnap.forEach(function(d) {
+        carros.push(Object.assign({ id: d.id, fbId: d.id }, d.data()));
+      });
+      renderCarros();
+      poblarFiltroCarros();
+    }
+    // Salidas
+    var salidasSnap = await getDocs(query(collection(fbDb,'salidas_cia'), where('cia','==',CIA_ID), orderBy('fecha','desc'), limit(50)));
+    if (!salidasSnap.empty) {
+      salidas = [];
+      salidasSnap.forEach(function(d) {
+        salidas.push(Object.assign({ id: d.id, fbId: d.id }, d.data()));
+      });
+      renderSalidas();
+    }
+    // Partes desde CAD
+    var partesSnap = await getDocs(query(collection(fbDb,'emergencias'), where('companias','array-contains',CIA_ID), where('estado','==','cerrada'), orderBy('timestamp','desc'), limit(20)));
+    if (!partesSnap.empty) {
+      var partesList = [];
+      partesSnap.forEach(function(d) { partesList.push(Object.assign({id:d.id}, d.data())); });
+      renderPartesFirebase(partesList);
+    }
+  } catch(e) {
+    console.warn('[Firebase] Error cargando datos:', e.message);
+    notif('⚠️ Firebase', 'Usando datos locales — ' + e.message);
+  }
+}
+
+// ── GUARDAR EN FIREBASE ────────────────────────────────────
+// Voluntarios
+var _origGuardarVoluntario = window.guardarVoluntario;
+window.guardarVoluntario = async function() {
+  _origGuardarVoluntario();
+  // Sincronizar último voluntario guardado con Firebase
+  var editId = document.getElementById('vol-edit-id').value;
+  var v = editId ? voluntarios.find(function(x){return x.id===editId;}) : voluntarios[voluntarios.length-1];
+  if (!v) return;
+  try {
+    var data = {
+      nombre: v.nombre||'', num: v.num||'', cat: v.cat||'bombero', cargo: v.cargo||'',
+      email: v.email||'', tel: v.tel||'', wsp: v.wsp||'', estado: v.estado||'activo',
+      conductor: v.conductor||false, obs: v.obs||'', ingreso: v.ingreso||'',
+      cia: CIA_ID, rol: (v.cat==='oficial'?'oficial':'voluntario'), activo: v.estado==='activo',
+      actualizado: serverTimestamp()
+    };
+    if (v.fbId) {
+      await updateDoc(doc(fbDb,'voluntarios',v.fbId), data);
+    } else {
+      var ref = await addDoc(collection(fbDb,'voluntarios'), data);
+      v.fbId = ref.id;
+    }
+  } catch(e) { console.warn('[FB] Error guardando voluntario:', e); }
+};
+
+// Carros
+var _origGuardarCarro = window.guardarCarro;
+window.guardarCarro = async function() {
+  _origGuardarCarro();
+  var editId = document.getElementById('carro-edit-id').value;
+  var c = editId ? carros.find(function(x){return x.id===editId;}) : carros[carros.length-1];
+  if (!c) return;
+  try {
+    var data = Object.assign({}, c, { cia: CIA_ID, actualizado: serverTimestamp() });
+    delete data.id; delete data.fbId;
+    if (c.fbId) {
+      await updateDoc(doc(fbDb,'carros_cia',c.fbId), data);
+    } else {
+      var ref = await addDoc(collection(fbDb,'carros_cia'), data);
+      c.fbId = ref.id;
+    }
+  } catch(e) { console.warn('[FB] Error guardando carro:', e); }
+};
+
+// Salidas
+var _origGuardarSalida = window.guardarSalida;
+window.guardarSalida = async function() {
+  _origGuardarSalida();
+  var s = salidas[salidas.length-1];
+  if (!s) return;
+  try {
+    var data = Object.assign({}, s, { cia: CIA_ID, creado: serverTimestamp() });
+    delete data.id; delete data.fbId;
+    if (s.fbId) {
+      await updateDoc(doc(fbDb,'salidas_cia',s.fbId), data);
+    } else {
+      var ref = await addDoc(collection(fbDb,'salidas_cia'), data);
+      s.fbId = ref.id;
+    }
+  } catch(e) { console.warn('[FB] Error guardando salida:', e); }
+};
+
+// Eliminar voluntario
+var _origEliminarVol = window.eliminarVoluntario;
+window.eliminarVoluntario = async function(id) {
+  var v = voluntarios.find(function(x){return x.id===id;});
+  if (v && v.fbId) {
+    try { await deleteDoc(doc(fbDb,'voluntarios',v.fbId)); } catch(e){}
+  }
+};
+
+// ── PARTES DESDE CAD ──────────────────────────────────────
+function renderPartesFirebase(partes) {
+  var cnt = document.getElementById('cnt-partes');
+  var list = document.getElementById('partes-list');
+  if (cnt) cnt.textContent = partes.length;
+  if (!list) return;
+  if (!partes.length) { list.innerHTML = '<div class="card" style="text-align:center;color:var(--text3);font-size:12px;">Sin partes registrados</div>'; return; }
+  list.innerHTML = '';
+  partes.forEach(function(e) {
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.cursor = 'pointer';
+    var ts = e.timestamp && e.timestamp.toDate ? e.timestamp.toDate() : new Date();
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
+        '<div><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;">'+(e.cadId||e.id)+' — '+(e.tipo||'—')+'</div>' +
+        '<div style="font-size:11px;color:var(--text3);">📍 '+(e.direccion||'—')+' · '+(e.zona||'—')+'</div></div>' +
+        '<div style="font-size:11px;color:var(--text2);">'+e.hora+'</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        (e.companias||[]).map(function(c){return '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(224,62,62,.15);color:var(--red);">'+c+'</span>';}).join('') +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+console.log('[Compañía B-1] Firebase módulo iniciado');
 </script>
 </body>
 </html>
