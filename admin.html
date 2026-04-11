@@ -580,15 +580,20 @@ const db   = getFirestore(app);
 var usuarioActual = null;
 var perfilActual  = null;
 var tipoModalUsuario = 'operadora';
-var _superadminHardcoded = false; // bandera para evitar que onAuthStateChanged interfiera
+var _superadminHardcoded = false;
+
+// Verificar si hay sesión de superadmin hardcodeado activa
+function _isSuperadminSession() {
+  return _superadminHardcoded || sessionStorage.getItem('_sa_hc') === '1';
+}
 
 // ── COLORES COMPAÑÍAS ─────────────────────────────────────────
 var CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
 
 // ── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async function(user) {
-  // Si es superadmin hardcodeado, NUNCA interferir
-  if (_superadminHardcoded) return;
+  // Ignorar SIEMPRE si es sesión de superadmin hardcodeado
+  if (_isSuperadminSession()) return;
   if (user) {
     usuarioActual = user;
     if (user.isAnonymous) return;
@@ -607,11 +612,11 @@ onAuthStateChanged(auth, async function(user) {
         await signOut(auth);
       }
     } catch(e) {
-      console.error('[Admin] Error verificando usuario:', e);
+      console.error('[Admin] Error:', e.message);
       mostrarLogin();
     }
   } else {
-    if (!_superadminHardcoded) mostrarLogin();
+    mostrarLogin();
   }
 });
 
@@ -648,6 +653,8 @@ window.doLogin = async function() {
 };
 
 window.doLogout = async function() {
+  _superadminHardcoded = false;
+  sessionStorage.removeItem('_sa_hc');
   try { await signOut(auth); } catch(e) {}
   location.reload();
 };
