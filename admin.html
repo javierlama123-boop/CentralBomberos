@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin · Sistema CAD Bomberos</title>
-<!-- versión: 2026-04-11 00:58 -->
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -17,8 +16,8 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
 
-/* ── LOGIN ── */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px;width:100%;max-width:380px;}
 .login-logo{text-align:center;font-size:48px;margin-bottom:12px;}
 .login-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;text-align:center;margin-bottom:4px;}
@@ -42,32 +41,39 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'B
 .btn-amber{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--amber);border-radius:var(--r);padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;}
 .login-error{background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:var(--r);padding:9px 12px;font-size:12px;display:none;text-align:center;margin-bottom:12px;}
 
-/* ── LAYOUT ── */
+/* LAYOUT */
 .app{display:none;flex-direction:column;min-height:100vh;}
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100;}
 .logo{background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:900;padding:4px 10px;border-radius:var(--r);letter-spacing:1px;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);}
+.breadcrumb span{color:var(--text2);font-weight:600;}
+.breadcrumb .sep{color:var(--text3);}
 .rol-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;letter-spacing:.5px;}
-.rol-badge.admin-cad{background:var(--blue);}
-.rol-badge.admin-cuartel{background:var(--green);}
 .main-layout{display:flex;flex:1;}
 
-/* ── SIDEBAR ── */
-.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);flex-shrink:0;padding:16px 0;}
-.sidebar-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:12px 16px 6px;}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .15s;border-left:2px solid transparent;}
-.sidebar-item:hover{background:var(--bg3);color:var(--text);}
-.sidebar-item.active{background:var(--bg3);color:var(--text);border-left-color:var(--red);}
-.sidebar-item .ico{font-size:14px;width:18px;text-align:center;}
+/* SIDEBAR */
+.sidebar{width:230px;background:var(--bg2);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:12px 16px 6px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .15s;border-left:2px solid transparent;}
+.sb-item:hover{background:var(--bg3);color:var(--text);}
+.sb-item.active{background:var(--bg3);color:var(--text);border-left-color:var(--red);}
+.sb-item .ico{font-size:14px;width:18px;text-align:center;}
+.sb-context{background:var(--bg3);border-bottom:1px solid var(--border);padding:12px 16px;}
+.sb-context-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.sb-context-name{font-size:13px;font-weight:700;color:var(--text);}
+.sb-context-sub{font-size:10px;color:var(--text3);}
+.sb-back{display:flex;align-items:center;gap:6px;padding:8px 16px;cursor:pointer;font-size:11px;color:var(--text3);border-bottom:1px solid var(--border);}
+.sb-back:hover{color:var(--text2);}
 
-/* ── CONTENT ── */
+/* CONTENT */
 .content{flex:1;overflow-y:auto;padding:24px;}
 .page{display:none;}
 .page.active{display:block;}
 .page-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
 .page-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
 
-/* ── STATS GRID ── */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px 16px;}
 .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;line-height:1;}
 .stat-lbl{font-size:10px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
@@ -75,13 +81,13 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'B
 .stat-card.green .stat-num{color:var(--green);}
 .stat-card.blue .stat-num{color:var(--blue);}
 .stat-card.amber .stat-num{color:var(--amber);}
+.stat-card.purple .stat-num{color:var(--purple);}
 
-/* ── TABLA ── */
-.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;}
-.table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+/* TABLA */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin-bottom:16px;}
+.table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .table-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);}
 .search-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 10px;font-size:12px;font-family:'Barlow',sans-serif;outline:none;width:200px;}
-.search-input:focus{border-color:var(--border2);}
 table{width:100%;border-collapse:collapse;}
 th{background:var(--bg3);padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);}
 td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;}
@@ -92,13 +98,36 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .badge.admin-cad{background:rgba(59,130,246,.15);color:var(--blue);}
 .badge.admin-cuartel{background:rgba(245,158,11,.15);color:var(--amber);}
 .badge.operadora{background:rgba(229,57,53,.15);color:var(--red);}
-.badge.oficial{background:rgba(20,184,166,.15);color:var(--teal,#14b8a6);}
+.badge.oficial{background:rgba(20,184,166,.15);color:#14b8a6;}
 .badge.voluntario{background:rgba(139,145,187,.15);color:var(--text2);}
 .badge.activo{background:rgba(16,185,129,.15);color:var(--green);}
 .badge.inactivo{background:rgba(85,93,133,.15);color:var(--text3);}
-.actions{display:flex;gap:6px;}
+.badge.bombero{background:rgba(59,130,246,.15);color:var(--blue);}
+.badge.honorario{background:rgba(139,92,246,.15);color:var(--purple);}
+.badge.aspirante{background:rgba(245,158,11,.15);color:var(--amber);}
+.badge.cadete{background:rgba(20,184,166,.15);color:#14b8a6;}
+.actions{display:flex;gap:6px;flex-wrap:wrap;}
 
-/* ── MODAL ── */
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;cursor:pointer;transition:border-color .15s;}
+.card:hover{border-color:var(--border2);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;}
+.card-sub{font-size:11px;color:var(--text3);}
+.card-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;}
+
+/* CHART */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;}
+.chart-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;}
+.bar-label{width:120px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;}
+.bar-track{flex:1;background:var(--bg3);border-radius:4px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;background:var(--red);transition:width .5s ease;}
+.bar-val{width:30px;text-align:right;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+/* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);width:500px;max-width:95vw;max-height:85vh;overflow-y:auto;}
@@ -108,21 +137,9 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .modal-body{padding:18px;}
 .modal-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
 .form-row{display:flex;gap:10px;margin-bottom:14px;}
-.form-row .fgroup{flex:1;}
-.fgroup{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
-.fgroup:last-child{margin-bottom:0;}
+.form-row .fgroup{flex:1;margin-bottom:0;}
 
-/* ── CUERPOS ── */
-.cuerpo-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:12px;transition:border-color .15s;}
-.cuerpo-card:hover{border-color:var(--border2);}
-.cuerpo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.cuerpo-nombre{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;}
-.cuerpo-ciudad{font-size:11px;color:var(--text3);}
-.cias-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.cia-chip{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px;}
-.cia-dot{width:8px;height:8px;border-radius:50%;}
-
-/* ── NOTIF ── */
+/* NOTIF */
 .notif{display:none;position:fixed;top:16px;right:16px;z-index:9999;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:12px 16px;min-width:260px;animation:nIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);}
 .notif.show{display:flex;gap:10px;align-items:flex-start;}
 @keyframes nIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
@@ -130,22 +147,15 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .notif-title{font-size:12px;font-weight:700;margin-bottom:2px;}
 .notif-msg{font-size:11px;color:var(--text2);}
 
-/* ── LOADING ── */
+/* UTILS */
 .loading{display:flex;align-items:center;gap:8px;color:var(--text3);font-size:13px;padding:20px 0;}
 .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
 .empty-state-ico{font-size:36px;margin-bottom:10px;opacity:.3;}
-
-/* ── STATS CHARTS ── */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;}
-.chart-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;}
-.bar-label{width:100px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bar-track{flex:1;background:var(--bg3);border-radius:4px;height:8px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:4px;background:var(--red);transition:width .5s ease;}
-.bar-val{width:30px;text-align:right;color:var(--text3);font-family:JetBrains Mono,monospace;font-size:11px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.cia-colors{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.cia-dot{width:10px;height:10px;border-radius:50%;}
 </style>
 </head>
 <body>
@@ -159,11 +169,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <div class="login-error" id="login-error"></div>
     <div class="fgroup">
       <div class="flabel">Correo electrónico</div>
-      <input class="finput" id="login-email" type="email" placeholder="admin@cbfrutillar.cl" autocomplete="email" value="javier@cbfrutillar.cl"/>
+      <input class="finput" id="login-email" type="email" value="javier@cbfrutillar.cl" autocomplete="email"/>
     </div>
     <div class="fgroup">
       <div class="flabel">Contraseña</div>
-      <input class="finput" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()"/>
+      <input class="finput" id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
     </div>
     <button class="btn-pri" id="btn-login" onclick="doLogin()">Ingresar</button>
   </div>
@@ -173,311 +183,292 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="app" id="app">
   <!-- TOPBAR -->
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px;">
+    <div style="display:flex;align-items:center;gap:14px;">
       <div class="logo">🚒 CAD</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">Panel de Administración</div>
+      <div class="breadcrumb" id="breadcrumb">
+        <span>Panel de Administración</span>
+      </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <div id="topbar-rol-badge" class="rol-badge">SUPERADMIN</div>
-      <div style="font-size:12px;color:var(--text2);" id="topbar-email">—</div>
+      <div class="rol-badge" id="topbar-rol">SUPERADMIN</div>
+      <div style="font-size:12px;color:var(--text2);" id="topbar-nombre">—</div>
       <button class="btn-sec" onclick="doLogout()">Salir</button>
     </div>
   </div>
 
   <div class="main-layout">
     <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-section">General</div>
-      <div class="sidebar-item active" onclick="showPage('dashboard',this)" id="nav-dashboard">
-        <span class="ico">📊</span> Dashboard
+    <div class="sidebar">
+
+      <!-- Vista Global -->
+      <div id="sb-global">
+        <div class="sb-section">Sistema CAD</div>
+        <div class="sb-item active" onclick="navGlobal('dashboard',this)" id="nav-g-dashboard"><span class="ico">📊</span>Dashboard Global</div>
+        <div class="sb-item" onclick="navGlobal('cuerpos',this)" id="nav-g-cuerpos"><span class="ico">🏛️</span>Cuerpos de Bomberos</div>
+        <div class="sb-item" onclick="navGlobal('admins',this)" id="nav-g-admins"><span class="ico">👑</span>Administradores</div>
+        <div class="sb-item" onclick="navGlobal('stats-global',this)" id="nav-g-stats"><span class="ico">📈</span>Estadísticas Globales</div>
+        <div class="sb-section">Cuenta</div>
+        <div class="sb-item" onclick="navGlobal('mi-cuenta',this)" id="nav-g-cuenta"><span class="ico">⚙️</span>Mi Cuenta</div>
       </div>
 
-      <!-- Solo superadmin -->
-      <div id="nav-section-super" style="display:none;">
-        <div class="sidebar-section">Superadmin</div>
-        <div class="sidebar-item" onclick="showPage('cuerpos',this)" id="nav-cuerpos">
-          <span class="ico">🏛️</span> Cuerpos de Bomberos
+      <!-- Vista Cuerpo -->
+      <div id="sb-cuerpo" style="display:none;">
+        <div class="sb-back" onclick="volverGlobal()">← Volver a cuerpos</div>
+        <div class="sb-context">
+          <div class="sb-context-label">Cuerpo de Bomberos</div>
+          <div class="sb-context-name" id="sb-cuerpo-nombre">—</div>
+          <div class="sb-context-sub" id="sb-cuerpo-ciudad">—</div>
         </div>
-        <div class="sidebar-item" onclick="showPage('admins',this)" id="nav-admins">
-          <span class="ico">👑</span> Administradores
-        </div>
-        <div class="sidebar-item" onclick="showPage('stats-global',this)" id="nav-stats-global">
-          <span class="ico">📈</span> Estadísticas Globales
-        </div>
+        <div class="sb-section">Cuerpo</div>
+        <div class="sb-item active" onclick="navCuerpo('dashboard-cuerpo',this)" id="nav-c-dashboard"><span class="ico">📊</span>Dashboard</div>
+        <div class="sb-item" onclick="navCuerpo('operadoras',this)" id="nav-c-operadoras"><span class="ico">📡</span>Operadoras CAD</div>
+        <div class="sb-item" onclick="navCuerpo('companias',this)" id="nav-c-companias"><span class="ico">🚒</span>Compañías</div>
+        <div class="sb-item" onclick="navCuerpo('stats-cuerpo',this)" id="nav-c-stats"><span class="ico">📈</span>Estadísticas</div>
+        <div class="sb-item" onclick="navCuerpo('emergencias-cuerpo',this)" id="nav-c-emergencias"><span class="ico">🚨</span>Emergencias</div>
       </div>
 
-      <!-- Admin CAD / Superadmin -->
-      <div id="nav-section-cad" style="display:none;">
-        <div class="sidebar-section">Central de Alarmas</div>
-        <div class="sidebar-item" onclick="showPage('operadoras',this)" id="nav-operadoras">
-          <span class="ico">📡</span> Operadoras
+      <!-- Vista Compañía -->
+      <div id="sb-cia" style="display:none;">
+        <div class="sb-back" onclick="volverCuerpo()">← Volver al cuerpo</div>
+        <div class="sb-context">
+          <div class="sb-context-label">Compañía</div>
+          <div class="sb-context-name" id="sb-cia-nombre">—</div>
+          <div class="sb-context-sub" id="sb-cia-cuerpo">—</div>
         </div>
-        <div class="sidebar-item" onclick="showPage('emergencias-admin',this)" id="nav-emergencias-admin">
-          <span class="ico">🚨</span> Historial Emergencias
-        </div>
+        <div class="sb-section">Compañía</div>
+        <div class="sb-item active" onclick="navCia('dashboard-cia',this)" id="nav-cia-dashboard"><span class="ico">📊</span>Dashboard</div>
+        <div class="sb-item" onclick="navCia('voluntarios',this)" id="nav-cia-voluntarios"><span class="ico">👥</span>Voluntarios</div>
+        <div class="sb-item" onclick="navCia('vehiculos',this)" id="nav-cia-vehiculos"><span class="ico">🚒</span>Vehículos</div>
+        <div class="sb-item" onclick="navCia('stats-cia',this)" id="nav-cia-stats"><span class="ico">📈</span>Estadísticas</div>
+        <div class="sb-item" onclick="navCia('emergencias-cia',this)" id="nav-cia-emergencias"><span class="ico">🚨</span>Emergencias</div>
       </div>
 
-      <!-- Admin Cuartel / Superadmin -->
-      <div id="nav-section-cuartel" style="display:none;">
-        <div class="sidebar-section">Cuarteles</div>
-        <div class="sidebar-item" onclick="showPage('voluntarios-admin',this)" id="nav-voluntarios-admin">
-          <span class="ico">👥</span> Voluntarios
-        </div>
-        <div class="sidebar-item" onclick="showPage('companias-admin',this)" id="nav-companias-admin">
-          <span class="ico">🚒</span> Compañías
-        </div>
-      </div>
-
-      <div class="sidebar-section">Mi Cuenta</div>
-      <div class="sidebar-item" onclick="showPage('mi-cuenta',this)" id="nav-mi-cuenta">
-        <span class="ico">⚙️</span> Mi Cuenta
-      </div>
     </div>
 
     <!-- CONTENT -->
-    <div class="content">
+    <div class="content" id="content">
 
-      <!-- DASHBOARD -->
+      <!-- ═══ PÁGINAS GLOBALES ═══ -->
+
+      <!-- Dashboard Global -->
       <div class="page active" id="page-dashboard">
-        <div class="page-title">Dashboard</div>
-        <div class="page-sub" id="dash-sub">Bienvenido al panel de administración</div>
-        <div class="stats-grid" id="dash-stats">
-          <div class="loading"><div class="spinner"></div>Cargando...</div>
-        </div>
-        <div class="chart-grid" id="dash-charts"></div>
+        <div class="page-title">Dashboard Global</div>
+        <div class="page-sub">Junta Nacional de Bomberos de Chile · Vista general del sistema</div>
+        <div class="stats-grid" id="g-stats-grid"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+        <div class="chart-grid" id="g-charts"></div>
       </div>
 
-      <!-- CUERPOS DE BOMBEROS -->
+      <!-- Cuerpos de Bomberos -->
       <div class="page" id="page-cuerpos">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
           <div class="page-title">Cuerpos de Bomberos</div>
           <button class="btn-green" onclick="openModal('modal-nuevo-cuerpo')">+ Nuevo Cuerpo</button>
         </div>
-        <div class="page-sub">Gestión de todos los cuerpos registrados en el sistema</div>
+        <div class="page-sub">Cuerpos registrados en el sistema — haz clic para gestionar</div>
         <div id="lista-cuerpos"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
       </div>
 
-      <!-- ADMINISTRADORES -->
+      <!-- Administradores -->
       <div class="page" id="page-admins">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
           <div class="page-title">Administradores</div>
           <button class="btn-green" onclick="openModal('modal-nuevo-admin')">+ Nuevo Admin</button>
         </div>
-        <div class="page-sub">Superadmins y administradores por módulo</div>
+        <div class="page-sub">Superadmins y administradores del sistema</div>
         <div class="table-wrap">
           <div class="table-header">
             <div class="table-title">Todos los administradores</div>
             <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-admins')"/>
           </div>
           <table id="tabla-admins">
-            <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Cuerpo / Compañía</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Cuerpo</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tbody-admins"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- OPERADORAS -->
-      <div class="page" id="page-operadoras">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <div class="page-title">Operadoras CAD</div>
-          <button class="btn-green" onclick="openModal('modal-nuevo-usuario','operadora')">+ Nueva Operadora</button>
-        </div>
-        <div class="page-sub">Gestión de operadoras de la central de alarmas</div>
-        <div class="table-wrap">
-          <div class="table-header">
-            <div class="table-title">Operadoras registradas</div>
-            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-operadoras')"/>
-          </div>
-          <table id="tabla-operadoras">
-            <thead><tr><th>Nombre</th><th>Email</th><th>Cuerpo</th><th>Último acceso</th><th>Estado</th><th>Acciones</th></tr></thead>
-            <tbody id="tbody-operadoras"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- VOLUNTARIOS -->
-      <div class="page" id="page-voluntarios-admin">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <div class="page-title">Voluntarios</div>
-          <button class="btn-green" onclick="openModal('modal-nuevo-usuario','voluntario')">+ Nuevo Voluntario</button>
-        </div>
-        <div class="page-sub">Gestión de voluntarios por compañía</div>
-        <div class="table-wrap">
-          <div class="table-header">
-            <div class="table-title">Todos los voluntarios</div>
-            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-voluntarios')"/>
-          </div>
-          <table id="tabla-voluntarios">
-            <thead><tr><th>Nº</th><th>Nombre</th><th>Cargo</th><th>Compañía</th><th>Disponibilidad</th><th>Estado</th><th>Acciones</th></tr></thead>
-            <tbody id="tbody-voluntarios"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- COMPAÑÍAS -->
-      <div class="page" id="page-companias-admin">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <div class="page-title">Compañías</div>
-          <button class="btn-green" onclick="openModal('modal-nuevo-cuerpo')">+ Nuevo Cuerpo</button>
-        </div>
-        <div class="page-sub">Compañías registradas por cuerpo de bomberos</div>
-        <div id="lista-companias-admin"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
-      </div>
-
-      <!-- DETALLE COMPAÑÍA -->
-      <div class="page" id="page-detalle-cia">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
-          <button class="btn-sec" onclick="showPage('companias-admin',document.getElementById('nav-companias-admin'))" style="padding:6px 10px;font-size:12px;">← Volver</button>
-          <div class="page-title" id="detalle-cia-titulo">Compañía</div>
-        </div>
-        <div class="page-sub" id="detalle-cia-sub">—</div>
-
-        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;" id="detalle-cia-stats">
-          <div class="loading"><div class="spinner"></div>Cargando...</div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <!-- Voluntarios -->
-          <div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">👥 Voluntarios</div>
-              <span style="font-size:11px;color:var(--text3);" id="detalle-vol-cnt">0</span>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Nº</th><th>Nombre</th><th>Cargo</th><th>Disponibilidad</th></tr></thead>
-                <tbody id="detalle-vol-tbody"><tr><td colspan="4" style="text-align:center;color:var(--text3);padding:12px;">Cargando...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-          <!-- Carros -->
-          <div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">🚒 Carros</div>
-              <span style="font-size:11px;color:var(--text3);" id="detalle-carros-cnt">0</span>
-            </div>
-            <div id="detalle-carros-list" class="table-wrap">
-              <table>
-                <thead><tr><th>Código</th><th>Tipo</th><th>Patente</th><th>KM</th><th>Estado</th></tr></thead>
-                <tbody id="detalle-carros-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Cargando...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Últimas emergencias -->
-        <div style="margin-top:16px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">🚨 Últimas Emergencias</div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>ID</th><th>Tipo</th><th>Dirección</th><th>Hora</th><th>Estado</th></tr></thead>
-              <tbody id="detalle-emerg-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Cargando...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- HISTORIAL EMERGENCIAS -->
-      <div class="page" id="page-emergencias-admin">
-        <div class="page-title">Historial de Emergencias</div>
-        <div class="page-sub">Todas las emergencias registradas en el sistema</div>
-        <div class="table-wrap">
-          <div class="table-header">
-            <div class="table-title">Emergencias</div>
-            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-emergencias-admin')"/>
-          </div>
-          <table id="tabla-emergencias-admin">
-            <thead><tr><th>ID</th><th>Tipo</th><th>Dirección</th><th>Compañías</th><th>Hora</th><th>Estado</th></tr></thead>
-            <tbody id="tbody-emergencias"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ESTADÍSTICAS GLOBALES -->
+      <!-- Estadísticas Globales -->
       <div class="page" id="page-stats-global">
         <div class="page-title">Estadísticas Globales</div>
-        <div class="page-sub">Métricas de todos los cuerpos de bomberos</div>
-        <div id="stats-global-content"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+        <div class="page-sub">Métricas consolidadas de todos los cuerpos de bomberos</div>
+        <div id="g-stats-content"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
       </div>
 
-      <!-- MI CUENTA -->
+      <!-- Mi Cuenta -->
       <div class="page" id="page-mi-cuenta">
         <div class="page-title">Mi Cuenta</div>
         <div class="page-sub">Configuración de tu cuenta de administrador</div>
         <div style="max-width:480px;">
           <div class="table-wrap" style="margin-bottom:16px;">
             <div style="padding:16px;">
-              <div class="fgroup">
-                <div class="flabel">Nombre</div>
-                <input class="finput" id="mc-nombre" placeholder="Tu nombre"/>
-              </div>
-              <div class="fgroup">
-                <div class="flabel">Email</div>
-                <input class="finput" id="mc-email" type="email" disabled style="opacity:.6;"/>
-              </div>
+              <div class="fgroup"><div class="flabel">Nombre</div><input class="finput" id="mc-nombre" placeholder="Tu nombre"/></div>
+              <div class="fgroup"><div class="flabel">Email</div><input class="finput" id="mc-email" type="email" disabled style="opacity:.6;"/></div>
               <button class="btn-pri" style="width:auto;padding:9px 20px;" onclick="guardarCuenta()">Guardar cambios</button>
             </div>
           </div>
           <div class="table-wrap">
             <div style="padding:16px;">
               <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;">Cambiar Contraseña</div>
-              <div class="fgroup">
-                <div class="flabel">Nueva contraseña</div>
-                <input class="finput" id="mc-pass1" type="password" placeholder="Mínimo 6 caracteres"/>
-              </div>
-              <div class="fgroup">
-                <div class="flabel">Confirmar contraseña</div>
-                <input class="finput" id="mc-pass2" type="password" placeholder="Repetir contraseña"/>
-              </div>
+              <div class="fgroup"><div class="flabel">Nueva contraseña</div><input class="finput" id="mc-pass1" type="password" placeholder="Mínimo 6 caracteres"/></div>
+              <div class="fgroup"><div class="flabel">Confirmar</div><input class="finput" id="mc-pass2" type="password" placeholder="Repetir contraseña"/></div>
               <button class="btn-sec" onclick="cambiarPassword()">Cambiar contraseña</button>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- ═══ PÁGINAS DE CUERPO ═══ -->
+
+      <!-- Dashboard Cuerpo -->
+      <div class="page" id="page-dashboard-cuerpo">
+        <div class="page-title" id="dc-titulo">Dashboard del Cuerpo</div>
+        <div class="page-sub" id="dc-sub">—</div>
+        <div class="stats-grid" id="dc-stats"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+        <div class="chart-grid" id="dc-charts"></div>
+      </div>
+
+      <!-- Operadoras del Cuerpo -->
+      <div class="page" id="page-operadoras">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Operadoras CAD</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-usuario','operadora')">+ Nueva Operadora</button>
+        </div>
+        <div class="page-sub" id="op-sub">Operadoras de la central de alarmas</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Operadoras registradas</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-operadoras')"/>
+          </div>
+          <table id="tabla-operadoras">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Último acceso</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-operadoras"><tr><td colspan="5"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Compañías del Cuerpo -->
+      <div class="page" id="page-companias">
+        <div class="page-title" id="comp-titulo">Compañías</div>
+        <div class="page-sub" id="comp-sub">Selecciona una compañía para gestionar sus voluntarios y vehículos</div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+          <button class="btn-green" onclick="openModal('modal-nueva-cia')">+ Nueva Compañía</button>
+        </div>
+        <div id="lista-companias"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- Estadísticas del Cuerpo -->
+      <div class="page" id="page-stats-cuerpo">
+        <div class="page-title" id="sc-titulo">Estadísticas del Cuerpo</div>
+        <div class="page-sub" id="sc-sub">Métricas consolidadas del cuerpo de bomberos</div>
+        <div id="sc-content"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- Emergencias del Cuerpo -->
+      <div class="page" id="page-emergencias-cuerpo">
+        <div class="page-title" id="ec-titulo">Emergencias</div>
+        <div class="page-sub" id="ec-sub">Historial de emergencias del cuerpo</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Historial</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-emerg-cuerpo')"/>
+          </div>
+          <table id="tabla-emerg-cuerpo">
+            <thead><tr><th>ID</th><th>Tipo</th><th>Dirección</th><th>Compañías</th><th>Hora</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-emerg-cuerpo"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ PÁGINAS DE COMPAÑÍA ═══ -->
+
+      <!-- Dashboard Compañía -->
+      <div class="page" id="page-dashboard-cia">
+        <div class="page-title" id="dcia-titulo">Dashboard Compañía</div>
+        <div class="page-sub" id="dcia-sub">—</div>
+        <div class="stats-grid" id="dcia-stats"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- Voluntarios de la Compañía -->
+      <div class="page" id="page-voluntarios">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Voluntarios</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-usuario','voluntario')">+ Nuevo Voluntario</button>
+        </div>
+        <div class="page-sub" id="vol-sub">—</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title" id="vol-titulo-tabla">Voluntarios</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-voluntarios')"/>
+          </div>
+          <table id="tabla-voluntarios">
+            <thead><tr><th>Nº</th><th>Nombre</th><th>Cargo</th><th>Disponibilidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-voluntarios"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Vehículos de la Compañía -->
+      <div class="page" id="page-vehiculos">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title">Vehículos</div>
+          <button class="btn-green" onclick="openModal('modal-nuevo-vehiculo')">+ Nuevo Vehículo</button>
+        </div>
+        <div class="page-sub" id="veh-sub">—</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title" id="veh-titulo-tabla">Vehículos</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-vehiculos')"/>
+          </div>
+          <table id="tabla-vehiculos">
+            <thead><tr><th>Código</th><th>Tipo</th><th>Patente</th><th>Modelo</th><th>KM</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-vehiculos"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Estadísticas de la Compañía -->
+      <div class="page" id="page-stats-cia">
+        <div class="page-title" id="scia-titulo">Estadísticas</div>
+        <div class="page-sub" id="scia-sub">—</div>
+        <div id="scia-content"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+
+      <!-- Emergencias de la Compañía -->
+      <div class="page" id="page-emergencias-cia">
+        <div class="page-title" id="ecia-titulo">Emergencias</div>
+        <div class="page-sub" id="ecia-sub">—</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Historial</div>
+            <input class="search-input" placeholder="🔍 Buscar..." oninput="filtrarTabla(this,'tabla-emerg-cia')"/>
+          </div>
+          <table id="tabla-emerg-cia">
+            <thead><tr><th>ID</th><th>Tipo</th><th>Dirección</th><th>Hora</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-emerg-cia"><tr><td colspan="5"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     </div><!-- /content -->
-  </div><!-- /main-layout -->
+  </div>
 </div><!-- /app -->
 
 <!-- MODALES -->
-
-<!-- Modal: Nuevo Cuerpo -->
 <div class="modal-overlay" id="modal-nuevo-cuerpo">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Nuevo Cuerpo de Bomberos</div>
-      <button class="modal-close" onclick="closeModal('modal-nuevo-cuerpo')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Nuevo Cuerpo de Bomberos</div><button class="modal-close" onclick="closeModal('modal-nuevo-cuerpo')">✕</button></div>
     <div class="modal-body">
+      <div class="fgroup"><div class="flabel">Nombre del Cuerpo</div><input class="finput" id="nc-nombre" placeholder="Ej: Cuerpo de Bomberos de Osorno"/></div>
       <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Nombre del Cuerpo</div>
-          <input class="finput" id="nc-nombre" placeholder="Ej: Cuerpo de Bomberos de Osorno"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Ciudad / Localidad</div>
-          <input class="finput" id="nc-ciudad" placeholder="Ej: Osorno"/>
-        </div>
-        <div class="fgroup">
-          <div class="flabel">Región</div>
-          <input class="finput" id="nc-region" placeholder="Ej: Los Lagos"/>
-        </div>
+        <div class="fgroup"><div class="flabel">Ciudad</div><input class="finput" id="nc-ciudad" placeholder="Ej: Osorno"/></div>
+        <div class="fgroup"><div class="flabel">Región</div><input class="finput" id="nc-region" placeholder="Ej: Los Lagos"/></div>
       </div>
       <div class="fgroup">
         <div class="flabel">Número de Compañías</div>
-        <select class="fselect" id="nc-ncias">
-          <option value="1">1 Compañía</option>
-          <option value="2">2 Compañías</option>
-          <option value="3">3 Compañías</option>
-          <option value="4">4 Compañías</option>
-          <option value="5">5 Compañías</option>
-          <option value="6" selected>6 Compañías</option>
-          <option value="7">7 Compañías</option>
-          <option value="8">8 Compañías</option>
-          <option value="9">9 Compañías</option>
-          <option value="10">10 Compañías</option>
+        <select class="fselect" id="nc-ncias" onchange="generarCamposCompanias(parseInt(this.value))">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6" selected>6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
         </select>
       </div>
       <div id="cias-nombres-form" style="margin-top:8px;"></div>
@@ -489,47 +480,35 @@ tr:hover td{background:rgba(255,255,255,.02);}
   </div>
 </div>
 
-<!-- Modal: Nuevo Admin -->
+<div class="modal-overlay" id="modal-nueva-cia">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Nueva Compañía</div><button class="modal-close" onclick="closeModal('modal-nueva-cia')">✕</button></div>
+    <div class="modal-body">
+      <div class="fgroup"><div class="flabel">Nombre de la Compañía</div><input class="finput" id="nueva-cia-nombre" placeholder="Ej: 7ª Compañía"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-nueva-cia')">Cancelar</button>
+      <button class="btn-green" onclick="agregarCompaniaAlCuerpo()">Agregar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-nuevo-admin">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Nuevo Administrador</div>
-      <button class="modal-close" onclick="closeModal('modal-nuevo-admin')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Nuevo Administrador</div><button class="modal-close" onclick="closeModal('modal-nuevo-admin')">✕</button></div>
     <div class="modal-body">
+      <div class="fgroup"><div class="flabel">Nombre completo</div><input class="finput" id="na-nombre" placeholder="Nombre y apellido"/></div>
       <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Nombre completo</div>
-          <input class="finput" id="na-nombre" placeholder="Nombre y apellido"/>
-        </div>
+        <div class="fgroup"><div class="flabel">Email</div><input class="finput" id="na-email" type="email" placeholder="admin@cbfrutillar.cl"/></div>
+        <div class="fgroup"><div class="flabel">Contraseña</div><input class="finput" id="na-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
       </div>
-      <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Email</div>
-          <input class="finput" id="na-email" type="email" placeholder="admin@cbfrutillar.cl"/>
-        </div>
-        <div class="fgroup">
-          <div class="flabel">Contraseña inicial</div>
-          <input class="finput" id="na-pass" type="password" placeholder="Mínimo 6 caracteres"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Rol</div>
-          <select class="fselect" id="na-rol" onchange="onAdminRolChange()">
-            <option value="superadmin">Superadmin</option>
-            <option value="admin-cad">Admin CAD</option>
-            <option value="admin-cuartel">Admin Cuartel</option>
-          </select>
-        </div>
-        <div class="fgroup" id="na-cuerpo-group" style="display:none;">
-          <div class="flabel">Cuerpo de Bomberos</div>
-          <select class="fselect" id="na-cuerpo"></select>
-        </div>
-      </div>
-      <div class="fgroup" id="na-cia-group" style="display:none;">
-        <div class="flabel">Compañía</div>
-        <select class="fselect" id="na-cia"></select>
+      <div class="fgroup">
+        <div class="flabel">Rol</div>
+        <select class="fselect" id="na-rol">
+          <option value="superadmin">Superadmin</option>
+          <option value="admin-cad">Admin CAD</option>
+          <option value="admin-cuartel">Admin Cuartel</option>
+        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -539,66 +518,32 @@ tr:hover td{background:rgba(255,255,255,.02);}
   </div>
 </div>
 
-<!-- Modal: Nuevo Usuario (Operadora / Voluntario) -->
 <div class="modal-overlay" id="modal-nuevo-usuario">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-usuario-title">Nuevo Usuario</div>
-      <button class="modal-close" onclick="closeModal('modal-nuevo-usuario')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="modal-usuario-title">Nuevo Usuario</div><button class="modal-close" onclick="closeModal('modal-nuevo-usuario')">✕</button></div>
     <div class="modal-body">
+      <div class="fgroup"><div class="flabel">Nombre completo</div><input class="finput" id="nu-nombre" placeholder="Nombre y apellido"/></div>
       <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Nombre completo</div>
-          <input class="finput" id="nu-nombre" placeholder="Nombre y apellido"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="fgroup">
-          <div class="flabel">Email</div>
-          <input class="finput" id="nu-email" type="email" placeholder="nombre@cbfrutillar.cl"/>
-        </div>
-        <div class="fgroup">
-          <div class="flabel">Contraseña inicial</div>
-          <input class="finput" id="nu-pass" type="password" placeholder="Mínimo 6 caracteres"/>
-        </div>
+        <div class="fgroup"><div class="flabel">Email</div><input class="finput" id="nu-email" type="email" placeholder="email@cbfrutillar.cl"/></div>
+        <div class="fgroup"><div class="flabel">Contraseña</div><input class="finput" id="nu-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
       </div>
       <div id="nu-extra-fields"></div>
     </div>
     <div class="modal-footer">
       <button class="btn-sec" onclick="closeModal('modal-nuevo-usuario')">Cancelar</button>
-      <button class="btn-green" id="btn-crear-usuario" onclick="crearUsuario()">Crear</button>
+      <button class="btn-green" onclick="crearUsuario()">Crear</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Editar Usuario -->
 <div class="modal-overlay" id="modal-editar-usuario">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Editar Usuario</div>
-      <button class="modal-close" onclick="closeModal('modal-editar-usuario')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Editar Usuario</div><button class="modal-close" onclick="closeModal('modal-editar-usuario')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="edit-uid"/>
-      <div class="fgroup">
-        <div class="flabel">Nombre completo</div>
-        <input class="finput" id="edit-nombre"/>
-      </div>
-      <div class="fgroup">
-        <div class="flabel">Email</div>
-        <input class="finput" id="edit-email" disabled style="opacity:.6;"/>
-      </div>
-      <div class="fgroup">
-        <div class="flabel">Estado</div>
-        <select class="fselect" id="edit-activo">
-          <option value="true">Activo</option>
-          <option value="false">Inactivo</option>
-        </select>
-      </div>
-      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--amber);margin-top:8px;">
-        ⚠️ Para restablecer la contraseña, usa el botón "Reset Pass" en la tabla.
-      </div>
+      <div class="fgroup"><div class="flabel">Nombre</div><input class="finput" id="edit-nombre"/></div>
+      <div class="fgroup"><div class="flabel">Email</div><input class="finput" id="edit-email" disabled style="opacity:.6;"/></div>
+      <div class="fgroup"><div class="flabel">Estado</div><select class="fselect" id="edit-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
     </div>
     <div class="modal-footer">
       <button class="btn-sec" onclick="closeModal('modal-editar-usuario')">Cancelar</button>
@@ -607,11 +552,37 @@ tr:hover td{background:rgba(255,255,255,.02);}
   </div>
 </div>
 
-<!-- NOTIF -->
-<div class="notif" id="notif">
-  <div class="notif-ico" id="notif-ico">ℹ️</div>
-  <div><div class="notif-title" id="notif-title">—</div><div class="notif-msg" id="notif-msg">—</div></div>
+<div class="modal-overlay" id="modal-nuevo-vehiculo">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Nuevo Vehículo</div><button class="modal-close" onclick="closeModal('modal-nuevo-vehiculo')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Código</div><input class="finput" id="nv-nombre" placeholder="Ej: B1"/></div>
+        <div class="fgroup"><div class="flabel">Tipo</div>
+          <select class="fselect" id="nv-tipo"><option>Bomba</option><option>Bomba Apoyo</option><option>Rescate</option><option>Forestal</option><option>Escala</option><option>Otro</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Patente</div><input class="finput" id="nv-patente" placeholder="ZP-0000"/></div>
+        <div class="fgroup"><div class="flabel">Año</div><input class="finput" type="number" id="nv-anio" placeholder="2024"/></div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Marca / Modelo</div><input class="finput" id="nv-modelo" placeholder="Mercedes Benz Atego"/></div>
+        <div class="fgroup"><div class="flabel">KM actuales</div><input class="finput" type="number" id="nv-km" placeholder="0"/></div>
+      </div>
+      <div class="fgroup"><div class="flabel">Estado</div>
+        <select class="fselect" id="nv-estado"><option value="disponible">Disponible</option><option value="mantencion">En Mantención</option><option value="fuera-servicio">Fuera de Servicio</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-nuevo-vehiculo')">Cancelar</button>
+      <button class="btn-green" onclick="crearVehiculo()">Crear Vehículo</button>
+    </div>
+  </div>
 </div>
+
+<!-- NOTIF -->
+<div class="notif" id="notif"><div class="notif-ico" id="notif-ico">ℹ️</div><div><div class="notif-title" id="notif-title">—</div><div class="notif-msg" id="notif-msg">—</div></div></div>
 
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -619,101 +590,65 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
          createUserWithEmailAndPassword, sendPasswordResetEmail, updatePassword }
                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc,
-         updateDoc, deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp, limit }
+         updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, limit }
                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const FB = {
-  apiKey           : "AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY",
-  authDomain       : "cad-bomberos-frutillar.firebaseapp.com",
-  projectId        : "cad-bomberos-frutillar",
-  storageBucket    : "cad-bomberos-frutillar.firebasestorage.app",
-  messagingSenderId: "70874334886",
-  appId            : "1:70874334886:web:8afa79fc1ef371b5ffd667"
+  apiKey:'AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY',
+  authDomain:'cad-bomberos-frutillar.firebaseapp.com',
+  projectId:'cad-bomberos-frutillar',
+  storageBucket:'cad-bomberos-frutillar.firebasestorage.app',
+  messagingSenderId:'70874334886',
+  appId:'1:70874334886:web:8afa79fc1ef371b5ffd667'
 };
 const app  = initializeApp(FB);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
+const CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
+
+// ── ESTADO ────────────────────────────────────────────────────
 var usuarioActual = null;
 var perfilActual  = null;
+var _saHC         = false;
+var cuerpoActual  = null;  // { id, ...data }
+var ciaActual     = null;  // { id, nombre, color, cuerpoId }
 var tipoModalUsuario = 'operadora';
-var _superadminHardcoded = false;
 
-// Verificar si hay sesión de superadmin hardcodeado activa
-function _isSuperadminSession() {
-  return _superadminHardcoded || sessionStorage.getItem('_sa_hc') === '1';
-}
-
-// ── COLORES COMPAÑÍAS ─────────────────────────────────────────
-var CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
+function _isSA(){ return _saHC || sessionStorage.getItem('_sa_hc')==='1'; }
 
 // ── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async function(user) {
+  if (_isSA()) return;
   if (user) {
     usuarioActual = user;
     if (user.isAnonymous) return;
     try {
-      var snap = await getDoc(doc(db, 'usuarios_admin', user.uid));
-      if (snap.exists()) {
+      var snap = await getDoc(doc(db,'usuarios_admin',user.uid));
+      if (snap.exists() && snap.data().activo !== false) {
         perfilActual = snap.data();
-        if (perfilActual.activo !== false) {
-          _superadminHardcoded = false;
-          sessionStorage.removeItem('_sa_hc');
-          iniciarApp();
-        } else {
-          showNotif('⚠️','Cuenta desactivada','Tu cuenta no está activa.');
-          await signOut(auth);
-        }
-      } else if (_isSuperadminSession()) {
-        // Es el superadmin hardcodeado con sesión Firebase real pero sin doc
-        // Crear el documento automáticamente
-        await setDoc(doc(db, 'usuarios_admin', user.uid), {
-          nombre  : 'Javier Lama',
-          email   : user.email,
-          rol     : 'superadmin',
-          activo  : true,
-          creado  : serverTimestamp()
-        });
-        perfilActual = { nombre:'Javier Lama', rol:'superadmin', activo:true };
         iniciarApp();
       } else {
         showNotif('⚠️','Sin acceso','No tienes permisos de administrador.');
         await signOut(auth);
       }
-    } catch(e) {
-      console.error('[Admin] Error:', e.message);
-      if (_isSuperadminSession()) {
-        // Aunque falle Firestore, entrar igual con perfil hardcodeado
-        perfilActual = { nombre:'Javier Lama', rol:'superadmin', activo:true };
-        iniciarApp();
-      } else {
-        mostrarLogin();
-      }
-    }
-  } else {
-    if (!_isSuperadminSession()) mostrarLogin();
-  }
+    } catch(e) { console.error(e); mostrarLogin(); }
+  } else { mostrarLogin(); }
 });
-
-// ── SUPERADMIN HARDCODEADO (solo pruebas) ──────────────────
-var SUPERADMIN_EMAIL = 'javier@cbfrutillar.cl';
-var SUPERADMIN_PASS  = 'admin';
 
 window.doLogin = async function() {
   var email = document.getElementById('login-email').value.trim();
   var pass  = document.getElementById('login-pass').value;
   var btn   = document.getElementById('btn-login');
   var err   = document.getElementById('login-error');
-  if (!email || !pass) { err.textContent='Completa los campos'; err.style.display='block'; return; }
+  if (!email||!pass){ err.textContent='Completa los campos'; err.style.display='block'; return; }
   btn.disabled=true; btn.textContent='Ingresando...';
   err.style.display='none';
-  // Acceso directo superadmin hardcodeado — NO usa Firebase Auth
-  if (email===SUPERADMIN_EMAIL && pass===SUPERADMIN_PASS) {
-    _superadminHardcoded = true; // bandera permanente, onAuthStateChanged la respeta
-    usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
-    perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
-    document.getElementById('login-wrap').style.display = 'none';
-    document.getElementById('app').style.display        = 'flex';
+  // Superadmin hardcodeado
+  if (email==='javier@cbfrutillar.cl' && pass==='admin') {
+    _saHC=true; sessionStorage.setItem('_sa_hc','1');
+    usuarioActual={uid:'sa-local',email};
+    perfilActual={nombre:'Javier Lama',rol:'superadmin',activo:true};
     btn.disabled=false; btn.textContent='Ingresar';
     iniciarApp();
     return;
@@ -721,717 +656,788 @@ window.doLogin = async function() {
   try {
     await signInWithEmailAndPassword(auth, email, pass);
   } catch(e) {
-    err.textContent = 'Email o contraseña incorrectos';
-    err.style.display = 'block';
+    err.textContent='Email o contraseña incorrectos';
+    err.style.display='block';
     btn.disabled=false; btn.textContent='Ingresar';
   }
 };
 
 window.doLogout = async function() {
-  _superadminHardcoded = false;
-  sessionStorage.removeItem('_sa_hc');
-  try { await signOut(auth); } catch(e) {}
+  _saHC=false; sessionStorage.removeItem('_sa_hc');
+  try { await signOut(auth); } catch(e){}
   location.reload();
 };
 
-
-
-function mostrarLogin() {
-  document.getElementById('login-wrap').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
+function mostrarLogin(){ document.getElementById('login-wrap').style.display='flex'; document.getElementById('app').style.display='none'; }
 
 function iniciarApp() {
-  document.getElementById('login-wrap').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  var rol = perfilActual.rol || 'superadmin';
-  // Mostrar secciones según rol
-  if (rol === 'superadmin') {
-    document.getElementById('nav-section-super').style.display  = 'block';
-    document.getElementById('nav-section-cad').style.display    = 'block';
-    document.getElementById('nav-section-cuartel').style.display= 'block';
-    document.getElementById('topbar-rol-badge').textContent     = 'SUPERADMIN';
-    document.getElementById('topbar-rol-badge').className       = 'rol-badge';
-  } else if (rol === 'admin-cad') {
-    document.getElementById('nav-section-cad').style.display    = 'block';
-    document.getElementById('topbar-rol-badge').textContent     = 'ADMIN CAD';
-    document.getElementById('topbar-rol-badge').className       = 'rol-badge admin-cad';
-  } else if (rol === 'admin-cuartel') {
-    document.getElementById('nav-section-cuartel').style.display= 'block';
-    document.getElementById('topbar-rol-badge').textContent     = 'ADMIN CUARTEL';
-    document.getElementById('topbar-rol-badge').className       = 'rol-badge admin-cuartel';
-  }
-  document.getElementById('topbar-email').textContent = perfilActual.nombre || usuarioActual.email;
-  document.getElementById('mc-email').value  = usuarioActual.email;
-  document.getElementById('mc-nombre').value = perfilActual.nombre || '';
-  cargarDashboard();
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('topbar-nombre').textContent = perfilActual.nombre||usuarioActual.email;
+  document.getElementById('mc-email').value  = usuarioActual.email||'';
+  document.getElementById('mc-nombre').value = perfilActual.nombre||'';
+  generarCamposCompanias(6);
+  cargarDashboardGlobal();
 }
 
-// ── NAVEGACIÓN ────────────────────────────────────────────────
-window.showPage = function(name, el) {
-  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
-  document.querySelectorAll('.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
-  document.getElementById('page-'+name).classList.add('active');
-  if (el) el.classList.add('active');
-  // Cargar datos al cambiar de página
+// ── BREADCRUMB ────────────────────────────────────────────────
+function setBreadcrumb(partes) {
+  var bc = document.getElementById('breadcrumb');
+  bc.innerHTML = partes.map(function(p,i){
+    if (i<partes.length-1) return '<span style="cursor:pointer;text-decoration:underline;" onclick="'+p.onclick+'">'+p.label+'</span><span class="sep"> › </span>';
+    return '<span>'+p.label+'</span>';
+  }).join('');
+}
+
+// ── NAVEGACIÓN GLOBAL ─────────────────────────────────────────
+window.navGlobal = function(name, el) {
+  // Volver a vista global
+  document.getElementById('sb-global').style.display='block';
+  document.getElementById('sb-cuerpo').style.display='none';
+  document.getElementById('sb-cia').style.display='none';
+  cuerpoActual=null; ciaActual=null;
+  setBreadcrumb([{label:'Administración'}]);
+  activarPagina(name, 'sb-global', el);
   var loaders = {
-    'cuerpos'           : cargarCuerpos,
-    'admins'            : cargarAdmins,
-    'operadoras'        : cargarOperadoras,
-    'voluntarios-admin' : cargarVoluntariosAdmin,
-    'companias-admin'   : cargarCompaniasAdmin,
-    'emergencias-admin' : cargarEmergenciasAdmin,
-    'stats-global'      : cargarStatsGlobal
+    'dashboard': cargarDashboardGlobal,
+    'cuerpos': cargarCuerpos,
+    'admins': cargarAdmins,
+    'stats-global': cargarStatsGlobal
   };
   if (loaders[name]) loaders[name]();
 };
 
-// ── DASHBOARD ─────────────────────────────────────────────────
-async function cargarDashboard() {
-  var grid   = document.getElementById('dash-stats');
-  var charts = document.getElementById('dash-charts');
-  try {
-    var [cuerposSnap, usersSnap, emergSnap, volSnap] = await Promise.all([
-      getDocs(collection(db, 'cuerpos')),
-      getDocs(collection(db, 'usuarios_admin')),
-      getDocs(query(collection(db, 'emergencias'), orderBy('timestamp','desc'), limit(100))),
-      getDocs(collection(db, 'voluntarios'))
+// ── NAVEGACIÓN CUERPO ─────────────────────────────────────────
+window.entrarCuerpo = function(cuerpoId, cuerpoData) {
+  cuerpoActual = Object.assign({id:cuerpoId}, cuerpoData);
+  document.getElementById('sb-global').style.display='none';
+  document.getElementById('sb-cuerpo').style.display='block';
+  document.getElementById('sb-cia').style.display='none';
+  document.getElementById('sb-cuerpo-nombre').textContent = cuerpoData.nombre;
+  document.getElementById('sb-cuerpo-ciudad').textContent = cuerpoData.ciudad+', '+cuerpoData.region;
+  setBreadcrumb([
+    {label:'Administración', onclick:'volverGlobal()'},
+    {label:cuerpoData.nombre}
+  ]);
+  activarPagina('dashboard-cuerpo', 'sb-cuerpo', document.getElementById('nav-c-dashboard'));
+  cargarDashboardCuerpo();
+};
+
+window.navCuerpo = function(name, el) {
+  if (!cuerpoActual) return;
+  setBreadcrumb([
+    {label:'Administración', onclick:'volverGlobal()'},
+    {label:cuerpoActual.nombre, onclick:'entrarCuerpoActual()'},
+    {label:el.textContent.trim()}
+  ]);
+  activarPagina(name, 'sb-cuerpo', el);
+  var loaders = {
+    'dashboard-cuerpo': cargarDashboardCuerpo,
+    'operadoras': cargarOperadoras,
+    'companias': cargarCompanias,
+    'stats-cuerpo': cargarStatsCuerpo,
+    'emergencias-cuerpo': cargarEmergenciasCuerpo
+  };
+  if (loaders[name]) loaders[name]();
+};
+
+window.volverGlobal = function() {
+  navGlobal('cuerpos', document.getElementById('nav-g-cuerpos'));
+};
+
+window.entrarCuerpoActual = function() {
+  if (cuerpoActual) entrarCuerpo(cuerpoActual.id, cuerpoActual);
+};
+
+// ── NAVEGACIÓN COMPAÑÍA ───────────────────────────────────────
+window.entrarCompania = function(ciaId, ciaNombre, ciaColor, cuerpoId) {
+  ciaActual = { id:ciaId, nombre:ciaNombre, color:ciaColor, cuerpoId:cuerpoId };
+  document.getElementById('sb-cuerpo').style.display='none';
+  document.getElementById('sb-cia').style.display='block';
+  document.getElementById('sb-cia-nombre').textContent = ciaNombre;
+  document.getElementById('sb-cia-nombre').style.color = ciaColor;
+  document.getElementById('sb-cia-cuerpo').textContent = cuerpoActual ? cuerpoActual.nombre : '';
+  setBreadcrumb([
+    {label:'Administración', onclick:'volverGlobal()'},
+    {label:cuerpoActual?cuerpoActual.nombre:'Cuerpo', onclick:'volverCuerpo()'},
+    {label:ciaNombre}
+  ]);
+  activarPagina('dashboard-cia', 'sb-cia', document.getElementById('nav-cia-dashboard'));
+  cargarDashboardCia();
+};
+
+window.navCia = function(name, el) {
+  if (!ciaActual) return;
+  setBreadcrumb([
+    {label:'Administración', onclick:'volverGlobal()'},
+    {label:cuerpoActual?cuerpoActual.nombre:'Cuerpo', onclick:'volverCuerpo()'},
+    {label:ciaActual.nombre, onclick:'entrarCompaniaActual()'},
+    {label:el.textContent.trim()}
+  ]);
+  activarPagina(name, 'sb-cia', el);
+  var loaders = {
+    'dashboard-cia': cargarDashboardCia,
+    'voluntarios': cargarVoluntarios,
+    'vehiculos': cargarVehiculos,
+    'stats-cia': cargarStatsCia,
+    'emergencias-cia': cargarEmergenciasCia
+  };
+  if (loaders[name]) loaders[name]();
+};
+
+window.volverCuerpo = function() {
+  document.getElementById('sb-cia').style.display='none';
+  document.getElementById('sb-cuerpo').style.display='block';
+  ciaActual = null;
+  if (cuerpoActual) {
+    setBreadcrumb([
+      {label:'Administración', onclick:'volverGlobal()'},
+      {label:cuerpoActual.nombre}
     ]);
-    var activas = 0;
-    emergSnap.forEach(function(d){ if(d.data().estado==='activa') activas++; });
-
-    grid.innerHTML =
-      stat('🏛️', cuerposSnap.size, 'Cuerpos registrados', 'blue') +
-      stat('👥', volSnap.size, 'Voluntarios totales', 'green') +
-      stat('🚨', emergSnap.size, 'Emergencias totales', 'red') +
-      stat('📡', activas, 'Emergencias activas', 'amber');
-
-    // Gráfico emergencias por tipo
-    var porTipo = {};
-    emergSnap.forEach(function(d){ var t=d.data().tipo||'—'; porTipo[t]=(porTipo[t]||0)+1; });
-    var tiposOrdenados = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
-    var maxTipo = tiposOrdenados.length ? tiposOrdenados[0][1] : 1;
-
-    charts.innerHTML =
-      '<div class="chart-card"><div class="chart-title">Emergencias por tipo</div>' +
-      tiposOrdenados.map(function(e){
-        return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div>' +
-          '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxTipo*100)+'%"></div></div>' +
-          '<div class="bar-val">'+e[1]+'</div></div>';
-      }).join('') + '</div>' +
-      '<div class="chart-card"><div class="chart-title">Resumen del sistema</div>' +
-      resumen('Cuerpos activos', cuerposSnap.size) +
-      resumen('Admins registrados', usersSnap.size) +
-      resumen('Total emergencias', emergSnap.size) +
-      resumen('Voluntarios activos', volSnap.size) +
-      '</div>';
-  } catch(e) {
-    grid.innerHTML = '<div style="color:var(--text3);font-size:12px;">Error cargando datos: '+e.message+'</div>';
+    activarPagina('companias', 'sb-cuerpo', document.getElementById('nav-c-companias'));
+    cargarCompanias();
   }
+};
+
+window.entrarCompaniaActual = function() {
+  if (ciaActual) entrarCompania(ciaActual.id, ciaActual.nombre, ciaActual.color, ciaActual.cuerpoId);
+};
+
+function activarPagina(name, sbId, el) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var page = document.getElementById('page-'+name);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('#'+sbId+' .sb-item').forEach(function(s){ s.classList.remove('active'); });
+  if (el) el.classList.add('active');
 }
 
-function stat(ico,num,lbl,color){
-  return '<div class="stat-card '+color+'"><div style="font-size:20px;margin-bottom:6px;">'+ico+'</div>'+
-    '<div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div></div>';
-}
-function resumen(lbl,val){
-  return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">'+
-    '<span style="color:var(--text2);">'+lbl+'</span><span style="font-weight:700;">'+val+'</span></div>';
+// ── DASHBOARD GLOBAL ──────────────────────────────────────────
+async function cargarDashboardGlobal() {
+  var grid = document.getElementById('g-stats-grid');
+  var charts = document.getElementById('g-charts');
+  try {
+    var [cuerposSnap, volSnap, emergSnap, adminsSnap] = await Promise.all([
+      getDocs(collection(db,'cuerpos')),
+      getDocs(collection(db,'voluntarios')),
+      getDocs(query(collection(db,'emergencias'), orderBy('timestamp','desc'), limit(100))),
+      getDocs(collection(db,'usuarios_admin'))
+    ]);
+    var activas=0; emergSnap.forEach(function(d){ if(d.data().estado==='activa') activas++; });
+    grid.innerHTML =
+      mkStat('🏛️',cuerposSnap.size,'Cuerpos','blue')+
+      mkStat('👥',volSnap.size,'Voluntarios','green')+
+      mkStat('🚨',emergSnap.size,'Emergencias totales','red')+
+      mkStat('📡',activas,'Emergencias activas','amber');
+    var porTipo={};
+    emergSnap.forEach(function(d){ var t=d.data().tipo||'—'; porTipo[t]=(porTipo[t]||0)+1; });
+    var tops=Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+    var maxV=tops.length?tops[0][1]:1;
+    charts.innerHTML =
+      '<div class="chart-card"><div class="chart-title">Emergencias por tipo</div>'+
+      tops.map(function(e){ return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxV*100)+'%"></div></div><div class="bar-val">'+e[1]+'</div></div>'; }).join('')+
+      '</div><div class="chart-card"><div class="chart-title">Resumen sistema</div>'+
+      mkResumen('Cuerpos activos',cuerposSnap.size)+
+      mkResumen('Voluntarios totales',volSnap.size)+
+      mkResumen('Administradores',adminsSnap.size)+
+      mkResumen('Emergencias activas',activas)+
+      '</div>';
+  } catch(e){ grid.innerHTML='<div style="color:var(--text3);font-size:12px;">'+e.message+'</div>'; }
 }
 
 // ── CUERPOS ───────────────────────────────────────────────────
 async function cargarCuerpos() {
   var cont = document.getElementById('lista-cuerpos');
   cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
-  var snap = await getDocs(query(collection(db,'cuerpos'), orderBy('nombre')));
-  if (snap.empty) {
-    cont.innerHTML = '<div class="empty-state"><div class="empty-state-ico">🏛️</div><div>No hay cuerpos registrados.<br>Crea el primero.</div></div>';
-    return;
-  }
-  cont.innerHTML = '';
-  snap.forEach(function(d) {
-    var c = Object.assign({ id: d.id }, d.data());
-    var cias = c.companias || [];
-    var card = document.createElement('div');
-    card.className = 'cuerpo-card';
-    card.innerHTML =
-      '<div class="cuerpo-header">' +
-        '<div><div class="cuerpo-nombre">'+c.nombre+'</div><div class="cuerpo-ciudad">📍 '+c.ciudad+', '+c.region+'</div></div>' +
-        '<div style="display:flex;gap:8px;">' +
-          '<button class="btn-amber" onclick="editarCuerpo(\''+d.id+'\')">Editar</button>' +
-          '<button class="btn-danger" onclick="eliminarCuerpo(\''+d.id+'\',\''+c.nombre+'\')">Eliminar</button>' +
-        '</div>' +
-      '</div>' +
-      '<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">'+cias.length+' compañía'+(cias.length!==1?'s':'')+'</div>' +
-      '<div class="cias-grid">' +
-        cias.map(function(cia,i){
-          return '<div class="cia-chip"><div class="cia-dot" style="background:'+CIA_COLORS[i%CIA_COLORS.length]+';"></div>'+cia.nombre+'</div>';
-        }).join('') +
-      '</div>';
-    cont.appendChild(card);
-  });
+  try {
+    var snap = await getDocs(query(collection(db,'cuerpos'), orderBy('nombre')));
+    if (snap.empty) {
+      cont.innerHTML='<div class="empty-state"><div class="empty-state-ico">🏛️</div><div>Sin cuerpos registrados.</div></div>';
+      return;
+    }
+    cont.innerHTML='';
+    var grid = document.createElement('div');
+    grid.className='card-grid';
+    snap.forEach(function(d) {
+      var c=Object.assign({id:d.id},d.data());
+      var cias=c.companias||[];
+      var card=document.createElement('div');
+      card.className='card';
+      card.innerHTML=
+        '<div class="card-header">'+
+          '<div>'+
+            '<div class="card-title">'+c.nombre+'</div>'+
+            '<div class="card-sub">📍 '+c.ciudad+', '+c.region+'</div>'+
+          '</div>'+
+          '<div style="display:flex;gap:6px;">'+
+            '<button class="btn-amber" data-id="'+d.id+'" onclick="event.stopPropagation();editarCuerpo(this.dataset.id)">Editar</button>'+
+            '<button class="btn-danger" data-id="'+d.id+'" data-nombre="'+c.nombre.replace(/"/g,'')+'" onclick="event.stopPropagation();eliminarCuerpo(this.dataset.id,this.dataset.nombre)">Eliminar</button>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">'+
+          cias.map(function(cia,i){ return '<div style="display:flex;align-items:center;gap:4px;font-size:11px;"><div style="width:8px;height:8px;border-radius:50%;background:'+cia.color+';"></div>'+cia.nombre+'</div>'; }).join('')+
+        '</div>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+          '<span style="font-size:11px;color:var(--text3);">'+cias.length+' compañía'+(cias.length!==1?'s':'')+'</span>'+
+          '<span style="font-size:11px;color:var(--blue);">Ver detalle →</span>'+
+        '</div>';
+      card.onclick=function(){ entrarCuerpo(d.id, c); };
+      grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+  } catch(e){ cont.innerHTML='<div style="color:var(--red);font-size:12px;">'+e.message+'</div>'; }
 }
-
-// Generar campos de nombre por compañía
-document.getElementById('nc-ncias').addEventListener('change', function() {
-  generarCamposCompanias(parseInt(this.value));
-});
-
-function generarCamposCompanias(n) {
-  var cont = document.getElementById('cias-nombres-form');
-  cont.innerHTML = '<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Nombres de compañías</div>';
-  var nombres = ['1ª Compañía','2ª Compañía','3ª Compañía','4ª Compañía','5ª Compañía','6ª Compañía','7ª Compañía','8ª Compañía','9ª Compañía','10ª Compañía'];
-  for (var i=0; i<n; i++) {
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center;';
-    row.innerHTML =
-      '<div style="width:24px;height:24px;border-radius:50%;background:'+CIA_COLORS[i%CIA_COLORS.length]+';flex-shrink:0;"></div>' +
-      '<input class="finput" style="flex:1;" id="cia-nombre-'+i+'" value="'+nombres[i]+'" placeholder="Nombre de la '+nombres[i]+'"/>';
-    cont.appendChild(row);
-  }
-}
-generarCamposCompanias(6);
 
 window.crearCuerpo = async function() {
-  var nombre = document.getElementById('nc-nombre').value.trim();
-  var ciudad = document.getElementById('nc-ciudad').value.trim();
-  var region = document.getElementById('nc-region').value.trim();
-  var nCias  = parseInt(document.getElementById('nc-ncias').value);
-  if (!nombre || !ciudad) { showNotif('⚠️','Campos requeridos','Completa nombre y ciudad.'); return; }
-  var companias = [];
-  for (var i=0; i<nCias; i++) {
-    var nomCia = document.getElementById('cia-nombre-'+i).value.trim() || (i+1)+'ª Compañía';
-    companias.push({ id:'B-'+(i+1), nombre: nomCia, num:(i+1)+'ª', color: CIA_COLORS[i%CIA_COLORS.length] });
+  var nombre=document.getElementById('nc-nombre').value.trim();
+  var ciudad=document.getElementById('nc-ciudad').value.trim();
+  var region=document.getElementById('nc-region').value.trim();
+  var nCias=parseInt(document.getElementById('nc-ncias').value);
+  if (!nombre||!ciudad){ showNotif('⚠️','Campos requeridos','Completa nombre y ciudad.'); return; }
+  var companias=[];
+  for (var i=0;i<nCias;i++){
+    var el=document.getElementById('cia-nombre-'+i);
+    companias.push({id:'B-'+(i+1),nombre:el?el.value.trim():(i+1)+'ª Compañía',num:(i+1)+'ª',color:CIA_COLORS[i%CIA_COLORS.length]});
   }
   try {
-    var ref = await addDoc(collection(db,'cuerpos'), {
-      nombre, ciudad, region, companias,
-      nCompanias: nCias,
-      activo: true,
-      creado: serverTimestamp()
-    });
-    showNotif('✅','Cuerpo creado','Se crearon '+nCias+' compañías automáticamente.');
+    await addDoc(collection(db,'cuerpos'),{nombre,ciudad,region,companias,nCompanias:nCias,activo:true,creado:serverTimestamp()});
+    showNotif('✅','Cuerpo creado',nombre+' con '+nCias+' compañías.');
     closeModal('modal-nuevo-cuerpo');
     cargarCuerpos();
-  } catch(e) {
-    showNotif('❌','Error',e.message);
-  }
+  } catch(e){ showNotif('❌','Error',e.message); }
+};
+
+window.editarCuerpo = async function(id) {
+  showNotif('ℹ️','Próximamente','Edición de cuerpo en desarrollo.');
 };
 
 window.eliminarCuerpo = async function(id, nombre) {
-  if (!confirm('¿Eliminar el cuerpo "'+nombre+'"? Esta acción no se puede deshacer.')) return;
+  if (!confirm('¿Eliminar "'+nombre+'"? Esta acción no se puede deshacer.')) return;
   await deleteDoc(doc(db,'cuerpos',id));
-  showNotif('🗑️','Eliminado','Cuerpo "'+nombre+'" eliminado.');
+  showNotif('🗑️','Eliminado',nombre+' eliminado.');
   cargarCuerpos();
 };
 
-// ── ADMINS ────────────────────────────────────────────────────
-async function cargarAdmins() {
-  var tbody = document.getElementById('tbody-admins');
-  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var snap = await getDocs(collection(db,'usuarios_admin'));
-  if (snap.empty) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin administradores registrados</td></tr>'; return; }
-  tbody.innerHTML = '';
-  snap.forEach(function(d) {
-    var u = Object.assign({ uid: d.id }, d.data());
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td style="font-weight:600;">'+u.nombre+'</td>' +
-      '<td style="color:var(--text2);font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+u.email+'</td>' +
-      '<td><span class="badge '+u.rol+'">'+u.rol+'</span></td>' +
-      '<td style="color:var(--text3);font-size:11px;">'+(u.cuerpo||'Global')+'</td>' +
-      '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>' +
-      '<td><div class="actions">' +
-        '<button class="btn-amber" onclick="editarUsuario(\''+d.id+'\',\'admin\')">Editar</button>' +
-        '<button class="btn-sec" onclick="resetPass(\''+u.email+'\')">Reset Pass</button>' +
-        '<button class="btn-danger" onclick="desactivarUsuario(\''+d.id+'\',\'usuarios_admin\')">'+
-          (u.activo?'Desactivar':'Activar')+'</button>' +
-      '</div></td>';
-    tbody.appendChild(tr);
-  });
-}
-
-window.crearAdmin = async function() {
-  var nombre = document.getElementById('na-nombre').value.trim();
-  var email  = document.getElementById('na-email').value.trim();
-  var pass   = document.getElementById('na-pass').value.trim();
-  var rol    = document.getElementById('na-rol').value;
-  var cuerpo = document.getElementById('na-cuerpo').value || '';
-  var cia    = document.getElementById('na-cia').value || '';
-  if (!nombre||!email||!pass) { showNotif('⚠️','Campos requeridos','Completa todos los campos.'); return; }
+// ── DASHBOARD CUERPO ──────────────────────────────────────────
+async function cargarDashboardCuerpo() {
+  if (!cuerpoActual) return;
+  document.getElementById('dc-titulo').textContent = cuerpoActual.nombre;
+  document.getElementById('dc-sub').textContent = '📍 '+cuerpoActual.ciudad+', '+cuerpoActual.region;
+  var grid=document.getElementById('dc-stats');
+  var charts=document.getElementById('dc-charts');
+  var cias=(cuerpoActual.companias||[]).map(function(c){return c.id;});
   try {
-    var cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await setDoc(doc(db,'usuarios_admin',cred.user.uid), {
-      nombre, email, rol, cuerpo, cia, activo:true, creado:serverTimestamp()
-    });
-    showNotif('✅','Admin creado',nombre+' registrado como '+rol);
-    closeModal('modal-nuevo-admin');
-    cargarAdmins();
-  } catch(e) {
-    showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);
-  }
-};
-
-window.onAdminRolChange = function() {
-  var rol = document.getElementById('na-rol').value;
-  var cuerpoGroup = document.getElementById('na-cuerpo-group');
-  var ciaGroup    = document.getElementById('na-cia-group');
-  cuerpoGroup.style.display = (rol==='admin-cad'||rol==='admin-cuartel') ? 'block' : 'none';
-  ciaGroup.style.display    = rol==='admin-cuartel' ? 'block' : 'none';
-  if (rol !== 'superadmin') cargarSelectCuerpos('na-cuerpo');
-};
-
-async function cargarSelectCuerpos(selectId) {
-  var sel = document.getElementById(selectId);
-  sel.innerHTML = '<option value="">— Seleccionar —</option>';
-  var snap = await getDocs(collection(db,'cuerpos'));
-  snap.forEach(function(d){ var opt=document.createElement('option'); opt.value=d.id; opt.textContent=d.data().nombre; sel.appendChild(opt); });
+    var volProm = cias.length>0 ? getDocs(query(collection(db,'voluntarios'),where('cia','in',cias))) : Promise.resolve({size:0,forEach:()=>{}});
+    var carrosProm = cias.length>0 ? getDocs(query(collection(db,'carros_cia'),where('cia','in',cias))) : Promise.resolve({size:0,forEach:()=>{}});
+    var emergProm = getDocs(query(collection(db,'emergencias'),where('companias','array-contains-any',cias.length>0?cias:['__none__']),orderBy('timestamp','desc'),limit(50)));
+    var [volSnap,carrosSnap,emergSnap] = await Promise.all([volProm,carrosProm,emergProm]);
+    var activos=0; volSnap.forEach(function(d){if(d.data().activo!==false)activos++;});
+    var disp=0; carrosSnap.forEach(function(d){if(d.data().estado==='disponible')disp++;});
+    var eActivas=0; emergSnap.forEach(function(d){if(d.data().estado==='activa')eActivas++;});
+    grid.innerHTML=
+      mkStat('👥',volSnap.size,'Voluntarios','blue')+
+      mkStat('✅',activos,'Activos','green')+
+      mkStat('🚒',carrosSnap.size,'Vehículos','purple')+
+      mkStat('🚨',emergSnap.size,'Emergencias','red');
+    charts.innerHTML=
+      '<div class="chart-card"><div class="chart-title">Compañías</div>'+
+      (cuerpoActual.companias||[]).map(function(cia){
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="entrarCompania(\''+cia.id+'\',\''+cia.nombre+'\',\''+cia.color+'\',\''+cuerpoActual.id+'\')">'+
+          '<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:'+cia.color+';"></div><span style="font-size:12px;font-weight:600;">'+cia.nombre+'</span></div>'+
+          '<span style="font-size:11px;color:var(--blue);">Ver →</span></div>';
+      }).join('')+
+      '</div>'+
+      '<div class="chart-card"><div class="chart-title">Resumen del cuerpo</div>'+
+      mkResumen('Compañías',(cuerpoActual.companias||[]).length)+
+      mkResumen('Voluntarios totales',volSnap.size)+
+      mkResumen('Vehículos',carrosSnap.size)+
+      mkResumen('Emergencias activas',eActivas)+
+      '</div>';
+  } catch(e){ grid.innerHTML='<div style="color:var(--text3);font-size:12px;">'+e.message+'</div>'; }
 }
+
+// ── COMPAÑÍAS DEL CUERPO ──────────────────────────────────────
+async function cargarCompanias() {
+  if (!cuerpoActual) return;
+  document.getElementById('comp-titulo').textContent = 'Compañías — '+cuerpoActual.nombre;
+  var cont=document.getElementById('lista-companias');
+  var cias=cuerpoActual.companias||[];
+  if (!cias.length){ cont.innerHTML='<div class="empty-state"><div class="empty-state-ico">🚒</div><div>Sin compañías registradas.</div></div>'; return; }
+  cont.innerHTML='';
+  var grid=document.createElement('div'); grid.className='card-grid';
+  cias.forEach(function(cia,i){
+    var card=document.createElement('div'); card.className='card';
+    card.style.borderLeft='4px solid '+cia.color;
+    card.innerHTML=
+      '<div class="card-header">'+
+        '<div><div class="card-title" style="color:'+cia.color+'">'+cia.nombre+'</div><div class="card-sub">ID: '+cia.id+' · '+cuerpoActual.nombre+'</div></div>'+
+        '<button class="btn-danger" data-cuerpo="'+cuerpoActual.id+'" data-idx="'+i+'" data-nombre="'+cia.nombre.replace(/"/g,'')+'" onclick="event.stopPropagation();eliminarCompania(this.dataset.cuerpo,this.dataset.idx,this.dataset.nombre)">Eliminar</button>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">'+
+        '<a href="compania-'+cia.id.replace('B-','')+'.html" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;" onclick="event.stopPropagation();sessionStorage.setItem(\'_admin_bypass\',\'1\')">📄 Abrir módulo →</a>'+
+        '<span style="font-size:11px;color:var(--blue);">Ver detalle →</span>'+
+      '</div>';
+    card.onclick=function(){ entrarCompania(cia.id, cia.nombre, cia.color, cuerpoActual.id); };
+    grid.appendChild(card);
+  });
+  cont.appendChild(grid);
+}
+
+window.agregarCompaniaAlCuerpo = async function() {
+  if (!cuerpoActual) return;
+  var nombre=document.getElementById('nueva-cia-nombre').value.trim();
+  if (!nombre){ showNotif('⚠️','Requerido','Ingresa el nombre.'); return; }
+  var cias=[...(cuerpoActual.companias||[])];
+  var next=cias.length+1;
+  cias.push({id:'B-'+next,nombre,num:next+'ª',color:CIA_COLORS[(next-1)%CIA_COLORS.length]});
+  await updateDoc(doc(db,'cuerpos',cuerpoActual.id),{companias:cias,nCompanias:cias.length});
+  cuerpoActual.companias=cias;
+  showNotif('✅','Compañía agregada',nombre);
+  closeModal('modal-nueva-cia');
+  cargarCompanias();
+};
+
+window.eliminarCompania = async function(cuerpoId, idx, nombre) {
+  if (!confirm('¿Eliminar "'+nombre+'"?')) return;
+  var snap=await getDoc(doc(db,'cuerpos',cuerpoId));
+  var cias=[...(snap.data().companias||[])];
+  cias.splice(parseInt(idx),1);
+  await updateDoc(doc(db,'cuerpos',cuerpoId),{companias:cias,nCompanias:cias.length});
+  if (cuerpoActual && cuerpoActual.id===cuerpoId) cuerpoActual.companias=cias;
+  showNotif('🗑️','Eliminada',nombre);
+  cargarCompanias();
+};
 
 // ── OPERADORAS ────────────────────────────────────────────────
 async function cargarOperadoras() {
-  var tbody = document.getElementById('tbody-operadoras');
-  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var q = query(collection(db,'usuarios_admin'), where('rol','==','operadora'));
-  var snap = await getDocs(q);
-  if (snap.empty) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin operadoras registradas</td></tr>'; return; }
+  if (!cuerpoActual) return;
+  document.getElementById('op-sub').textContent='Operadoras de '+cuerpoActual.nombre;
+  var tbody=document.getElementById('tbody-operadoras');
+  tbody.innerHTML='<tr><td colspan="5"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap=await getDocs(query(collection(db,'usuarios_admin'),where('rol','==','operadora')));
+  if (snap.empty){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;">Sin operadoras registradas</td></tr>';return;}
   tbody.innerHTML='';
-  snap.forEach(function(d) {
-    var u = Object.assign({ uid:d.id }, d.data());
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td style="font-weight:600;">'+u.nombre+'</td>' +
-      '<td style="color:var(--text2);font-size:11px;font-family:\'JetBrains Mono\',monospace;">'+u.email+'</td>' +
-      '<td style="color:var(--text3);font-size:11px;">'+(u.cuerpo||'—')+'</td>' +
-      '<td style="color:var(--text3);font-size:11px;">'+(u.ultimoAcceso||'Nunca')+'</td>' +
-      '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>' +
-      '<td><div class="actions">' +
-        '<button class="btn-amber" onclick="editarUsuario(\''+d.id+'\',\'admin\')">Editar</button>' +
-        '<button class="btn-sec" onclick="resetPass(\''+u.email+'\')">Reset Pass</button>' +
-        '<button class="btn-danger" onclick="desactivarUsuario(\''+d.id+'\',\'usuarios_admin\')">'+
-          (u.activo?'Desactivar':'Activar')+'</button>' +
+  snap.forEach(function(d){
+    var u=Object.assign({uid:d.id},d.data());
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-weight:600;">'+u.nombre+'</td>'+
+      '<td style="font-size:11px;color:var(--text2);">'+u.email+'</td>'+
+      '<td style="font-size:11px;color:var(--text3);">'+(u.ultimoAcceso||'Nunca')+'</td>'+
+      '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>'+
+      '<td><div class="actions">'+
+        '<button class="btn-amber" data-uid="'+d.id+'" onclick="editarUsuario(this.dataset.uid,\'admin\')">Editar</button>'+
+        '<button class="btn-sec" data-email="'+u.email+'" onclick="resetPass(this.dataset.email)">Reset Pass</button>'+
+        '<button class="btn-danger" data-uid="'+d.id+'" data-activo="'+u.activo+'" onclick="toggleActivo(this.dataset.uid,this.dataset.activo===\'true\',\'usuarios_admin\')">'+(u.activo?'Desactivar':'Activar')+'</button>'+
       '</div></td>';
     tbody.appendChild(tr);
   });
 }
 
 // ── VOLUNTARIOS ───────────────────────────────────────────────
-async function cargarVoluntariosAdmin() {
-  var tbody = document.getElementById('tbody-voluntarios');
-  tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var snap = await getDocs(query(collection(db,'voluntarios'), orderBy('cia')));
-  if (snap.empty) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">Sin voluntarios registrados</td></tr>'; return; }
+async function cargarVoluntarios() {
+  if (!ciaActual) return;
+  document.getElementById('vol-sub').textContent='Voluntarios de '+ciaActual.nombre+' · '+cuerpoActual.nombre;
+  document.getElementById('vol-titulo-tabla').textContent='Voluntarios de '+ciaActual.nombre;
+  var tbody=document.getElementById('tbody-voluntarios');
+  tbody.innerHTML='<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap=await getDocs(query(collection(db,'voluntarios'),where('cia','==',ciaActual.id),orderBy('num')));
+  if (snap.empty){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin voluntarios registrados</td></tr>';return;}
   tbody.innerHTML='';
-  snap.forEach(function(d) {
-    var v = Object.assign({ uid:d.id }, d.data());
-    var dispColor = v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
-    var dispIco   = v.disponibilidad==='disponible'?'✅':v.disponibilidad==='casa'?'🏠':'❌';
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+(v.num||'—')+'</td>' +
-      '<td style="font-weight:600;">'+v.nombre+'</td>' +
-      '<td><span class="badge '+(v.cat||'voluntario')+'">'+(v.cargo||'Bombero')+'</span></td>' +
-      '<td style="font-size:11px;font-weight:700;">'+(v.cia||'—')+'</td>' +
-      '<td style="color:'+dispColor+';font-size:11px;">'+dispIco+' '+(v.disponibilidad||'—')+'</td>' +
-      '<td><span class="badge '+(v.activo!==false?'activo':'inactivo')+'">'+(v.activo!==false?'Activo':'Inactivo')+'</span></td>' +
-      '<td><div class="actions">' +
-        '<button class="btn-amber" onclick="editarUsuario(\''+d.id+'\',\'voluntario\')">Editar</button>' +
-        '<button class="btn-sec" onclick="resetPass(\''+v.email+'\')">Reset Pass</button>' +
-        '<button class="btn-danger" onclick="desactivarUsuario(\''+d.id+'\',\'voluntarios\')">'+
-          (v.activo!==false?'Desactivar':'Activar')+'</button>' +
+  snap.forEach(function(d){
+    var v=Object.assign({uid:d.id},d.data());
+    var dispColor=v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(v.num||'—')+'</td>'+
+      '<td style="font-weight:600;">'+v.nombre+'</td>'+
+      '<td><span class="badge '+(v.cat||'voluntario')+'">'+(v.cargo||'Bombero')+'</span></td>'+
+      '<td style="color:'+dispColor+';font-size:11px;">'+(v.disponibilidad||'—')+'</td>'+
+      '<td><span class="badge '+(v.activo!==false?'activo':'inactivo')+'">'+(v.activo!==false?'Activo':'Inactivo')+'</span></td>'+
+      '<td><div class="actions">'+
+        '<button class="btn-amber" data-uid="'+d.id+'" onclick="editarUsuario(this.dataset.uid,\'voluntario\')">Editar</button>'+
+        '<button class="btn-sec" data-email="'+(v.email||'')+'" onclick="resetPass(this.dataset.email)">Reset Pass</button>'+
+        '<button class="btn-danger" data-uid="'+d.id+'" data-activo="'+(v.activo!==false)+'" onclick="toggleActivo(this.dataset.uid,this.dataset.activo===\'true\',\'voluntarios\')">'+(v.activo!==false?'Desactivar':'Activar')+'</button>'+
       '</div></td>';
     tbody.appendChild(tr);
   });
 }
 
-// ── COMPAÑÍAS ADMIN ───────────────────────────────────────────
-async function cargarCompaniasAdmin() {
-  var cont = document.getElementById('lista-companias-admin');
-  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
-  var snap = await getDocs(query(collection(db,'cuerpos'), orderBy('nombre')));
-  if (snap.empty) {
-    cont.innerHTML = '';
-    var emptyDiv = document.createElement('div');
-    emptyDiv.className = 'empty-state';
-    emptyDiv.innerHTML = '<div class="empty-state-ico">🏛️</div><div>Sin cuerpos registrados.</div>';
-    var btn = document.createElement('button');
-    btn.className = 'btn-green';
-    btn.style.marginTop = '12px';
-    btn.textContent = '+ Crear primer cuerpo';
-    btn.onclick = function(){ openModal('modal-nuevo-cuerpo'); };
-    emptyDiv.appendChild(btn);
-    cont.appendChild(emptyDiv);
-    return;
-  }
-  cont.innerHTML = '';
-  snap.forEach(function(d) {
-    var c = Object.assign({ id:d.id }, d.data());
-    var cias = c.companias || [];
-    var cuerpoCard = document.createElement('div');
-    cuerpoCard.className = 'cuerpo-card';
-    cuerpoCard.style.marginBottom = '20px';
-    cuerpoCard.innerHTML =
-      '<div class="cuerpo-header">' +
-        '<div>' +
-          '<div class="cuerpo-nombre">'+c.nombre+'</div>' +
-          '<div class="cuerpo-ciudad">📍 '+c.ciudad+', '+c.region+' · '+cias.length+' compañía'+(cias.length!==1?'s':'')+'</div>' +
-        '</div>' +
-        '<div style="display:flex;gap:8px;">' +
-          '<button class="btn-amber" data-id="'+d.id+'" onclick="editarCuerpo(this.dataset.id)">Editar</button>' +
-          '<button class="btn-danger" data-id="'+d.id+'" data-nombre="'+c.nombre+'" onclick="eliminarCuerpo(this.dataset.id,this.dataset.nombre)">Eliminar</button>' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:12px;">' +
-      cias.map(function(cia, i) {
-        return '<div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid '+cia.color+';border-radius:var(--r);padding:12px;cursor:pointer;transition:border-color .15s;" ' +
-          'data-cuerpo="'+d.id+'" data-cia="'+cia.id+'" data-nombre="'+cia.nombre.replace(/"/g,'&quot;')+'" data-color="'+cia.color+'" ' +
-          'onclick="var el=this;verDetalleCompania(el.dataset.cuerpo,el.dataset.cia,el.dataset.nombre,el.dataset.color)" ' +
-          'title="Ver detalle de '+cia.nombre+'">' +
-          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
-            '<div style="width:12px;height:12px;border-radius:50%;background:'+cia.color+';flex-shrink:0;"></div>' +
-            '<div style="font-size:13px;font-weight:700;">'+cia.nombre+'</div>' +
-          '</div>' +
-          '<div style="font-size:10px;color:var(--text3);margin-bottom:8px;">ID: '+cia.id+'</div>' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-            '<a href="compania-'+cia.id.replace('B-','')+'.html" target="_blank" ' +
-               'style="font-size:10px;color:var(--blue);text-decoration:none;" ' +
-               'onclick="event.stopPropagation();sessionStorage.setItem(\'_admin_bypass\',\'1\')">📄 Abrir módulo →</a>' +
-            '<button style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" ' +
-               '<button data-cuerpo2="'+d.id+'" data-idx="'+i+'" data-cia2="'+cia.nombre+'" style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" onclick="event.stopPropagation();eliminarCompania(this.dataset.cuerpo2,this.dataset.idx,this.dataset.cia2)">Eliminar</button>' +
-          '</div>' +
-        '</div>';
-      }).join('') +
-      '</div>' +
-      '<div style="margin-top:10px;">' +
-        '<button class="btn-sec" style="font-size:11px;padding:5px 10px;" data-id="'+d.id+'" onclick="agregarCompania(this.dataset.id)">+ Agregar Compañía</button>' +
-      '</div>';
-    cont.appendChild(cuerpoCard);
+// ── VEHÍCULOS ─────────────────────────────────────────────────
+async function cargarVehiculos() {
+  if (!ciaActual) return;
+  document.getElementById('veh-sub').textContent='Vehículos de '+ciaActual.nombre;
+  document.getElementById('veh-titulo-tabla').textContent='Vehículos de '+ciaActual.nombre;
+  var tbody=document.getElementById('tbody-vehiculos');
+  tbody.innerHTML='<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap=await getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id)));
+  if (snap.empty){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">Sin vehículos registrados</td></tr>';return;}
+  tbody.innerHTML='';
+  snap.forEach(function(d){
+    var c=d.data();
+    var estColor=c.estado==='disponible'?'var(--green)':c.estado==='mantencion'?'var(--amber)':'var(--red)';
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-weight:700;">'+(c.nombre||'—')+'</td>'+
+      '<td style="font-size:11px;">'+(c.tipo||'—')+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(c.patente||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--text2);">'+(c.modelo||'—')+'</td>'+
+      '<td style="font-size:11px;">'+(c.km||0).toLocaleString()+' km</td>'+
+      '<td style="color:'+estColor+';font-size:11px;">'+(c.estado||'—')+'</td>'+
+      '<td><div class="actions">'+
+        '<button class="btn-danger" data-uid="'+d.id+'" onclick="eliminarVehiculo(this.dataset.uid)">Eliminar</button>'+
+      '</div></td>';
+    tbody.appendChild(tr);
   });
 }
 
-// ── VER DETALLE COMPAÑÍA ──────────────────────────────────────
-window.verDetalleCompania = async function(cuerpoId, ciaId, ciaNombre, ciaColor) {
-  // Mostrar página detalle
-  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
-  document.querySelectorAll('.sidebar-item').forEach(function(s){ s.classList.remove('active'); });
-  document.getElementById('page-detalle-cia').classList.add('active');
-  document.getElementById('detalle-cia-titulo').textContent = ciaNombre;
-  document.getElementById('detalle-cia-titulo').style.color = ciaColor;
-  document.getElementById('detalle-cia-sub').textContent = 'ID: '+ciaId+' · Cuerpo: '+cuerpoId;
+window.crearVehiculo = async function() {
+  if (!ciaActual) return;
+  var nombre=document.getElementById('nv-nombre').value.trim();
+  if (!nombre){ showNotif('⚠️','Requerido','Ingresa el código del vehículo.'); return; }
+  await addDoc(collection(db,'carros_cia'),{
+    nombre, tipo:document.getElementById('nv-tipo').value,
+    patente:document.getElementById('nv-patente').value,
+    anio:document.getElementById('nv-anio').value,
+    modelo:document.getElementById('nv-modelo').value,
+    km:parseInt(document.getElementById('nv-km').value)||0,
+    estado:document.getElementById('nv-estado').value,
+    cia:ciaActual.id, creado:serverTimestamp()
+  });
+  showNotif('✅','Vehículo creado',nombre);
+  closeModal('modal-nuevo-vehiculo');
+  cargarVehiculos();
+};
 
-  // Stats
-  var statsEl = document.getElementById('detalle-cia-stats');
-  statsEl.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+window.eliminarVehiculo = async function(id) {
+  if (!confirm('¿Eliminar este vehículo?')) return;
+  await deleteDoc(doc(db,'carros_cia',id));
+  showNotif('🗑️','Eliminado','Vehículo eliminado.');
+  cargarVehiculos();
+};
 
+// ── ESTADÍSTICAS CUERPO ───────────────────────────────────────
+async function cargarStatsCuerpo() {
+  if (!cuerpoActual) return;
+  document.getElementById('sc-titulo').textContent='Estadísticas — '+cuerpoActual.nombre;
+  var cont=document.getElementById('sc-content');
+  var cias=(cuerpoActual.companias||[]).map(function(c){return c.id;});
   try {
-    var [volSnap, carrosSnap, emergSnap] = await Promise.all([
-      getDocs(query(collection(db,'voluntarios'), where('cia','==',ciaId))),
-      getDocs(query(collection(db,'carros_cia'), where('cia','==',ciaId))),
-      getDocs(query(collection(db,'emergencias'), where('companias','array-contains',ciaId), orderBy('timestamp','desc'), limit(10)))
+    var emergSnap=await getDocs(query(collection(db,'emergencias'),where('companias','array-contains-any',cias.length>0?cias:['__none__']),orderBy('timestamp','desc'),limit(200)));
+    var porMes={}; var porTipo={}; var total=emergSnap.size; var activas=0;
+    emergSnap.forEach(function(d){
+      var e=d.data();
+      if(e.estado==='activa') activas++;
+      var t=e.tipo||'—'; porTipo[t]=(porTipo[t]||0)+1;
+      var ts=e.timestamp&&e.timestamp.toDate?e.timestamp.toDate():null;
+      if(ts){ var mes=ts.getFullYear()+'-'+(ts.getMonth()+1).toString().padStart(2,'0'); porMes[mes]=(porMes[mes]||0)+1; }
+    });
+    var topTipos=Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+    var maxV=topTipos.length?topTipos[0][1]:1;
+    var topMeses=Object.entries(porMes).sort(function(a,b){return a[0]<b[0]?1:-1;}).slice(0,6);
+    var maxM=topMeses.length?topMeses[0][1]:1;
+    cont.innerHTML=
+      '<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">'+
+        mkStat('🚨',total,'Total emergencias','red')+
+        mkStat('📡',activas,'Activas','amber')+
+        mkStat('✅',total-activas,'Cerradas','green')+
+      '</div>'+
+      '<div class="chart-grid">'+
+        '<div class="chart-card"><div class="chart-title">Por tipo de emergencia</div>'+
+          topTipos.map(function(e){return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxV*100)+'%"></div></div><div class="bar-val">'+e[1]+'</div></div>';}).join('')+
+        '</div>'+
+        '<div class="chart-card"><div class="chart-title">Por mes (últimos 6)</div>'+
+          topMeses.map(function(e){return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxM*100)+'%;background:var(--blue);"></div></div><div class="bar-val">'+e[1]+'</div></div>';}).join('')+
+        '</div>'+
+      '</div>';
+  } catch(e){ cont.innerHTML='<div style="color:var(--text3);font-size:12px;">'+e.message+'</div>'; }
+}
+
+// ── ESTADÍSTICAS COMPAÑÍA ─────────────────────────────────────
+async function cargarStatsCia() {
+  if (!ciaActual) return;
+  document.getElementById('scia-titulo').textContent='Estadísticas — '+ciaActual.nombre;
+  document.getElementById('scia-sub').textContent=cuerpoActual?cuerpoActual.nombre:'';
+  var cont=document.getElementById('scia-content');
+  try {
+    var [volSnap,carrosSnap,emergSnap]=await Promise.all([
+      getDocs(query(collection(db,'voluntarios'),where('cia','==',ciaActual.id))),
+      getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id))),
+      getDocs(query(collection(db,'emergencias'),where('companias','array-contains',ciaActual.id),orderBy('timestamp','desc'),limit(100)))
     ]);
+    var activos=0; volSnap.forEach(function(d){if(d.data().activo!==false)activos++;});
+    var dispCars=0; carrosSnap.forEach(function(d){if(d.data().estado==='disponible')dispCars++;});
+    var porTipo={}; var eActivas=0;
+    emergSnap.forEach(function(d){
+      var e=d.data(); if(e.estado==='activa')eActivas++;
+      var t=e.tipo||'—'; porTipo[t]=(porTipo[t]||0)+1;
+    });
+    var tops=Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+    var maxV=tops.length?tops[0][1]:1;
+    var porCat={}; volSnap.forEach(function(d){var c=d.data().cat||'voluntario'; porCat[c]=(porCat[c]||0)+1;});
+    cont.innerHTML=
+      '<div class="stats-grid" style="margin-bottom:20px;">'+
+        mkStat('👥',volSnap.size,'Voluntarios','blue')+
+        mkStat('✅',activos,'Activos','green')+
+        mkStat('🚒',carrosSnap.size,'Vehículos','purple')+
+        mkStat('🚨',emergSnap.size,'Emergencias','red')+
+      '</div>'+
+      '<div class="chart-grid">'+
+        '<div class="chart-card"><div class="chart-title">Emergencias por tipo</div>'+
+          tops.map(function(e){return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxV*100)+'%"></div></div><div class="bar-val">'+e[1]+'</div></div>';}).join('')+
+        '</div>'+
+        '<div class="chart-card"><div class="chart-title">Voluntarios por categoría</div>'+
+          Object.entries(porCat).map(function(e){
+            var maxCat=Math.max.apply(null,Object.values(porCat));
+            return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxCat*100)+'%;background:var(--blue);"></div></div><div class="bar-val">'+e[1]+'</div></div>';
+          }).join('')+
+        '</div>'+
+      '</div>';
+  } catch(e){ cont.innerHTML='<div style="color:var(--text3);font-size:12px;">'+e.message+'</div>'; }
+}
 
-    // Stats
-    var activos    = 0; volSnap.forEach(function(d){ if(d.data().activo!==false) activos++; });
-    var disponibles= 0; carrosSnap.forEach(function(d){ if(d.data().estado==='disponible') disponibles++; });
-    statsEl.innerHTML =
-      stat('👥', volSnap.size, 'Voluntarios', 'blue') +
-      stat('✅', activos, 'Activos', 'green') +
-      stat('🚒', carrosSnap.size, 'Carros', 'red') +
-      stat('🟢', disponibles, 'Disponibles', 'amber');
-
-    // Voluntarios
-    document.getElementById('detalle-vol-cnt').textContent = volSnap.size + ' total';
-    var volTbody = document.getElementById('detalle-vol-tbody');
-    volTbody.innerHTML = '';
-    if (volSnap.empty) {
-      volTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:12px;">Sin voluntarios registrados</td></tr>';
-    } else {
-      var vols = [];
-      volSnap.forEach(function(d){ vols.push(Object.assign({uid:d.id},d.data())); });
-      vols.sort(function(a,b){ return (a.num||999)-(b.num||999); });
-      vols.forEach(function(v) {
-        var dispColor = v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(v.num||'—')+'</td>' +
-          '<td style="font-weight:600;font-size:12px;">'+v.nombre+'</td>' +
-          '<td><span class="badge '+(v.cat||'voluntario')+'" style="font-size:9px;">'+(v.cargo||'Bombero')+'</span></td>' +
-          '<td style="color:'+dispColor+';font-size:11px;">'+(v.disponibilidad||'—')+'</td>';
-        volTbody.appendChild(tr);
-      });
-    }
-
-    // Carros
-    document.getElementById('detalle-carros-cnt').textContent = carrosSnap.size + ' total';
-    var carrosTbody = document.getElementById('detalle-carros-tbody');
-    carrosTbody.innerHTML = '';
-    if (carrosSnap.empty) {
-      carrosTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Sin carros registrados</td></tr>';
-    } else {
-      carrosSnap.forEach(function(d) {
-        var c = d.data();
-        var estColor = c.estado==='disponible'?'var(--green)':c.estado==='mantencion'?'var(--amber)':'var(--red)';
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td style="font-weight:700;font-size:12px;">'+(c.nombre||'—')+'</td>' +
-          '<td style="font-size:11px;color:var(--text2);">'+(c.tipo||'—')+'</td>' +
-          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(c.patente||'—')+'</td>' +
-          '<td style="font-size:11px;">'+(c.km||0).toLocaleString()+' km</td>' +
-          '<td style="color:'+estColor+';font-size:11px;">'+(c.estado||'—')+'</td>';
-        carrosTbody.appendChild(tr);
-      });
-    }
-
-    // Emergencias
-    var emergTbody = document.getElementById('detalle-emerg-tbody');
-    emergTbody.innerHTML = '';
-    if (emergSnap.empty) {
-      emergTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">Sin emergencias registradas</td></tr>';
-    } else {
-      emergSnap.forEach(function(d) {
-        var e = d.data();
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;">'+(e.cadId||d.id)+'</td>' +
-          '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>' +
-          '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>' +
-          '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(e.hora||'—')+'</td>' +
-          '<td><span class="badge '+(e.estado==='activa'?'operadora':'inactivo')+'">'+(e.estado||'—')+'</span></td>';
-        emergTbody.appendChild(tr);
-      });
-    }
-  } catch(err) {
-    statsEl.innerHTML = '<div style="color:var(--text3);font-size:12px;grid-column:1/-1;">Error cargando datos: '+err.message+'</div>';
-  }
-};
-
-// ── AGREGAR COMPAÑÍA A CUERPO EXISTENTE ───────────────────────
-window.agregarCompania = async function(cuerpoId) {
-  var nombre = prompt('Nombre de la nueva compañía (ej: 7ª Compañía):');
-  if (!nombre || !nombre.trim()) return;
+// ── DASHBOARD COMPAÑÍA ────────────────────────────────────────
+async function cargarDashboardCia() {
+  if (!ciaActual) return;
+  document.getElementById('dcia-titulo').textContent=ciaActual.nombre;
+  document.getElementById('dcia-titulo').style.color=ciaActual.color;
+  document.getElementById('dcia-sub').textContent=cuerpoActual?cuerpoActual.nombre+' · ID: '+ciaActual.id:'';
+  var grid=document.getElementById('dcia-stats');
   try {
-    var snap = await getDocs(query(collection(db,'cuerpos')));
-    var cuerpoData = null;
-    snap.forEach(function(d){ if(d.id===cuerpoId) cuerpoData = d.data(); });
-    if (!cuerpoData) return;
-    var cias = cuerpoData.companias || [];
-    var nextNum = cias.length + 1;
-    var colors = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
-    cias.push({ id:'B-'+nextNum, nombre:nombre.trim(), num:nextNum+'ª', color:colors[(nextNum-1)%colors.length] });
-    await updateDoc(doc(db,'cuerpos',cuerpoId), { companias:cias, nCompanias:cias.length });
-    showNotif('✅','Compañía agregada',nombre.trim()+' agregada correctamente.');
-    cargarCompaniasAdmin();
-  } catch(e) { showNotif('❌','Error',e.message); }
-};
+    var [volSnap,carrosSnap,emergSnap]=await Promise.all([
+      getDocs(query(collection(db,'voluntarios'),where('cia','==',ciaActual.id))),
+      getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id))),
+      getDocs(query(collection(db,'emergencias'),where('companias','array-contains',ciaActual.id),where('estado','==','activa')))
+    ]);
+    var activos=0; volSnap.forEach(function(d){if(d.data().activo!==false)activos++;});
+    var dispCars=0; carrosSnap.forEach(function(d){if(d.data().estado==='disponible')dispCars++;});
+    grid.innerHTML=
+      mkStat('👥',volSnap.size,'Voluntarios','blue')+
+      mkStat('✅',activos,'Activos','green')+
+      mkStat('🚒',dispCars+'/'+carrosSnap.size,'Vehículos disp.','purple')+
+      mkStat('🚨',emergSnap.size,'Emergencias activas','red');
+  } catch(e){ grid.innerHTML='<div style="color:var(--text3);font-size:12px;">'+e.message+'</div>'; }
+}
 
-// ── ELIMINAR COMPAÑÍA INDIVIDUAL ──────────────────────────────
-window.eliminarCompania = async function(cuerpoId, index, nombre) {
-  if (!confirm('¿Eliminar la compañía "'+nombre+'"? Esta acción no se puede deshacer.')) return;
-  try {
-    var snap = await getDocs(collection(db,'cuerpos'));
-    var cuerpoData = null;
-    snap.forEach(function(d){ if(d.id===cuerpoId) cuerpoData = d.data(); });
-    if (!cuerpoData) return;
-    var cias = cuerpoData.companias || [];
-    cias.splice(index, 1);
-    await updateDoc(doc(db,'cuerpos',cuerpoId), { companias:cias, nCompanias:cias.length });
-    showNotif('🗑️','Compañía eliminada',nombre+' eliminada.');
-    cargarCompaniasAdmin();
-  } catch(e) { showNotif('❌','Error',e.message); }
-};
-
-// ── EMERGENCIAS ADMIN ─────────────────────────────────────────
-async function cargarEmergenciasAdmin() {
-  var tbody = document.getElementById('tbody-emergencias');
-  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var snap = await getDocs(query(collection(db,'emergencias'), orderBy('timestamp','desc'), limit(50)));
-  if (snap.empty) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin emergencias registradas</td></tr>'; return; }
+// ── EMERGENCIAS CUERPO ────────────────────────────────────────
+async function cargarEmergenciasCuerpo() {
+  if (!cuerpoActual) return;
+  var cias=(cuerpoActual.companias||[]).map(function(c){return c.id;});
+  var tbody=document.getElementById('tbody-emerg-cuerpo');
+  tbody.innerHTML='<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap=await getDocs(query(collection(db,'emergencias'),where('companias','array-contains-any',cias.length>0?cias:['__none__']),orderBy('timestamp','desc'),limit(50)));
+  if (snap.empty){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin emergencias</td></tr>';return;}
   tbody.innerHTML='';
-  snap.forEach(function(d) {
-    var e = Object.assign({ id:d.id }, d.data());
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;">'+(e.cadId||e.id)+'</td>' +
-      '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>' +
-      '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>' +
-      '<td style="font-size:11px;color:var(--text2);">'+(e.companias||[]).join(', ')+'</td>' +
-      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+(e.hora||'—')+'</td>' +
+  snap.forEach(function(d){
+    var e=d.data();
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;">'+(e.cadId||d.id)+'</td>'+
+      '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>'+
+      '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--text2);">'+(e.companias||[]).join(', ')+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(e.hora||'—')+'</td>'+
       '<td><span class="badge '+(e.estado==='activa'?'operadora':'inactivo')+'">'+(e.estado||'—')+'</span></td>';
     tbody.appendChild(tr);
   });
 }
 
-// ── STATS GLOBAL ──────────────────────────────────────────────
-async function cargarStatsGlobal() {
-  var cont = document.getElementById('stats-global-content');
-  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
-  var [emergSnap, volSnap, cuerposSnap] = await Promise.all([
-    getDocs(collection(db,'emergencias')),
-    getDocs(collection(db,'voluntarios')),
-    getDocs(collection(db,'cuerpos'))
-  ]);
-  var activas=0; var cerradas=0;
-  emergSnap.forEach(function(d){ if(d.data().estado==='activa') activas++; else cerradas++; });
-  cont.innerHTML =
-    '<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">' +
-      stat('🏛️',cuerposSnap.size,'Cuerpos','blue') +
-      stat('👥',volSnap.size,'Voluntarios totales','green') +
-      stat('🚨',emergSnap.size,'Total emergencias','red') +
-    '</div>' +
-    '<div class="chart-card"><div class="chart-title">Resumen sistema</div>' +
-    resumen('Emergencias activas', activas) +
-    resumen('Emergencias cerradas', cerradas) +
-    resumen('Cuerpos registrados', cuerposSnap.size) +
-    resumen('Voluntarios en sistema', volSnap.size) +
-    '</div>';
+// ── EMERGENCIAS COMPAÑÍA ──────────────────────────────────────
+async function cargarEmergenciasCia() {
+  if (!ciaActual) return;
+  var tbody=document.getElementById('tbody-emerg-cia');
+  tbody.innerHTML='<tr><td colspan="5"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap=await getDocs(query(collection(db,'emergencias'),where('companias','array-contains',ciaActual.id),orderBy('timestamp','desc'),limit(30)));
+  if (snap.empty){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;">Sin emergencias</td></tr>';return;}
+  tbody.innerHTML='';
+  snap.forEach(function(d){
+    var e=d.data();
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;">'+(e.cadId||d.id)+'</td>'+
+      '<td style="font-size:11px;">'+(e.tipo||'—')+'</td>'+
+      '<td style="font-size:12px;font-weight:600;">'+(e.direccion||'—')+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;">'+(e.hora||'—')+'</td>'+
+      '<td><span class="badge '+(e.estado==='activa'?'operadora':'inactivo')+'">'+(e.estado||'—')+'</span></td>';
+    tbody.appendChild(tr);
+  });
 }
 
-// ── USUARIO (editar/crear/reset) ──────────────────────────────
+// ── ADMINS ────────────────────────────────────────────────────
+async function cargarAdmins() {
+  var tbody=document.getElementById('tbody-admins');
+  tbody.innerHTML='<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
+  var snap=await getDocs(collection(db,'usuarios_admin'));
+  if (snap.empty){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin administradores</td></tr>';return;}
+  tbody.innerHTML='';
+  snap.forEach(function(d){
+    var u=Object.assign({uid:d.id},d.data());
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-weight:600;">'+u.nombre+'</td>'+
+      '<td style="font-size:11px;color:var(--text2);">'+u.email+'</td>'+
+      '<td><span class="badge '+(u.rol||'voluntario')+'">'+u.rol+'</span></td>'+
+      '<td style="font-size:11px;color:var(--text3);">'+(u.cuerpo||'Global')+'</td>'+
+      '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>'+
+      '<td><div class="actions">'+
+        '<button class="btn-amber" data-uid="'+d.id+'" onclick="editarUsuario(this.dataset.uid,\'admin\')">Editar</button>'+
+        '<button class="btn-sec" data-email="'+u.email+'" onclick="resetPass(this.dataset.email)">Reset Pass</button>'+
+        '<button class="btn-danger" data-uid="'+d.id+'" data-activo="'+u.activo+'" onclick="toggleActivo(this.dataset.uid,this.dataset.activo===\'true\',\'usuarios_admin\')">'+(u.activo?'Desactivar':'Activar')+'</button>'+
+      '</div></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+window.crearAdmin = async function() {
+  var nombre=document.getElementById('na-nombre').value.trim();
+  var email=document.getElementById('na-email').value.trim();
+  var pass=document.getElementById('na-pass').value.trim();
+  var rol=document.getElementById('na-rol').value;
+  if (!nombre||!email||!pass){showNotif('⚠️','Campos requeridos','Completa todos los campos.');return;}
+  try {
+    var cred=await createUserWithEmailAndPassword(auth,email,pass);
+    await setDoc(doc(db,'usuarios_admin',cred.user.uid),{nombre,email,rol,activo:true,creado:serverTimestamp()});
+    showNotif('✅','Admin creado',nombre+' registrado como '+rol);
+    closeModal('modal-nuevo-admin');
+    cargarAdmins();
+  } catch(e){showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);}
+};
+
+// ── STATS GLOBAL ──────────────────────────────────────────────
+async function cargarStatsGlobal() {
+  var cont=document.getElementById('g-stats-content');
+  try {
+    var [emergSnap,volSnap,cuerposSnap]=await Promise.all([
+      getDocs(collection(db,'emergencias')),
+      getDocs(collection(db,'voluntarios')),
+      getDocs(collection(db,'cuerpos'))
+    ]);
+    var activas=0; var cerradas=0;
+    emergSnap.forEach(function(d){if(d.data().estado==='activa')activas++;else cerradas++;});
+    cont.innerHTML=
+      '<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">'+
+        mkStat('🏛️',cuerposSnap.size,'Cuerpos','blue')+
+        mkStat('👥',volSnap.size,'Voluntarios','green')+
+        mkStat('🚨',emergSnap.size,'Emergencias totales','red')+
+      '</div>'+
+      '<div class="chart-card"><div class="chart-title">Resumen nacional</div>'+
+        mkResumen('Emergencias activas',activas)+
+        mkResumen('Emergencias cerradas',cerradas)+
+        mkResumen('Cuerpos registrados',cuerposSnap.size)+
+        mkResumen('Voluntarios en sistema',volSnap.size)+
+      '</div>';
+  } catch(e){cont.innerHTML='<div style="color:var(--text3);font-size:12px;">'+e.message+'</div>';}
+}
+
+// ── USUARIOS ──────────────────────────────────────────────────
+var _tipoUsuarioModal='operadora';
 window.openModal = function(id, tipo) {
   if (id==='modal-nuevo-usuario' && tipo) {
-    tipoModalUsuario = tipo;
-    document.getElementById('modal-usuario-title').textContent = tipo==='operadora' ? 'Nueva Operadora' : 'Nuevo Voluntario';
-    var extra = document.getElementById('nu-extra-fields');
-    if (tipo==='voluntario') {
-      extra.innerHTML =
-        '<div class="form-row">' +
-          '<div class="fgroup"><div class="flabel">Compañía</div>' +
-            '<select class="fselect" id="nu-cia"><option value="B-1">B-1 · 1ª Cía</option><option value="B-2">B-2 · 2ª Cía</option><option value="B-3">B-3 · 3ª Cía</option><option value="B-4">B-4 · 4ª Cía</option><option value="B-5">B-5 · 5ª Cía</option><option value="B-6">B-6 · 6ª Cía</option></select>' +
-          '</div>' +
-          '<div class="fgroup"><div class="flabel">Cargo</div>' +
-            '<select class="fselect" id="nu-cargo"><option>Bombero</option><option>Oficial</option><option>Aspirante</option><option>Cadete</option><option>Honorario</option></select>' +
-          '</div>' +
-        '</div>' +
-        '<div class="fgroup"><div class="flabel">Número de voluntario</div><input class="finput" id="nu-num" placeholder="Ej: 124"/></div>';
-    } else {
-      extra.innerHTML = '';
-    }
+    _tipoUsuarioModal=tipo;
+    document.getElementById('modal-usuario-title').textContent=tipo==='operadora'?'Nueva Operadora':'Nuevo Voluntario';
+    var extra=document.getElementById('nu-extra-fields');
+    extra.innerHTML = tipo==='voluntario' ?
+      '<div class="form-row"><div class="fgroup"><div class="flabel">Cargo</div><select class="fselect" id="nu-cargo"><option>Bombero</option><option>Oficial</option><option>Aspirante</option><option>Cadete</option><option>Honorario</option></select></div><div class="fgroup"><div class="flabel">N° voluntario</div><input class="finput" id="nu-num" placeholder="Ej: 124"/></div></div>' : '';
   }
   document.getElementById(id).classList.add('open');
 };
 
-window.closeModal = function(id) {
-  document.getElementById(id).classList.remove('open');
-};
+window.closeModal = function(id){ document.getElementById(id).classList.remove('open'); };
 
 window.crearUsuario = async function() {
-  var nombre = document.getElementById('nu-nombre').value.trim();
-  var email  = document.getElementById('nu-email').value.trim();
-  var pass   = document.getElementById('nu-pass').value.trim();
-  if (!nombre||!email||!pass) { showNotif('⚠️','Campos requeridos','Completa nombre, email y contraseña.'); return; }
+  var nombre=document.getElementById('nu-nombre').value.trim();
+  var email=document.getElementById('nu-email').value.trim();
+  var pass=document.getElementById('nu-pass').value.trim();
+  if (!nombre||!email||!pass){showNotif('⚠️','Campos requeridos','Completa todos los campos.');return;}
   try {
-    var cred = await createUserWithEmailAndPassword(auth, email, pass);
-    if (tipoModalUsuario==='operadora') {
-      await setDoc(doc(db,'usuarios_admin',cred.user.uid), {
-        nombre, email, rol:'operadora', activo:true, creado:serverTimestamp()
-      });
+    var cred=await createUserWithEmailAndPassword(auth,email,pass);
+    if (_tipoUsuarioModal==='operadora') {
+      await setDoc(doc(db,'usuarios_admin',cred.user.uid),{nombre,email,rol:'operadora',activo:true,cuerpo:cuerpoActual?cuerpoActual.id:'',creado:serverTimestamp()});
       cargarOperadoras();
     } else {
-      var cia    = document.getElementById('nu-cia')?.value    || 'B-1';
-      var cargo  = document.getElementById('nu-cargo')?.value  || 'Bombero';
-      var num    = document.getElementById('nu-num')?.value    || '';
-      await setDoc(doc(db,'voluntarios',cred.user.uid), {
-        nombre, email, cia, cargo, num, cat:cargo.toLowerCase(),
-        rol:'voluntario', disponibilidad:'disponible', activo:true,
-        prefs:{ noche:false, fds:true, sonido:'siren' },
-        creado:serverTimestamp()
-      });
-      cargarVoluntariosAdmin();
+      var cia=ciaActual?ciaActual.id:'B-1';
+      var cargo=document.getElementById('nu-cargo')?.value||'Bombero';
+      var num=document.getElementById('nu-num')?.value||'';
+      await setDoc(doc(db,'voluntarios',cred.user.uid),{nombre,email,cia,cargo,num,cat:cargo.toLowerCase(),rol:'voluntario',disponibilidad:'disponible',activo:true,prefs:{noche:false,fds:true,sonido:'siren'},creado:serverTimestamp()});
+      cargarVoluntarios();
     }
-    showNotif('✅','Usuario creado',nombre+' registrado correctamente.');
+    showNotif('✅','Usuario creado',nombre+' registrado.');
     closeModal('modal-nuevo-usuario');
-  } catch(e) {
-    showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);
-  }
+  } catch(e){showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);}
 };
 
-window.editarUsuario = async function(uid, coleccion) {
-  var col = coleccion==='voluntario' ? 'voluntarios' : 'usuarios_admin';
-  var snap = await getDoc(doc(db,col,uid));
+window.editarUsuario = async function(uid, col) {
+  var coleccion=col==='voluntario'?'voluntarios':'usuarios_admin';
+  var snap=await getDoc(doc(db,coleccion,uid));
   if (!snap.exists()) return;
-  var u = snap.data();
-  document.getElementById('edit-uid').value     = uid+'|'+col;
-  document.getElementById('edit-nombre').value  = u.nombre||'';
-  document.getElementById('edit-email').value   = u.email||'';
-  document.getElementById('edit-activo').value  = String(u.activo!==false);
+  var u=snap.data();
+  document.getElementById('edit-uid').value=uid+'|'+coleccion;
+  document.getElementById('edit-nombre').value=u.nombre||'';
+  document.getElementById('edit-email').value=u.email||'';
+  document.getElementById('edit-activo').value=String(u.activo!==false);
   openModal('modal-editar-usuario');
 };
 
 window.guardarUsuario = async function() {
-  var uidCol = document.getElementById('edit-uid').value.split('|');
-  var uid=uidCol[0]; var col=uidCol[1];
-  var nombre = document.getElementById('edit-nombre').value.trim();
-  var activo = document.getElementById('edit-activo').value === 'true';
-  await updateDoc(doc(db,col,uid), { nombre, activo });
+  var uidCol=document.getElementById('edit-uid').value.split('|');
+  var nombre=document.getElementById('edit-nombre').value.trim();
+  var activo=document.getElementById('edit-activo').value==='true';
+  await updateDoc(doc(db,uidCol[1],uidCol[0]),{nombre,activo});
   showNotif('✅','Guardado','Usuario actualizado.');
   closeModal('modal-editar-usuario');
-  if (col==='voluntarios') cargarVoluntariosAdmin(); else cargarAdmins();
 };
 
-window.desactivarUsuario = async function(uid, col) {
-  var snap = await getDoc(doc(db,col,uid));
-  var activo = snap.data().activo !== false;
-  await updateDoc(doc(db,col,uid), { activo: !activo });
-  showNotif('✅', activo?'Desactivado':'Activado', 'Estado del usuario actualizado.');
-  if (col==='voluntarios') cargarVoluntariosAdmin(); else cargarAdmins();
+window.toggleActivo = async function(uid, activo, col) {
+  await updateDoc(doc(db,col,uid),{activo:!activo});
+  showNotif('✅',!activo?'Activado':'Desactivado','Estado actualizado.');
+  if (col==='voluntarios') cargarVoluntarios(); else cargarAdmins();
 };
 
 window.resetPass = async function(email) {
-  if (!email) return;
-  try {
-    await sendPasswordResetEmail(auth, email);
-    showNotif('📧','Email enviado','Se envió enlace de restablecimiento a '+email);
-  } catch(e) {
-    showNotif('❌','Error',e.message);
-  }
+  if (!email){showNotif('⚠️','Sin email','Este usuario no tiene email registrado.');return;}
+  await sendPasswordResetEmail(auth,email);
+  showNotif('📧','Email enviado','Enlace de restablecimiento enviado a '+email);
 };
 
 // ── MI CUENTA ─────────────────────────────────────────────────
 window.guardarCuenta = async function() {
-  var nombre = document.getElementById('mc-nombre').value.trim();
-  await updateDoc(doc(db,'usuarios_admin',usuarioActual.uid), { nombre });
+  var nombre=document.getElementById('mc-nombre').value.trim();
+  if (usuarioActual&&usuarioActual.uid!=='sa-local') await updateDoc(doc(db,'usuarios_admin',usuarioActual.uid),{nombre});
   showNotif('✅','Guardado','Datos actualizados.');
 };
 
 window.cambiarPassword = async function() {
-  var p1 = document.getElementById('mc-pass1').value;
-  var p2 = document.getElementById('mc-pass2').value;
-  if (p1.length < 6) { showNotif('⚠️','Contraseña corta','Mínimo 6 caracteres.'); return; }
-  if (p1 !== p2) { showNotif('⚠️','No coinciden','Las contraseñas no coinciden.'); return; }
-  try {
-    await updatePassword(usuarioActual, p1);
-    showNotif('✅','Contraseña cambiada','Tu contraseña fue actualizada.');
-    document.getElementById('mc-pass1').value='';
-    document.getElementById('mc-pass2').value='';
-  } catch(e) {
-    showNotif('❌','Error',e.message);
+  var p1=document.getElementById('mc-pass1').value;
+  var p2=document.getElementById('mc-pass2').value;
+  if (p1.length<6){showNotif('⚠️','Contraseña corta','Mínimo 6 caracteres.');return;}
+  if (p1!==p2){showNotif('⚠️','No coinciden','Las contraseñas no coinciden.');return;}
+  try{ await updatePassword(auth.currentUser,p1); showNotif('✅','Contraseña cambiada','Actualizada correctamente.'); }
+  catch(e){showNotif('❌','Error',e.message);}
+};
+
+// ── CAMPOS COMPAÑÍAS FORM ─────────────────────────────────────
+var NOMBRES_CIA=['1ª Compañía','2ª Compañía','3ª Compañía','4ª Compañía','5ª Compañía','6ª Compañía','7ª Compañía','8ª Compañía','9ª Compañía','10ª Compañía'];
+window.generarCamposCompanias = function(n) {
+  var cont=document.getElementById('cias-nombres-form');
+  if (!cont) return;
+  cont.innerHTML='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Nombres de compañías</div>';
+  for (var i=0;i<n;i++){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center;';
+    row.innerHTML='<div style="width:16px;height:16px;border-radius:50%;background:'+CIA_COLORS[i%CIA_COLORS.length]+';flex-shrink:0;"></div>'+
+      '<input class="finput" id="cia-nombre-'+i+'" value="'+(NOMBRES_CIA[i]||'')+'" style="flex:1;"/>';
+    cont.appendChild(row);
   }
 };
 
 // ── HELPERS ───────────────────────────────────────────────────
-window.filtrarTabla = function(input, tablaId) {
-  var filtro = input.value.toLowerCase();
-  var filas  = document.getElementById(tablaId).querySelectorAll('tbody tr');
-  filas.forEach(function(tr) {
-    tr.style.display = tr.textContent.toLowerCase().includes(filtro) ? '' : 'none';
-  });
-};
+function mkStat(ico,num,lbl,color){ return '<div class="stat-card '+color+'"><div style="font-size:20px;margin-bottom:6px;">'+ico+'</div><div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div></div>'; }
+function mkResumen(lbl,val){ return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text2);">'+lbl+'</span><span style="font-weight:700;">'+val+'</span></div>'; }
+window.filtrarTabla = function(inp, tid) { var f=inp.value.toLowerCase(); document.getElementById(tid).querySelectorAll('tbody tr').forEach(function(tr){tr.style.display=tr.textContent.toLowerCase().includes(f)?'':'none';}); };
 
-var notifTimer = null;
-function showNotif(ico, title, msg) {
-  document.getElementById('notif-ico').textContent   = ico;
-  document.getElementById('notif-title').textContent = title;
-  document.getElementById('notif-msg').textContent   = msg;
-  var el = document.getElementById('notif');
-  el.classList.add('show');
-  if (notifTimer) clearTimeout(notifTimer);
-  notifTimer = setTimeout(function(){ el.classList.remove('show'); }, 3500);
-}
+var _nt=null;
+function showNotif(ico,title,msg){ document.getElementById('notif-ico').textContent=ico; document.getElementById('notif-title').textContent=title; document.getElementById('notif-msg').textContent=msg; var el=document.getElementById('notif'); el.classList.add('show'); if(_nt)clearTimeout(_nt); _nt=setTimeout(function(){el.classList.remove('show');},3500); }
 
-// Cerrar modales al click fuera
-document.querySelectorAll('.modal-overlay').forEach(function(m){
-  m.addEventListener('click', function(e){ if(e.target===this) closeModal(this.id); });
-});
+document.querySelectorAll('.modal-overlay').forEach(function(m){ m.addEventListener('click',function(e){if(e.target===this)closeModal(this.id);}); });
 </script>
 </body>
 </html>
