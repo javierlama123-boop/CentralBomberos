@@ -15,15 +15,15 @@
   --r:5px;--rlg:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
+html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);font-family:DM Sans,sans-serif;font-size:14px;}
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
 .app{display:flex;height:100vh;overflow:hidden;}
 .sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
 .sb-logo{padding:16px;border-bottom:1px solid var(--border);}
-.sb-badge{background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;letter-spacing:1.5px;display:inline-block;margin-bottom:8px;}
-.sb-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:900;line-height:1.2;}
+.sb-badge{background:var(--red);color:#fff;font-family:Syne,sans-serif;font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;letter-spacing:1.5px;display:inline-block;margin-bottom:8px;}
+.sb-title{font-family:Syne,sans-serif;font-size:17px;font-weight:900;line-height:1.2;}
 .sb-sub{font-size:10px;color:var(--text3);margin-top:3px;}
 .sb-nav{flex:1;overflow-y:auto;padding:8px 0;}
 .sb-section{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;padding:10px 16px 4px;}
@@ -37,18 +37,18 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.page-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:900;display:flex;align-items:center;gap:10px;}
-.page-title span{font-size:12px;font-weight:500;color:var(--text3);font-family:'DM Sans',sans-serif;}
+.page-title{font-family:Syne,sans-serif;font-size:18px;font-weight:900;display:flex;align-items:center;gap:10px;}
+.page-title span{font-size:12px;font-weight:500;color:var(--text3);font-family:DM Sans,sans-serif;}
 .content{flex:1;overflow-y:auto;padding:20px;}
 .page{display:none;}
 .page.active{display:block;}
 
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:16px;margin-bottom:14px;}
-.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--text2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--text2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
 
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
 .stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rlg);padding:14px 16px;}
-.stat-n{font-family:'Syne',sans-serif;font-size:30px;font-weight:900;line-height:1;margin-bottom:4px;}
+.stat-n{font-family:Syne,sans-serif;font-size:30px;font-weight:900;line-height:1;margin-bottom:4px;}
 .stat-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;}
 
 .tbl{width:100%;border-collapse:collapse;}
@@ -66,7 +66,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 
 .fg{display:flex;flex-direction:column;gap:4px;}
 .fl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);}
-.fi,.fs,.fta{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
+.fi,.fs,.fta{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:8px 10px;font-size:12px;font-family:DM Sans,sans-serif;outline:none;width:100%;}
 .fi:focus,.fs:focus,.fta:focus{border-color:var(--red);}
 .fi::placeholder{color:var(--text3);}
 .fta{resize:vertical;min-height:70px;}
@@ -81,7 +81,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 .btn-sm{padding:4px 10px;font-size:11px;}
 
 .vol-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-.vol-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:900;flex-shrink:0;}
+.vol-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:13px;font-weight:900;flex-shrink:0;}
 
 .tipo-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;}
 .tipo-ejercicio{background:rgba(59,130,246,.15);color:var(--blue);}
@@ -95,7 +95,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 .overlay.open{display:flex;}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:520px;max-width:96vw;max-height:88vh;overflow-y:auto;}
 .modal-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}
+.modal-title{font-family:Syne,sans-serif;font-size:16px;font-weight:800;}
 .modal-close{width:26px;height:26px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
 .modal-body{padding:18px;}
 .modal-foot{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
@@ -113,11 +113,11 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 .login-overlay.hidden{display:none;}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px;width:100%;max-width:360px;}
 .login-logo{text-align:center;font-size:52px;margin-bottom:12px;}
-.login-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:900;text-align:center;margin-bottom:4px;}
+.login-title{font-family:Syne,sans-serif;font-size:24px;font-weight:900;text-align:center;margin-bottom:4px;}
 .login-sub{font-size:12px;color:var(--text3);text-align:center;margin-bottom:24px;}
 .login-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
 .login-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
-.login-btn{background:var(--red);border:none;color:#fff;border-radius:var(--r);padding:11px;font-family:'Syne',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%;margin-top:6px;}
+.login-btn{background:var(--red);border:none;color:#fff;border-radius:var(--r);padding:11px;font-family:Syne,sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%;margin-top:6px;}
 .login-btn:hover{opacity:.9;}
 .login-btn:disabled{background:var(--bg4);color:var(--text3);cursor:default;}
 .login-err{background:rgba(224,62,62,.1);border:1px solid rgba(224,62,62,.3);color:var(--red);border-radius:var(--r);padding:8px 12px;font-size:11px;display:none;text-align:center;margin-bottom:10px;}
@@ -180,7 +180,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
   <div class="topbar">
     <div class="page-title" id="page-title-txt">📊 Dashboard <span>Vista general</span></div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <div style="font-family:'DM Mono',monospace;font-size:14px;" id="clock-top">--:--:--</div>
+      <div style="font-family:DM Mono,monospace;font-size:14px;" id="clock-top">--:--:--</div>
       <a href="index.html" style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--r);font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.5px;" title="Ir a Central de Alarmas">
         📡 CAD
       </a>
@@ -1172,7 +1172,7 @@ function renderDashboard() {
     return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">'+
       '<span class="tipo-tag tipo-'+s.tipo+'">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</span>'+
       '<span style="font-size:11px;flex:1;color:var(--text2)">'+(s.motivo||'—')+'</span>'+
-      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--text3)">'+(s.fecha||'')+'</span>'+
+      '<span style="font-family:DM Mono,monospace;font-size:10px;color:var(--text3)">'+(s.fecha||'')+'</span>'+
     '</div>';
   }).join('');
 
@@ -1182,7 +1182,7 @@ function renderDashboard() {
     var lbl = c.estado==='disponible'?'Disponible':c.estado==='mantencion'?'Mantención':'Fuera';
     return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">'+
       '<div style="width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0;"></div>'+
-      '<span style="font-family:\'DM Mono\',monospace;font-size:12px">'+c.nombre+'</span>'+
+      '<span style="font-family:DM Mono,monospace;font-size:12px">'+c.nombre+'</span>'+
       '<span style="font-size:10px;color:var(--text3)">'+c.tipo+'</span>'+
       '<span style="margin-left:auto;font-size:10px;font-weight:700;color:'+col+'">'+lbl+'</span>'+
     '</div>';
@@ -1193,7 +1193,7 @@ function renderDashboard() {
   document.getElementById('ds-dotacion-cats').innerHTML = cats.map(function(cat){
     var n = voluntarios.filter(function(v){ return v.cat===cat && v.estado==='activo'; }).length;
     return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;">'+
-      '<div style="font-family:\'Syne\',sans-serif;font-size:26px;font-weight:900;color:'+catCols[cat]+'">'+n+'</div>'+
+      '<div style="font-family:Syne,sans-serif;font-size:26px;font-weight:900;color:'+catCols[cat]+'">'+n+'</div>'+
       '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">'+CAT_LABEL[cat]+'s</div>'+
     '</div>';
   }).join('');
@@ -1364,7 +1364,7 @@ function renderCarros() {
     header.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:10px;';
 
     var icon = document.createElement('div');
-    icon.style.cssText = "font-family:'Syne',sans-serif;font-size:22px;font-weight:900;width:48px;height:48px;border-radius:8px;background:rgba(224,62,62,.1);color:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;";
+    icon.style.cssText = "font-family:Syne,sans-serif;font-size:22px;font-weight:900;width:48px;height:48px;border-radius:8px;background:rgba(224,62,62,.1);color:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;";
     icon.textContent = c.nombre;
 
     var info = document.createElement('div');
@@ -1630,11 +1630,11 @@ function renderSalidas() {
     tr.innerHTML =
       '<td style="font-weight:600">'+s.fecha+'</td>'+
       '<td><span class="tipo-tag tipo-'+s.tipo+'">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</span></td>'+
-      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+carrosStr+'</td>'+
+      '<td style="font-family:DM Mono,monospace;font-size:11px">'+carrosStr+'</td>'+
       '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(s.motivo||'—')+'</td>'+
-      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+(s.horaSalida||'—')+'</td>'+
-      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+(s.horaRegreso||'<span style="color:var(--amber)">Pendiente</span>')+'</td>'+
-      '<td style="font-family:\'DM Mono\',monospace;font-size:11px">'+km+'</td>'+
+      '<td style="font-family:DM Mono,monospace;font-size:11px">'+(s.horaSalida||'—')+'</td>'+
+      '<td style="font-family:DM Mono,monospace;font-size:11px">'+(s.horaRegreso||'<span style="color:var(--amber)">Pendiente</span>')+'</td>'+
+      '<td style="font-family:DM Mono,monospace;font-size:11px">'+km+'</td>'+
       '<td>'+condNombre+'</td>'+
       '<td><span style="font-size:10px;font-weight:700;color:'+estCol+'">'+(s.estado==='en-proceso'?'En proceso':'Cerrada')+'</span></td>'+
       '<td></td>';
@@ -1682,9 +1682,9 @@ function verSalida(id) {
     '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Fecha</div><div style="font-size:13px;font-weight:600">'+s.fecha+'</div></div>'+
     '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Tipo</div><span class="tipo-tag tipo-'+s.tipo+'">'+(TIPO_LABEL[s.tipo]||s.tipo)+'</span></div>'+
     '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border);grid-column:1/-1"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Motivo</div><div style="font-size:12px">'+(s.motivo||'—')+'</div></div>'+
-    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Carro(s)</div><div style="font-size:12px;font-family:\'DM Mono\',monospace">'+carrosNombres+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Carro(s)</div><div style="font-size:12px;font-family:DM Mono,monospace">'+carrosNombres+'</div></div>'+
     '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Conductor</div><div style="font-size:12px">'+condNombre+'</div></div>'+
-    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Salida → Regreso</div><div style="font-size:12px;font-family:\'DM Mono\',monospace">'+(s.horaSalida||'—')+' → '+(s.horaRegreso||'Pendiente')+'</div></div>'+
+    '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Salida → Regreso</div><div style="font-size:12px;font-family:DM Mono,monospace">'+(s.horaSalida||'—')+' → '+(s.horaRegreso||'Pendiente')+'</div></div>'+
     '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">KM</div><div style="font-size:12px">'+( km!==null?km+' km':'—')+'</div></div>'+
     (s.combustible?'<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Combustible</div><div style="font-size:12px">'+s.combustible+' Lts'+(s.combustibleCosto?' · $'+Number(s.combustibleCosto).toLocaleString('es-CL'):'')+'</div></div>':'')+
     '<div style="background:var(--bg3);padding:10px;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Responsable</div><div style="font-size:12px">'+respNombre+'</div></div>'+
@@ -1742,7 +1742,7 @@ function renderPartes() {
   }
   el.innerHTML = todos.sort(function(a,b){return (b.fecha||b.fechaEmerg||'').localeCompare(a.fecha||a.fechaEmerg||'');}).map(function(p){
     return '<div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">'+
-      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:rgba(224,62,62,.12);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:\'Syne\',sans-serif;font-size:12px;font-weight:900;">'+(p.emergId?'CAD':'MAN')+'</div>'+
+      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:rgba(224,62,62,.12);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:12px;font-weight:900;">'+(p.emergId?'CAD':'MAN')+'</div>'+
       '<div style="flex:1;min-width:0;">'+
         '<div style="font-size:12px;font-weight:700;">'+(p.id||p.emergId||'—')+'</div>'+
         '<div style="font-size:12px;color:var(--text2)">📍 '+(p.direccion||p.calle||'—')+'</div>'+
@@ -1793,6 +1793,19 @@ var SA_EMAIL = 'javier@cbfrutillar.cl';
 var SA_PASS  = 'admin';
 
 // ── AUTH ──────────────────────────────────────────────────
+// Verificar bypass de admin al cargar la página
+(function checkAdminBypass() {
+  if (sessionStorage.getItem('_admin_bypass') === '1') {
+    sessionStorage.removeItem('_admin_bypass');
+    document.getElementById('login-overlay').classList.add('hidden');
+    var nombreEl = document.getElementById('cia-user-nombre' + (CIA_ID === 'B-1' ? '' : '-'+CIA_ID.replace('B-','')));
+    if (!nombreEl) nombreEl = document.querySelector('[id^="cia-user-nombre"]');
+    if (nombreEl) nombreEl.textContent = 'Admin';
+    cargarDatosFirebase();
+    return;
+  }
+})();
+
 onAuthStateChanged(fbAuth, async function(user) {
   if (user) {
     // Verificar rol permitido
@@ -1991,7 +2004,7 @@ function renderPartesFirebase(partes) {
     var ts = e.timestamp && e.timestamp.toDate ? e.timestamp.toDate() : new Date();
     card.innerHTML =
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-        '<div><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;">'+(e.cadId||e.id)+' — '+(e.tipo||'—')+'</div>' +
+        '<div><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;">'+(e.cadId||e.id)+' — '+(e.tipo||'—')+'</div>' +
         '<div style="font-size:11px;color:var(--text3);">📍 '+(e.direccion||'—')+' · '+(e.zona||'—')+'</div></div>' +
         '<div style="font-size:11px;color:var(--text2);">'+e.hora+'</div>' +
       '</div>' +
