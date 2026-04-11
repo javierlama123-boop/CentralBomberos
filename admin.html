@@ -1049,7 +1049,7 @@ async function cargarCompaniasAdmin() {
   cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
   var snap = await getDocs(query(collection(db,'cuerpos'), orderBy('nombre')));
   if (snap.empty) {
-    cont.innerHTML = '<div class="empty-state"><div class="empty-state-ico">🏛️</div><div>Sin cuerpos registrados.<br><button class="btn-green" onclick="openModal('modal-nuevo-cuerpo')" style="margin-top:12px;">+ Crear primer cuerpo</button></div></div>';
+    cont.innerHTML = '<div class="empty-state"><div class="empty-state-ico">🏛️</div><div>Sin cuerpos registrados.</div><div style="margin-top:12px;"><button class="btn-green" onclick="openModal(&quot;modal-nuevo-cuerpo&quot;)">+ Crear primer cuerpo</button></div></div>';
     return;
   }
   cont.innerHTML = '';
