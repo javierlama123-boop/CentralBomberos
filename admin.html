@@ -615,11 +615,13 @@ window.doLogin = async function() {
   err.style.display='none';
   // Acceso directo superadmin hardcodeado
   if (email===SUPERADMIN_EMAIL && pass===SUPERADMIN_PASS) {
-    document.getElementById('login-wrap').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
     usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
     perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('app').style.display        = 'flex';
     iniciarApp();
+    // También cargar datos Firebase sin auth
+    cargarDatosAdminFirebase();
     btn.disabled=false; btn.textContent='Ingresar';
     return;
   }
@@ -633,8 +635,18 @@ window.doLogin = async function() {
 };
 
 window.doLogout = async function() {
-  await signOut(auth);
+  try { await signOut(auth); } catch(e) {}
+  location.reload();
 };
+
+// Carga datos Firebase sin necesitar auth (para superadmin hardcodeado)
+async function cargarDatosAdminFirebase() {
+  try {
+    // Iniciar sesión anónima para poder leer Firestore
+    var { signInAnonymously } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    await signInAnonymously(auth).catch(function(){});
+  } catch(e) { console.warn('[Admin] Auth anónima no disponible:', e.message); }
+}
 
 function mostrarLogin() {
   document.getElementById('login-wrap').style.display = 'flex';
