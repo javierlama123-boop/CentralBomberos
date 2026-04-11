@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Setup Superadmin</title>
+<style>
+body{font-family:monospace;background:#0a0c12;color:#e8edf8;padding:40px;max-width:500px;margin:0 auto;}
+h2{color:#e53935;margin-bottom:20px;}
+.note{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:12px;font-size:12px;color:#f59e0b;margin-bottom:20px;}
+input{background:#161b26;border:1px solid #232b3e;color:#e8edf8;border-radius:6px;padding:9px 12px;font-size:13px;width:100%;margin-bottom:12px;box-sizing:border-box;}
+button{background:#e53935;color:#fff;border:none;padding:11px 20px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;width:100%;}
+.log{background:#161b26;border:1px solid #232b3e;border-radius:8px;padding:12px;margin-top:16px;font-size:12px;line-height:1.8;}
+.ok{color:#10b981;} .err{color:#e53935;}
+</style>
+</head>
+<body>
+<h2>🔐 Crear Superadmin</h2>
+<div class="note">⚠️ Ejecuta esto solo una vez para crear el superadministrador del sistema. Guarda las credenciales en un lugar seguro.</div>
+<input id="nombre" placeholder="Nombre completo" value="Javier Lama"/>
+<input id="email" type="email" placeholder="Email" value="javier@cbfrutillar.cl"/>
+<input id="pass" type="password" placeholder="Contraseña (mín. 8 caracteres)" value=""/>
+<button onclick="crearSuperadmin()">Crear Superadmin</button>
+<div class="log" id="log">Esperando...<br></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const app  = initializeApp({ apiKey:"AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY",authDomain:"cad-bomberos-frutillar.firebaseapp.com",projectId:"cad-bomberos-frutillar",storageBucket:"cad-bomberos-frutillar.firebasestorage.app",messagingSenderId:"70874334886",appId:"1:70874334886:web:8afa79fc1ef371b5ffd667" });
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+function log(msg,ok){ var el=document.getElementById('log'); el.innerHTML+='<span class="'+(ok?'ok':'err')+'">'+msg+'</span><br>'; }
+
+window.crearSuperadmin = async function(){
+  var nombre=document.getElementById('nombre').value.trim();
+  var email=document.getElementById('email').value.trim();
+  var pass=document.getElementById('pass').value;
+  if(!nombre||!email||pass.length<6){ log('❌ Completa todos los campos (mín. 6 caracteres)',false); return; }
+  try {
+    var cred = await createUserWithEmailAndPassword(auth,email,pass);
+    await setDoc(doc(db,'usuarios_admin',cred.user.uid),{
+      nombre,email,rol:'superadmin',activo:true,creado:serverTimestamp()
+    });
+    // Crear también el cuerpo de Frutillar
+    await setDoc(doc(db,'cuerpos','frutillar'),{
+      nombre:'Cuerpo de Bomberos de Frutillar',ciudad:'Frutillar',region:'Los Lagos',
+      nCompanias:6,activo:true,creado:serverTimestamp(),
+      companias:[
+        {id:'B-1',nombre:'1ª Compañía "Germania"',num:'1ª',color:'#e53935'},
+        {id:'B-2',nombre:'2ª Compañía',num:'2ª',color:'#f97316'},
+        {id:'B-3',nombre:'3ª Compañía',num:'3ª',color:'#eab308'},
+        {id:'B-4',nombre:'4ª Compañía',num:'4ª',color:'#10b981'},
+        {id:'B-5',nombre:'5ª Compañía',num:'5ª',color:'#3b82f6'},
+        {id:'B-6',nombre:'6ª Compañía',num:'6ª',color:'#8b5cf6'}
+      ]
+    });
+    log('✅ Superadmin creado: '+email,true);
+    log('✅ Cuerpo de Frutillar registrado en Firebase',true);
+    log('➡️ Ahora puedes entrar a admin.html con estas credenciales',true);
+  } catch(e){
+    log('❌ '+(e.code==='auth/email-already-in-use'?'Email ya existe. Prueba con otro.':e.message),false);
+  }
+};
+</script>
+</body>
+</html>
