@@ -1073,7 +1073,8 @@ async function cargarCompaniasAdmin() {
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:12px;">' +
       cias.map(function(cia, i) {
         return '<div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid '+cia.color+';border-radius:var(--r);padding:12px;cursor:pointer;transition:border-color .15s;" ' +
-          'onclick="verDetalleCompania(''+d.id+'',''+cia.id+'',''+cia.nombre+'',''+cia.color+'')" ' +
+          'data-cuerpo="'+d.id+'" data-cia="'+cia.id+'" data-nombre="'+cia.nombre.replace(/"/g,'&quot;')+'" data-color="'+cia.color+'" ' +
+          'onclick="var el=this;verDetalleCompania(el.dataset.cuerpo,el.dataset.cia,el.dataset.nombre,el.dataset.color)" ' +
           'title="Ver detalle de '+cia.nombre+'">' +
           '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
             '<div style="width:12px;height:12px;border-radius:50%;background:'+cia.color+';flex-shrink:0;"></div>' +
