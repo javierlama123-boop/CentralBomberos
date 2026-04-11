@@ -587,27 +587,31 @@ var CIA_COLORS = ['#e53935','#f97316','#eab308','#10b981','#3b82f6','#8b5cf6','#
 
 // ── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async function(user) {
-  // Si es superadmin hardcodeado, ignorar todos los cambios de auth
+  // Si es superadmin hardcodeado, NUNCA interferir
   if (_superadminHardcoded) return;
   if (user) {
     usuarioActual = user;
-    // Usuario anónimo — ignorar, no es un admin real
     if (user.isAnonymous) return;
-    var snap = await getDoc(doc(db, 'usuarios_admin', user.uid));
-    if (snap.exists()) {
-      perfilActual = snap.data();
-      if (perfilActual.activo !== false) {
-        iniciarApp();
+    try {
+      var snap = await getDoc(doc(db, 'usuarios_admin', user.uid));
+      if (snap.exists()) {
+        perfilActual = snap.data();
+        if (perfilActual.activo !== false) {
+          iniciarApp();
+        } else {
+          showNotif('⚠️','Cuenta desactivada','Tu cuenta no está activa.');
+          await signOut(auth);
+        }
       } else {
-        showNotif('⚠️','Cuenta desactivada','Tu cuenta no está activa.');
+        showNotif('⚠️','Sin acceso','No tienes permisos de administrador.');
         await signOut(auth);
       }
-    } else {
-      showNotif('⚠️','Sin acceso','No tienes permisos de administrador.');
-      await signOut(auth);
+    } catch(e) {
+      console.error('[Admin] Error verificando usuario:', e);
+      mostrarLogin();
     }
   } else {
-    mostrarLogin();
+    if (!_superadminHardcoded) mostrarLogin();
   }
 });
 
@@ -623,21 +627,15 @@ window.doLogin = async function() {
   if (!email || !pass) { err.textContent='Completa los campos'; err.style.display='block'; return; }
   btn.disabled=true; btn.textContent='Ingresando...';
   err.style.display='none';
-  // Acceso directo superadmin hardcodeado
+  // Acceso directo superadmin hardcodeado — NO usa Firebase Auth
   if (email===SUPERADMIN_EMAIL && pass===SUPERADMIN_PASS) {
-    // Activar bandera ANTES de cualquier operación Firebase
-    _superadminHardcoded = true;
+    _superadminHardcoded = true; // bandera permanente, onAuthStateChanged la respeta
     usuarioActual = { uid:'superadmin-local', email: SUPERADMIN_EMAIL };
     perfilActual  = { nombre:'Javier Lama', rol:'superadmin', activo:true };
     document.getElementById('login-wrap').style.display = 'none';
     document.getElementById('app').style.display        = 'flex';
-    iniciarApp();
-    // Login anónimo en segundo plano para poder leer Firestore (sin afectar UI)
-    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js')
-      .then(function(m){ return m.signInAnonymously(auth); })
-      .then(function(){ console.log('[Admin] Firebase anónimo OK'); })
-      .catch(function(e){ console.warn('[Admin] Firebase anónimo falló:', e.message); });
     btn.disabled=false; btn.textContent='Ingresar';
+    iniciarApp();
     return;
   }
   try {
@@ -710,6 +708,16 @@ window.showPage = function(name, el) {
 async function cargarDashboard() {
   var grid   = document.getElementById('dash-stats');
   var charts = document.getElementById('dash-charts');
+  // Si no hay auth real, mostrar datos vacíos con opción de autenticar
+  if (_superadminHardcoded && !auth.currentUser) {
+    grid.innerHTML =
+      stat('🏛️','—','Cuerpos registrados','blue') +
+      stat('👥','—','Voluntarios totales','green') +
+      stat('🚨','—','Emergencias totales','red') +
+      stat('📡','—','Emergencias activas','amber');
+    charts.innerHTML = '<div style="grid-column:1/-1;background:var(--bg2);border:1px solid var(--amber);border-radius:var(--rlg);padding:16px;color:var(--amber);font-size:12px;">⚠️ Para ver estadísticas reales, crea una cuenta en Firebase Auth con email <strong>'+SUPERADMIN_EMAIL+'</strong> usando el archivo <strong>setup-superadmin.html</strong> y luego vuelve a iniciar sesión.</div>';
+    return;
+  }
   try {
     var [cuerposSnap, usersSnap, emergSnap, volSnap] = await Promise.all([
       getDocs(collection(db, 'cuerpos')),
