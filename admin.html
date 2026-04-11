@@ -1095,7 +1095,7 @@ async function cargarCompaniasAdmin() {
           '<div style="display:flex;align-items:center;justify-content:space-between;">' +
             '<a href="compania-'+cia.id.replace('B-','')+'.html" target="_blank" ' +
                'style="font-size:10px;color:var(--blue);text-decoration:none;" ' +
-               'onclick="event.stopPropagation()">📄 Abrir módulo →</a>' +
+               'onclick="event.stopPropagation();sessionStorage.setItem(\'_admin_bypass\',\'1\')">📄 Abrir módulo →</a>' +
             '<button style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" ' +
                '<button data-cuerpo2="'+d.id+'" data-idx="'+i+'" data-cia2="'+cia.nombre+'" style="background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;" onclick="event.stopPropagation();eliminarCompania(this.dataset.cuerpo2,this.dataset.idx,this.dataset.cia2)">Eliminar</button>' +
           '</div>' +
