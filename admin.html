@@ -220,7 +220,6 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
         <div class="sb-item" onclick="navGlobal('admins',this)" id="nav-g-admins"><span class="ico">👑</span>Administradores</div>
         <div class="sb-item" onclick="navGlobal('stats-global',this)" id="nav-g-stats"><span class="ico">📈</span>Estadísticas Globales</div>
         <div class="sb-item" onclick="navGlobal('configuracion',this)" id="nav-g-config"><span class="ico">⚙️</span>Configuración CAD</div>
-        <div class="sb-item" onclick="navGlobal('configuracion',this)" id="nav-g-config"><span class="ico">⚙️</span>Configuración CAD</div>
         <div class="sb-section">Cuenta</div>
         <div class="sb-item" onclick="navGlobal('mi-cuenta',this)" id="nav-g-cuenta"><span class="ico">⚙️</span>Mi Cuenta</div>
       </div>
@@ -239,6 +238,7 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
         <div class="sb-item" onclick="navCuerpo('companias',this)" id="nav-c-companias"><span class="ico">🚒</span>Compañías</div>
         <div class="sb-item" onclick="navCuerpo('stats-cuerpo',this)" id="nav-c-stats"><span class="ico">📈</span>Estadísticas</div>
         <div class="sb-item" onclick="navCuerpo('emergencias-cuerpo',this)" id="nav-c-emergencias"><span class="ico">🚨</span>Emergencias</div>
+        <div class="sb-item" onclick="navCuerpo('tabla-despacho',this)" id="nav-c-tabla"><span class="ico">📋</span>Tabla de Despacho</div>
       </div>
 
       <!-- Vista Compañía -->
@@ -463,6 +463,40 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
         </div>
       </div>
 
+
+      <!-- ═══ TABLA DE DESPACHO ═══ -->
+      <div class="page" id="page-tabla-despacho">
+        <div class="page-title" id="td-titulo">Tabla de Despacho</div>
+        <div class="page-sub" id="td-sub">Define qué unidades salen por tipo de emergencia y sector geográfico</div>
+
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn-green" onclick="nuevaReglaDespacho()">+ Nueva Regla</button>
+          <button class="btn-sec" onclick="importarTabla()">📥 Importar JSON</button>
+          <button class="btn-sec" onclick="exportarTabla()">📤 Exportar JSON</button>
+          <button class="btn-sec" onclick="cargarTablaDefault()">🔄 Cargar tabla Frutillar</button>
+        </div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+          <input class="search-input" id="td-filtro-tipo" placeholder="🔍 Filtrar por tipo..." oninput="renderTablaDespacho()" style="width:200px;"/>
+          <select class="fselect" id="td-filtro-cia" onchange="renderTablaDespacho()" style="width:160px;font-size:12px;">
+            <option value="">Todas las compañías</option>
+          </select>
+          <select class="fselect" id="td-filtro-zona" onchange="renderTablaDespacho()" style="width:160px;font-size:12px;">
+            <option value="">Todas las zonas</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">Reglas de despacho <span id="td-cnt" style="color:var(--text3);font-weight:400;"></span></div>
+          </div>
+          <table id="tabla-despacho-admin">
+            <thead><tr><th>Tipo de Emergencia</th><th>Clave</th><th>Zona</th><th>Unidades Despachadas</th><th>Prioridad</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-tabla-despacho"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
 
       <!-- ═══ CONFIGURACIÓN CAD ═══ -->
       <div class="page" id="page-configuracion">
@@ -1005,7 +1039,8 @@ window.navCuerpo = function(name, el) {
     'operadoras': cargarOperadoras,
     'companias': cargarCompanias,
     'stats-cuerpo': cargarStatsCuerpo,
-    'emergencias-cuerpo': cargarEmergenciasCuerpo
+    'emergencias-cuerpo': cargarEmergenciasCuerpo,
+    'tabla-despacho': cargarTablaDespacho
   };
   if (loaders[name]) loaders[name]();
 };
@@ -1950,7 +1985,26 @@ window.agregarSubtono = async function() {
 
 window.testSubtono = function(i) {
   var s = cfgActual.subtonos.lista[i];
-  showNotif('🎵', 'Test subtono', s.nombre + ' · ' + s.tipo.toUpperCase() + ': ' + s.valor);
+  showNotif('🎵', 'Reproduciendo subtono', s.nombre + ' · ' + s.tipo.toUpperCase());
+  // Reproducir tono de prueba con Web Audio API
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    // Si es CTCSS, usar la frecuencia; si no, usar 1000Hz como demo
+    var freq = s.tipo === 'ctcss' && parseFloat(s.valor) ? parseFloat(s.valor) : 1000;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (s.duracion||3000)/1000);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + (s.duracion||3000)/1000);
+    osc.onended = function() { ctx.close(); };
+  } catch(e) {
+    showNotif('⚠️', 'Audio no disponible', 'El navegador bloqueó el audio: ' + e.message);
+  }
 };
 
 window.guardarCfgSubtonos = async function() {
@@ -2132,6 +2186,319 @@ window.agregarCiaCfg = function() {
 
 window.guardarCfgSecuencia = function() {
   showNotif('✅', 'Secuencia guardada', 'La secuencia de transmisión fue actualizada.');
+};
+
+// ══════════════════════════════════════════════════════════════
+// TABLA DE DESPACHO
+// ══════════════════════════════════════════════════════════════
+
+var tablaDespachoActual = []; // Array de reglas del cuerpo actual
+
+async function cargarTablaDespacho() {
+  if (!cuerpoActual) return;
+  document.getElementById('td-titulo').textContent = 'Tabla de Despacho — ' + cuerpoActual.nombre;
+  document.getElementById('td-sub').textContent = 'Define qué unidades salen por cada tipo de emergencia y sector · ' + cuerpoActual.ciudad;
+  // Poblar filtros con compañías del cuerpo
+  var selCia = document.getElementById('td-filtro-cia');
+  selCia.innerHTML = '<option value="">Todas las compañías</option>';
+  (cuerpoActual.companias||[]).forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c.id; opt.textContent = c.nombre;
+    selCia.appendChild(opt);
+  });
+  // Cargar desde Firestore
+  try {
+    var snap = await getDoc(doc(db, 'tabla_despacho', cuerpoActual.id));
+    if (snap.exists() && snap.data().reglas) {
+      tablaDespachoActual = snap.data().reglas;
+    } else {
+      tablaDespachoActual = [];
+    }
+  } catch(e) {
+    tablaDespachoActual = [];
+    console.warn('[TD] Error:', e.message);
+  }
+  // Poblar filtro zonas
+  var zonas = [...new Set(tablaDespachoActual.map(function(r){ return r.zona; }).filter(Boolean))].sort();
+  var selZona = document.getElementById('td-filtro-zona');
+  selZona.innerHTML = '<option value="">Todas las zonas</option>';
+  zonas.forEach(function(z) {
+    var opt = document.createElement('option'); opt.value=z; opt.textContent=z; selZona.appendChild(opt);
+  });
+  renderTablaDespacho();
+}
+
+window.renderTablaDespacho = function() {
+  var filtroTipo = document.getElementById('td-filtro-tipo')?.value.toLowerCase() || '';
+  var filtroCia  = document.getElementById('td-filtro-cia')?.value  || '';
+  var filtroZona = document.getElementById('td-filtro-zona')?.value || '';
+  var lista = tablaDespachoActual.filter(function(r) {
+    var okTipo = !filtroTipo || (r.tipo||'').toLowerCase().includes(filtroTipo) || (r.clave||'').toLowerCase().includes(filtroTipo);
+    var okCia  = !filtroCia  || (r.despacho||[]).some(function(u){ return u.cia===filtroCia; });
+    var okZona = !filtroZona || r.zona===filtroZona;
+    return okTipo && okCia && okZona;
+  });
+  document.getElementById('td-cnt').textContent = '(' + lista.length + ' de ' + tablaDespachoActual.length + ' reglas)';
+  var tbody = document.getElementById('tbody-tabla-despacho');
+  tbody.innerHTML = '';
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin reglas. Haz clic en "+ Nueva Regla" o carga la tabla de Frutillar.</td></tr>';
+    return;
+  }
+  lista.forEach(function(r, idx) {
+    var ridx = tablaDespachoActual.indexOf(r);
+    var tr = document.createElement('tr');
+    var unidades = (r.despacho||[]).map(function(u) {
+      return '<span style="display:inline-block;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;margin:1px;">'+u.cia+(u.espec?' ('+u.espec+')':'')+'</span>';
+    }).join(' ');
+    tr.innerHTML =
+      '<td style="font-weight:600;font-size:12px;">'+(r.tipo||'—')+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue);">'+(r.clave||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--text2);">'+(r.zona||'—')+'</td>'+
+      '<td>'+unidades+'</td>'+
+      '<td style="text-align:center;"><span style="background:rgba(59,130,246,.15);color:var(--blue);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">'+(r.prioridad||1)+'</span></td>'+
+      '<td><div class="actions">'+
+        '<button class="btn-amber" data-idx="'+ridx+'" onclick="editarReglaDespacho(parseInt(this.dataset.idx))">Editar</button>'+
+        '<button class="btn-danger" data-idx="'+ridx+'" onclick="eliminarReglaDespacho(parseInt(this.dataset.idx))">Eliminar</button>'+
+      '</div></td>';
+    tbody.appendChild(tr);
+  });
+};
+
+window.nuevaReglaDespacho = function() {
+  abrirModalRegla(null);
+};
+
+window.editarReglaDespacho = function(idx) {
+  abrirModalRegla(idx);
+};
+
+window.eliminarReglaDespacho = async function(idx) {
+  if (!confirm('¿Eliminar esta regla de despacho?')) return;
+  tablaDespachoActual.splice(idx, 1);
+  await guardarTablaDespacho();
+  renderTablaDespacho();
+};
+
+function abrirModalRegla(idx) {
+  var r = idx !== null && idx !== undefined && idx !== '' ? tablaDespachoActual[parseInt(idx)] : null;
+  var cias = (cuerpoActual&&cuerpoActual.companias)||[];
+  var unidadesActuales = r ? JSON.parse(JSON.stringify(r.despacho||[])) : [];
+
+  // Crear modal con createElement para evitar problemas de comillas
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'modal-regla-temp';
+
+  var modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.width = '560px';
+
+  // Header
+  var header = document.createElement('div');
+  header.className = 'modal-header';
+  var titleEl = document.createElement('div');
+  titleEl.className = 'modal-title';
+  titleEl.textContent = (r ? 'Editar' : 'Nueva') + ' Regla de Despacho';
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'modal-close';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = function(){ document.getElementById('modal-regla-temp').remove(); };
+  header.appendChild(titleEl);
+  header.appendChild(closeBtn);
+
+  // Body
+  var body = document.createElement('div');
+  body.className = 'modal-body';
+
+  // Row tipo + clave
+  var row1 = document.createElement('div');
+  row1.className = 'form-row';
+  row1.innerHTML =
+    '<div class="fgroup"><div class="flabel">Tipo de Emergencia</div><input class="finput" id="mr-tipo" value="'+(r?r.tipo||'':'')+'" placeholder="Ej: 10-0 Fuego Estructural"/></div>'+
+    '<div class="fgroup"><div class="flabel">Clave (código)</div><input class="finput" id="mr-clave" value="'+(r?r.clave||'':'')+'" placeholder="Ej: 10-0-1"/></div>';
+  body.appendChild(row1);
+
+  // Row zona + prioridad
+  var row2 = document.createElement('div');
+  row2.className = 'form-row';
+  row2.innerHTML =
+    '<div class="fgroup"><div class="flabel">Zona Geográfica</div><input class="finput" id="mr-zona" value="'+(r?r.zona||'':'')+'" placeholder="Ej: Frutillar Bajo"/></div>'+
+    '<div class="fgroup"><div class="flabel">Prioridad (1=más urgente)</div><input class="finput" type="number" id="mr-prio" value="'+(r?r.prioridad||1:1)+'" min="1" max="5"/></div>';
+  body.appendChild(row2);
+
+  // Unidades
+  var unidadesGroup = document.createElement('div');
+  unidadesGroup.className = 'fgroup';
+  var unidadesLabel = document.createElement('div');
+  unidadesLabel.className = 'flabel';
+  unidadesLabel.textContent = 'Unidades a despachar';
+  var unidadesCont = document.createElement('div');
+  unidadesCont.id = 'mr-unidades';
+  unidadesCont.style.cssText = 'display:flex;flex-direction:column;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px;max-height:200px;overflow-y:auto;';
+
+  unidadesActuales.forEach(function(u, i) {
+    unidadesCont.appendChild(crearFilaUnidad(cias, u, i));
+  });
+
+  var addUnitBtn = document.createElement('button');
+  addUnitBtn.className = 'btn-sec';
+  addUnitBtn.style.cssText = 'margin-top:6px;font-size:11px;';
+  addUnitBtn.textContent = '+ Agregar unidad';
+  addUnitBtn.onclick = function() {
+    var i = unidadesCont.children.length;
+    unidadesCont.appendChild(crearFilaUnidad(cias, null, i));
+  };
+  unidadesGroup.appendChild(unidadesLabel);
+  unidadesGroup.appendChild(unidadesCont);
+  unidadesGroup.appendChild(addUnitBtn);
+  body.appendChild(unidadesGroup);
+
+  // Footer
+  var footer = document.createElement('div');
+  footer.className = 'modal-footer';
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-sec';
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.onclick = function(){ document.getElementById('modal-regla-temp').remove(); };
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-green';
+  saveBtn.textContent = 'Guardar regla';
+  saveBtn.onclick = function(){ guardarReglaModal(idx); };
+  footer.appendChild(cancelBtn);
+  footer.appendChild(saveBtn);
+
+  modal.appendChild(header);
+  modal.appendChild(body);
+  modal.appendChild(footer);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+
+function crearFilaUnidad(cias, u, i) {
+  var div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  div.id = 'mr-u-' + i;
+
+  var selCia = document.createElement('select');
+  selCia.className = 'fselect';
+  selCia.id = 'mr-cia-' + i;
+  selCia.style.cssText = 'flex:1;font-size:11px;';
+  cias.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.nombre;
+    if (u && u.cia === c.id) opt.selected = true;
+    selCia.appendChild(opt);
+  });
+
+  var selEspec = document.createElement('select');
+  selEspec.className = 'fselect';
+  selEspec.id = 'mr-espec-' + i;
+  selEspec.style.cssText = 'width:100px;font-size:11px;';
+  ['B','BX','R','Z','RF'].forEach(function(e) {
+    var opt = document.createElement('option');
+    opt.value = e; opt.textContent = e;
+    if (u && u.espec === e) opt.selected = true;
+    selEspec.appendChild(opt);
+  });
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'btn-danger';
+  delBtn.style.cssText = 'font-size:10px;padding:4px 8px;';
+  delBtn.textContent = '✕';
+  delBtn.onclick = function() { div.remove(); };
+
+  div.appendChild(selCia);
+  div.appendChild(selEspec);
+  div.appendChild(delBtn);
+  return div;
+}
+
+
+// agregarUnidadRegla reemplazada por crearFilaUnidad
+
+window.guardarReglaModal = async function(idxStr) {
+  var tipo  = document.getElementById('mr-tipo').value.trim();
+  var clave = document.getElementById('mr-clave').value.trim();
+  var zona  = document.getElementById('mr-zona').value.trim();
+  var prio  = parseInt(document.getElementById('mr-prio').value)||1;
+  if (!tipo||!clave) { showNotif('⚠️','Requerido','Tipo y clave son obligatorios.'); return; }
+  // Recolectar unidades
+  var unidades = [];
+  var rows = document.getElementById('mr-unidades').children;
+  for (var i=0; i<rows.length; i++) {
+    var selCia   = document.getElementById('mr-cia-'+i);
+    var selEspec = document.getElementById('mr-espec-'+i);
+    if (selCia && selEspec) unidades.push({ cia:selCia.value, espec:selEspec.value });
+  }
+  var regla = { tipo, clave, zona, prioridad:prio, despacho:unidades };
+  var idx = idxStr !== '' && idxStr !== undefined ? parseInt(idxStr) : -1;
+  if (idx >= 0) { tablaDespachoActual[idx] = regla; } else { tablaDespachoActual.push(regla); }
+  await guardarTablaDespacho();
+  document.getElementById('modal-regla-temp')?.remove();
+  renderTablaDespacho();
+};
+
+async function guardarTablaDespacho() {
+  if (!cuerpoActual) return;
+  try {
+    await setDoc(doc(db,'tabla_despacho',cuerpoActual.id), {
+      cuerpoId: cuerpoActual.id,
+      nombre: cuerpoActual.nombre,
+      reglas: tablaDespachoActual,
+      actualizado: serverTimestamp()
+    }, { merge: true });
+    showNotif('✅','Tabla guardada',tablaDespachoActual.length+' reglas en Firestore.');
+  } catch(e) { showNotif('❌','Error',e.message); }
+}
+
+window.exportarTabla = function() {
+  var json = JSON.stringify({ cuerpo:cuerpoActual?.nombre, reglas:tablaDespachoActual }, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tabla_despacho_'+(cuerpoActual?.ciudad||'cuerpo')+'.json';
+  a.click();
+  showNotif('📤','Exportado','tabla_despacho_'+(cuerpoActual?.ciudad||'cuerpo')+'.json');
+};
+
+window.importarTabla = function() {
+  var input = document.createElement('input');
+  input.type='file'; input.accept='.json';
+  input.onchange = async function(e) {
+    var file = e.target.files[0]; if(!file) return;
+    var text = await file.text();
+    try {
+      var data = JSON.parse(text);
+      var reglas = data.reglas || data;
+      if (!Array.isArray(reglas)) { showNotif('❌','Formato incorrecto','El JSON debe tener un array "reglas"'); return; }
+      if (!confirm('¿Importar '+reglas.length+' reglas? Esto reemplazará la tabla actual.')) return;
+      tablaDespachoActual = reglas;
+      await guardarTablaDespacho();
+      renderTablaDespacho();
+    } catch(e) { showNotif('❌','Error al leer JSON',e.message); }
+  };
+  input.click();
+};
+
+window.cargarTablaDefault = async function() {
+  if (!confirm('¿Cargar la tabla de despacho de Frutillar? Esto reemplazará la tabla actual.')) return;
+  showNotif('⏳','Cargando...','Tabla base de Frutillar lista.');
+  tablaDespachoActual = [
+    {tipo:'10-0 Fuego Estructural', clave:'10-0-1', zona:'Frutillar Bajo',    prioridad:1, despacho:[{cia:'B-1',espec:'B'},{cia:'B-2',espec:'B'},{cia:'B-3',espec:'BX'}]},
+    {tipo:'10-0 Fuego Estructural', clave:'10-0-1', zona:'Frutillar Alto',    prioridad:1, despacho:[{cia:'B-3',espec:'B'},{cia:'B-1',espec:'B'},{cia:'B-2',espec:'BX'}]},
+    {tipo:'10-1 Fuego Vehiculos',   clave:'10-1-1', zona:'Frutillar Bajo',    prioridad:1, despacho:[{cia:'B-1',espec:'B'},{cia:'B-2',espec:'B'}]},
+    {tipo:'10-2 Fuego Forestal',    clave:'10-2-1', zona:'Sector Casma',      prioridad:1, despacho:[{cia:'B-5',espec:'B'},{cia:'B-4',espec:'B'}]},
+    {tipo:'10-4 Accidente Transito',clave:'10-4-1', zona:'Ruta 5 Sur',        prioridad:1, despacho:[{cia:'B-1',espec:'R'},{cia:'B-2',espec:'B'}]},
+    {tipo:'10-4 Accidente Transito',clave:'10-4-1', zona:'Frutillar Bajo',    prioridad:1, despacho:[{cia:'B-1',espec:'R'},{cia:'B-1',espec:'B'}]},
+    {tipo:'10-6 Emergencia Medica', clave:'10-6-1', zona:'Frutillar Bajo',    prioridad:1, despacho:[{cia:'B-1',espec:'R'}]},
+    {tipo:'10-7 Inundacion',        clave:'10-7-1', zona:'Frutillar Bajo',    prioridad:2, despacho:[{cia:'B-1',espec:'B'},{cia:'B-2',espec:'B'}]},
+    {tipo:'10-0 Fuego Estructural', clave:'10-0-1', zona:'Sector Los Bajos',  prioridad:1, despacho:[{cia:'B-4',espec:'B'},{cia:'B-1',espec:'B'}]},
+    {tipo:'10-0 Fuego Estructural', clave:'10-0-1', zona:'Sector Quilanto',   prioridad:1, despacho:[{cia:'B-6',espec:'B'},{cia:'B-1',espec:'B'}]}
+  ];
+  await guardarTablaDespacho();
+  renderTablaDespacho();
 };
 
 </script>
