@@ -923,13 +923,21 @@ _Central de Alarmas Frutillar_</textarea>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;">
         <div class="panel-title" style="margin-bottom:10px;">🔧 Material por Recuperar</div>
         <div id="material-recuperar">
-          ${[1,2,3,4,5].map(i=>`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-${i}" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-${i}" style="font-size:11px;padding:5px 7px;"></div>`).join('')}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-1" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-1" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-2" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-2" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-3" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-3" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-4" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-4" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="rec-nombre-5" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación" id="rec-ubic-5" style="font-size:11px;padding:5px 7px;"></div>
         </div>
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:14px;">
         <div class="panel-title" style="margin-bottom:10px;">📦 Material por Tripular</div>
         <div id="material-tripular">
-          ${[1,2,3,4,5].map(i=>`<div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-${i}" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-${i}" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-${i}" style="font-size:11px;padding:5px 7px;"></div>`).join('')}
+          <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-1" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-1" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-1" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-2" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-2" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-2" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-3" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-3" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-3" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-4" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-4" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-4" style="font-size:11px;padding:5px 7px;"></div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:6px;margin-bottom:5px;"><input class="finput" placeholder="Nombre" id="trip-nombre-5" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Cant." id="trip-cant-5" style="font-size:11px;padding:5px 7px;"><input class="finput" placeholder="Ubicación en móvil" id="trip-ubic-5" style="font-size:11px;padding:5px 7px;"></div>
         </div>
       </div>
     </div>
@@ -2691,6 +2699,9 @@ function despachar(){
     if(carro){carro.estado='en-emergencia';carro.emergenciaId=id;e.carros.push(carro.id);}
     e.clavesEstado[cid]={despacho:hora};
   });
+  // Guardar KM de salida (odómetro actual antes de la salida)
+  const primerCarroDespacho=(e.carros||[]).map(cid=>CARROS.find(x=>x.id===cid)).find(c=>c);
+  if(primerCarroDespacho) e.kmSalida=primerCarroDespacho.km||0;
   emergencias.push(e);
   const ciasStr=e.companias.map(id=>{const c=COMPANIAS.find(x=>x.id===id);return c?c.num:id;}).join(', ');
   const carrosStr=e.carros.join(', ')||'—';
@@ -3273,14 +3284,11 @@ function cargarDatosParte(){
   document.getElementById('parte-6-7').value=est.s67||'';
   document.getElementById('parte-6-9').value=est.s69||'';
   document.getElementById('parte-6-10').value=est.s610||'';
-  // Autocompletar KM salida desde el primer carro despachado en esta emergencia
-  const primerCarro=(e.carros||[]).map(cid=>CARROS.find(x=>x.id===cid)).find(c=>c);
-  if(primerCarro && primerCarro.km){
-    document.getElementById('parte-km-salida').value=primerCarro.km;
-  } else {
-    document.getElementById('parte-km-salida').value='';
-  }
-  document.getElementById('parte-km-llegada').value=e.kmLlegada||'';
+  // Autocompletar KM salida (guardado al momento del despacho) y KM llegada
+  // kmSalida = odómetro al SALIR (antes de la emergencia)
+  // kmLlegada = odómetro al LLEGAR de vuelta (ingresado al marcar 6-10)
+  document.getElementById('parte-km-salida').value  = e.kmSalida  || '';
+  document.getElementById('parte-km-llegada').value = e.kmLlegada || '';
   // Renderizar grid de personal
   renderPartePersonal(e);
 }
