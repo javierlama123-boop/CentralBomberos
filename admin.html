@@ -941,7 +941,7 @@ async function cargarDashboardCuerpo() {
     charts.innerHTML=
       '<div class="chart-card"><div class="chart-title">Compañías</div>'+
       (cuerpoActual.companias||[]).map(function(cia){
-        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="entrarCompania(\''+cia.id+'\',\''+cia.nombre+'\',\''+cia.color+'\',\''+cuerpoActual.id+'\')">'+
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" data-ciaid="'+cia.id+'" data-cianombre="'+cia.nombre+'" data-ciacolor="'+cia.color+'" data-cuerpo="'+cuerpoActual.id+'" onclick="var el=this;entrarCompania(el.dataset.ciaid,el.dataset.cianombre,el.dataset.ciacolor,el.dataset.cuerpo)">'+
           '<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:'+cia.color+';"></div><span style="font-size:12px;font-weight:600;">'+cia.nombre+'</span></div>'+
           '<span style="font-size:11px;color:var(--blue);">Ver →</span></div>';
       }).join('')+
@@ -1069,7 +1069,7 @@ async function cargarVehiculos() {
   document.getElementById('veh-titulo-tabla').textContent='Vehículos de '+ciaActual.nombre;
   var tbody=document.getElementById('tbody-vehiculos');
   tbody.innerHTML='<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var snap=await getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id)));
+  var snap=await getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id),orderBy('nombre')));
   if (snap.empty){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">Sin vehículos registrados</td></tr>';return;}
   tbody.innerHTML='';
   snap.forEach(function(d){
