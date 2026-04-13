@@ -1739,14 +1739,31 @@ var fbPartesData = [];
 
 function renderPartes() {
   var partesCAD = leerPartesCAD();
-  var todos = partes.concat(partesCAD).concat(fbPartesData);
+  // Incluir salidas locales como partes (convertir estructura)
+  var salidasComoPartes = salidas.map(function(s) {
+    return {
+      id         : s.id,
+      tipo       : s.tipo === 'emergencia' ? (s.codigoEmerg || 'Emergencia') : (s.tipo || 'Salida'),
+      descripcion: s.motivo || s.destino || '',
+      direccion  : s.destino || s.motivo || '',
+      fecha      : s.fecha || '',
+      hora       : s.horaSalida || '',
+      _sortKey   : (s.fecha || '') + 'T' + (s.horaSalida || '00:00'),
+      _esSalida  : true,
+      estado     : s.estado || 'cerrada',
+      carros     : s.carros || [],
+      kmSalida   : s.kmSalida || '',
+      kmRegreso  : s.kmRegreso || '',
+    };
+  });
+  var todos = partes.concat(partesCAD).concat(fbPartesData).concat(salidasComoPartes);
   // Deduplicar por ID
   var seen = new Set();
   todos = todos.filter(function(p){ var k=p.id||p.fecha; if(seen.has(k)) return false; seen.add(k); return true; });
   document.getElementById('cnt-partes').textContent = todos.length;
   var el = document.getElementById('partes-list');
   if(!todos.length){
-    el.innerHTML='<div class="card" style="text-align:center;color:var(--text3);font-size:12px;padding:20px">Sin partes. Los partes generados desde la Central de Alarmas aparecerán aquí automáticamente.</div>';
+    el.innerHTML='<div class="card" style="text-align:center;color:var(--text3);font-size:12px;padding:20px">Sin partes registrados.</div>';
     return;
   }
   // Normalizar fecha para sort: soportar fecha local, fechaEmerg y timestamp de Firebase
@@ -1758,13 +1775,32 @@ function renderPartes() {
     }
     return p;
   });
-  el.innerHTML = todos.sort(function(a,b){return b._sortKey.localeCompare(a._sortKey);}).map(function(p){
+  el.innerHTML = todos.sort(function(a,b){
+    var ka = a._sortKey || (a.fecha||'')+'T'+(a.hora||'');
+    var kb = b._sortKey || (b.fecha||'')+'T'+(b.hora||'');
+    return kb.localeCompare(ka);
+  }).map(function(p){
+    var esCAD    = !p._esSalida && (p.companias || p.cadId || p.fbId);
+    var icoBg    = esCAD ? 'rgba(224,62,62,.15)' : 'rgba(59,130,246,.12)';
+    var icoColor = esCAD ? 'var(--red)' : '#3b82f6';
+    var icoTxt   = esCAD ? 'CAD' : 'CÍA';
+    var titulo   = p.tipo || p.subtipo || p.id || '—';
+    var desc     = p.descripcion || p.direccion || p.calle || p.motivo || '—';
+    var fecha    = p._sortKey ? p._sortKey.replace('T',' ').slice(0,16)
+                              : ((p.fecha||'') + (p.hora ? ' ' + p.hora : ''));
+    var km       = (p.kmSalida && p.kmRegreso)
+                    ? ' · ' + (parseInt(p.kmRegreso)-parseInt(p.kmSalida)) + ' km'
+                    : '';
     return '<div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">'+
-      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:rgba(224,62,62,.12);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:12px;font-weight:900;">'+(p.tipo||p.emergId?'CAD':'MAN')+'</div>'+
+      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:'+icoBg+';color:'+icoColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;">'+icoTxt+'</div>'+
       '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:12px;font-weight:700;">'+(p.tipo||p.subtipo||p.id||'—')+'</div>'+
-        '<div style="font-size:12px;color:var(--text2)">📍 '+(p.direccion||p.calle||'—')+'</div>'+
-        '<div style="font-size:10px;color:var(--text3)">'+(p._sortKey?p._sortKey.replace('T',' ').slice(0,16):p.fecha||p.fechaEmerg||'—')+'</div>'+
+        '<div style="font-size:12px;font-weight:700;">'+titulo+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);margin-top:2px;">'+desc+'</div>'+
+        '<div style="font-size:10px;color:var(--text3);margin-top:3px;">'+fecha+km+'</div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--text3);text-align:right;">'+
+        (p.id||p.cadId||'')+'<br>'+
+        (esCAD?'<span style="color:var(--red);font-weight:600;">CAD</span>':'<span style="color:#3b82f6;font-weight:600;">LOCAL</span>')+
       '</div>'+
     '</div>';
   }).join('');
