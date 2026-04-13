@@ -2283,7 +2283,7 @@ var QC_DEFAULT = {
   'B-4': { wav:'cuarta.wav',  duracion:4900, timer:'tmr_C4', activo:true },
   'B-5': { wav:'quinta.wav',  duracion:4900, timer:'tmr_C5', activo:true },
   'B-6': { wav:'sexta.wav',   duracion:4900, timer:'tmr_C7', activo:true },
-  'GRAL':{ wav:'acuartelamiento.wav', duracion:4900, timer:'tmr_Tono9', activo:true }
+  'GRAL':{ wav:'general.wav', duracion:4900, timer:'tmr_C6', activo:true }
 };
 
 // Configuración MDC por tipo de emergencia
@@ -2358,7 +2358,7 @@ function renderQuickCall() {
     { id:'B-4', nombre:'4ª Compañía',            color:'#10b981', timer:'tmr_C4', wavExe:'cuarta.wav'  },
     { id:'B-5', nombre:'5ª Compañía',            color:'#3b82f6', timer:'tmr_C5', wavExe:'quinta.wav'  },
     { id:'B-6', nombre:'6ª Compañía',            color:'#8b5cf6', timer:'tmr_C7', wavExe:'sexta.wav'   },
-    { id:'GRAL',nombre:'Alarma General',          color:'#dc2626', timer:'tmr_Tono9', wavExe:'acuartelamiento.wav' }
+    { id:'GRAL',nombre:'Alarma General (todos cuarteles)', color:'#dc2626', timer:'tmr_C6', wavExe:'general.wav' }
   ];
 
   CIAS_EXE.forEach(function(cia) {
