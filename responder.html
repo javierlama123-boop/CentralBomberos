@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>Responder emergencia — Bomberos Frutillar</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+         background:#0f1117;color:#fff;min-height:100vh;
+         display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+    .card{background:#1a1d27;border-radius:16px;padding:28px 24px;max-width:400px;width:100%;
+          box-shadow:0 20px 60px rgba(0,0,0,.5);}
+    .logo{font-size:36px;text-align:center;margin-bottom:6px;}
+    .cuerpo{font-size:13px;color:#90a4ae;text-align:center;margin-bottom:20px;}
+    .emergencia{background:#1c1f2e;border-radius:12px;padding:16px;margin-bottom:22px;
+                border-left:4px solid #ef5350;}
+    .tipo{font-size:18px;font-weight:700;color:#ef5350;margin-bottom:6px;}
+    .row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:13px;color:#cfd8dc;}
+    .row span:first-child{font-size:15px;flex-shrink:0;}
+    .para{font-size:11px;color:#78909c;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+    .nombre-vol{font-size:15px;font-weight:700;color:#fff;margin-bottom:18px;}
+
+    .btns{display:flex;flex-direction:column;gap:10px;}
+    .btn{border:none;border-radius:12px;padding:16px 20px;cursor:pointer;
+         display:flex;align-items:center;gap:14px;
+         font-size:15px;font-weight:700;transition:all .15s;text-align:left;width:100%;}
+    .btn:active{transform:scale(.97);}
+    .btn-ica{background:#1565c0;}
+    .btn-ico{font-size:26px;flex-shrink:0;}
+    .btn-info{display:flex;flex-direction:column;}
+    .btn-lbl{font-size:14px;font-weight:700;color:#fff;}
+    .btn-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+    .btn-cuartel{background:linear-gradient(135deg,#1565c0,#1976d2);}
+    .btn-directo{background:linear-gradient(135deg,#2e7d32,#388e3c);}
+    .btn-no{background:linear-gradient(135deg,#37474f,#455a64);}
+
+    /* Estados */
+    .resultado{display:none;text-align:center;padding:10px 0;}
+    .resultado.visible{display:block;}
+    .res-ico{font-size:56px;margin-bottom:12px;}
+    .res-txt{font-size:20px;font-weight:700;margin-bottom:6px;}
+    .res-sub{font-size:13px;color:#90a4ae;}
+    .spinner{display:none;text-align:center;padding:20px;}
+    .spinner.visible{display:block;}
+    .sp{width:36px;height:36px;border:3px solid #37474f;border-top-color:#ef5350;
+        border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ya-respondio{text-align:center;padding:10px 0;}
+    .ya-ico{font-size:48px;margin-bottom:10px;}
+    .ya-txt{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .ya-sub{font-size:12px;color:#78909c;}
+    .cambiar-btn{margin-top:14px;background:none;border:1px solid #37474f;color:#90a4ae;
+                 border-radius:8px;padding:8px 16px;font-size:12px;cursor:pointer;width:100%;}
+    .cambiar-btn:hover{border-color:#607d8b;color:#cfd8dc;}
+    .error{text-align:center;color:#ef5350;font-size:13px;padding:10px;}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">🔥</div>
+  <div class="cuerpo">Bomberos de Frutillar</div>
+
+  <!-- Loading -->
+  <div class="spinner visible" id="spinner">
+    <div class="sp"></div>
+    <div style="font-size:13px;color:#78909c;">Cargando emergencia...</div>
+  </div>
+
+  <!-- Error -->
+  <div id="error-area" style="display:none;">
+    <div class="error" id="error-msg">❌ Link inválido o emergencia no encontrada.</div>
+  </div>
+
+  <!-- Contenido -->
+  <div id="contenido" style="display:none;">
+    <div class="emergencia" id="info-emergencia">
+      <div class="tipo" id="tipo-emerg">—</div>
+      <div class="row"><span>📍</span><span id="dir-emerg">—</span></div>
+      <div class="row"><span>🕐</span><span id="hora-emerg">—</span></div>
+      <div class="row"><span>🚒</span><span id="cias-emerg">—</span></div>
+    </div>
+
+    <div class="para">Respuesta de:</div>
+    <div class="nombre-vol" id="nombre-vol">—</div>
+
+    <!-- Ya respondió -->
+    <div class="ya-respondio" id="ya-respondio" style="display:none;">
+      <div class="ya-ico" id="ya-ico">✅</div>
+      <div class="ya-txt" id="ya-txt">Ya enviaste tu respuesta</div>
+      <div class="ya-sub" id="ya-sub">Puedes cambiarla si es necesario</div>
+      <button class="cambiar-btn" onclick="mostrarBotones()">Cambiar respuesta</button>
+    </div>
+
+    <!-- Botones -->
+    <div class="btns" id="btns-resp">
+      <button class="btn btn-cuartel" onclick="responder('cuartel')">
+        <span class="btn-ico">🏛️</span>
+        <div class="btn-info">
+          <span class="btn-lbl">Voy al cuartel</span>
+          <span class="btn-sub">Me uno al carro desde el cuartel</span>
+        </div>
+      </button>
+      <button class="btn btn-directo" onclick="responder('directo')">
+        <span class="btn-ico">📍</span>
+        <div class="btn-info">
+          <span class="btn-lbl">Voy directo al lugar</span>
+          <span class="btn-sub">Me dirijo al lugar de la emergencia</span>
+        </div>
+      </button>
+      <button class="btn btn-no" onclick="responder('no')">
+        <span class="btn-ico">❌</span>
+        <div class="btn-info">
+          <span class="btn-lbl">No puedo asistir</span>
+          <span class="btn-sub">No estoy disponible en este momento</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Enviando -->
+    <div class="spinner" id="spinner-resp">
+      <div class="sp"></div>
+      <div style="font-size:13px;color:#78909c;">Enviando respuesta...</div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="resultado" id="resultado">
+      <div class="res-ico" id="res-ico">✅</div>
+      <div class="res-txt" id="res-txt">Respuesta enviada</div>
+      <div class="res-sub" id="res-sub">El oficial de guardia fue notificado</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, getDoc, updateDoc, serverTimestamp }
+                                   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey           : "AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY",
+  authDomain       : "cad-bomberos-frutillar.firebaseapp.com",
+  projectId        : "cad-bomberos-frutillar",
+  storageBucket    : "cad-bomberos-frutillar.appspot.com",
+  messagingSenderId: "897186680",
+  appId            : "1:897186680:web:abc"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── Leer parámetros del URL ───────────────────────────────
+const params   = new URLSearchParams(location.search);
+const emergId  = params.get('e');   // ID emergencia
+const volId    = params.get('v');   // ID voluntario (uid)
+const volNombre= params.get('n');   // Nombre (codificado)
+
+let emergenciaData = null;
+let respuestaActual = null;
+
+async function init() {
+  if (!emergId || !volId) {
+    mostrarError('Link inválido. Usa el enlace que recibiste por WhatsApp.');
+    return;
+  }
+  try {
+    const snap = await getDoc(doc(db, 'emergencias', emergId));
+    if (!snap.exists()) {
+      mostrarError('Esta emergencia ya no está activa o no existe.');
+      return;
+    }
+    emergenciaData = { id: snap.id, ...snap.data() };
+    mostrarContenido();
+  } catch(err) {
+    mostrarError('Error de conexión. Intenta nuevamente.');
+  }
+}
+
+function mostrarError(msg) {
+  document.getElementById('spinner').classList.remove('visible');
+  document.getElementById('error-area').style.display = 'block';
+  document.getElementById('error-msg').textContent = '❌ ' + msg;
+}
+
+function mostrarContenido() {
+  document.getElementById('spinner').classList.remove('visible');
+  document.getElementById('contenido').style.display = 'block';
+
+  const e = emergenciaData;
+  const TIPOS = {
+    '10-0':'🔥 Fuego Estructural','10-1':'🚗 Fuego Vehículo',
+    '10-2':'🌿 Forestal/Basura',  '10-3':'🧗 Rescate Persona',
+    '10-4':'🚑 Rescate Vehicular','10-5':'☢️ HAZMAT',
+    '10-6':'💨 Gas',              '10-7':'⚡ Eléctrico',
+    '10-9':'🔧 Otros Servicios',
+  };
+  document.getElementById('tipo-emerg').textContent  = TIPOS[e.tipo] || e.tipo || '—';
+  document.getElementById('dir-emerg').textContent   = e.direccion || '—';
+  document.getElementById('cias-emerg').textContent  = (e.companias||[]).join(', ') || '—';
+  const ts = e.timestamp?.toDate ? e.timestamp.toDate() : new Date();
+  document.getElementById('hora-emerg').textContent  =
+    ts.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+
+  const nombre = volNombre ? decodeURIComponent(volNombre) : 'Voluntario';
+  document.getElementById('nombre-vol').textContent = nombre;
+
+  // Ver si ya respondió
+  const resps = e.respuestas || {};
+  if (resps[volId]) {
+    respuestaActual = resps[volId];
+    mostrarYaRespondio(respuestaActual);
+  }
+}
+
+function mostrarYaRespondio(tipo) {
+  const info = {
+    cuartel : { ico:'🏛️', txt:'Vas al cuartel', sub:'Tu respuesta fue registrada' },
+    directo : { ico:'📍', txt:'Vas directo al lugar', sub:'Tu respuesta fue registrada' },
+    no      : { ico:'❌', txt:'No asistes', sub:'Tu respuesta fue registrada' },
+  };
+  const d = info[tipo] || { ico:'✅', txt:'Respondiste', sub:'' };
+  document.getElementById('ya-ico').textContent = d.ico;
+  document.getElementById('ya-txt').textContent = d.txt;
+  document.getElementById('ya-sub').textContent = d.sub;
+  document.getElementById('ya-respondio').style.display = 'block';
+  document.getElementById('btns-resp').style.display    = 'none';
+}
+
+window.mostrarBotones = function() {
+  document.getElementById('ya-respondio').style.display = 'none';
+  document.getElementById('btns-resp').style.display    = 'flex';
+};
+
+window.responder = async function(tipo) {
+  document.getElementById('btns-resp').style.display    = 'none';
+  document.getElementById('ya-respondio').style.display = 'none';
+  document.getElementById('spinner-resp').classList.add('visible');
+
+  try {
+    const upd = {};
+    upd['respuestas.' + volId] = tipo;
+    upd['respuestas_wsp.' + volId] = {
+      tipo,
+      nombre : volNombre ? decodeURIComponent(volNombre) : 'Voluntario',
+      via    : 'wsp',
+      hora   : new Date().toISOString()
+    };
+    await updateDoc(doc(db, 'emergencias', emergId), upd);
+
+    document.getElementById('spinner-resp').classList.remove('visible');
+    const info = {
+      cuartel : { ico:'🏛️', txt:'¡Confirmado! Vas al cuartel',      sub:'El oficial ya sabe que irás' },
+      directo : { ico:'📍', txt:'¡Confirmado! Vas directo al lugar', sub:'El oficial ya sabe que irás' },
+      no      : { ico:'❌', txt:'Entendido, no asistirás',           sub:'Gracias por avisar' },
+    };
+    const d = info[tipo];
+    document.getElementById('res-ico').textContent = d.ico;
+    document.getElementById('res-txt').textContent = d.txt;
+    document.getElementById('res-sub').textContent = d.sub;
+    document.getElementById('resultado').classList.add('visible');
+  } catch(err) {
+    document.getElementById('spinner-resp').classList.remove('visible');
+    document.getElementById('btns-resp').style.display = 'flex';
+    alert('Error al enviar. Intenta de nuevo.');
+  }
+};
+
+init();
+</script>
+</body>
+</html>
