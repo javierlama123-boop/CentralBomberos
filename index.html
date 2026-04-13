@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAD · Cuerpo de Bomberos de Frutillar</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -542,7 +544,8 @@ window.fbEscucharRespuestas = function(fbId, callback) {
   return onSnapshot(doc(_fbDb, 'emergencias', fbId), function(snap) {
     if (snap.exists()) {
       var data = snap.data();
-      if (callback) callback(data.respuestas || {});
+      // Pasar tanto respuestas (PWA) como respuestas_wsp (link WhatsApp)
+      if (callback) callback(data.respuestas || {}, data.respuestas_wsp || {});
     }
   });
 };
@@ -840,6 +843,9 @@ console.log('[Firebase] Módulo CAD iniciado');
 ━━━━━━━━━━━━━━━━━━
 🗺️ {MAPA}
 _Central de Alarmas Frutillar_</textarea>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;padding:6px 8px;background:rgba(37,211,102,.08);border-radius:6px;border:1px solid rgba(37,211,102,.2);">
+          💬 <strong style="color:#25D366;">Link de respuesta automático</strong> — Se agrega al final de cada mensaje con un enlace personalizado para que cada voluntario responda con un clic. Las respuestas aparecen en tiempo real en el panel de despacho.
+        </div>
         </div>
         <div id="wsp-test-result" class="test-result"></div>
       </div>
@@ -2722,8 +2728,9 @@ function despachar(){
       if(fbId){
         addLog('INFO','lt-c','☁️ <strong>Firebase</strong> — Emergencia '+id+' publicada · Voluntarios notificados');
         // Escuchar respuestas en tiempo real
-        e.fbUnsubscribe = window.fbEscucharRespuestas(fbId, function(respuestas){
-          e.fbRespuestas = respuestas;
+        e.fbUnsubscribe = window.fbEscucharRespuestas(fbId, function(respuestas, respuestasWsp){
+          e.fbRespuestas    = respuestas;
+          e.respuestas_wsp  = respuestasWsp;
           renderRespuestasVoluntarios(e);
         });
       }
@@ -3044,23 +3051,42 @@ function callMeBotEnviar(phone,message,apikey){
     img.src=url;
   });
 }
-function buildMsgDespacho(e){
+// ── Genera URL de respuesta personalizada por voluntario ──
+function buildRespuestaUrl(emergId, volId, volNombre) {
+  const base = 'https://javierlama123-boop.github.io/CentralBomberos/responder-wsp.html';
+  return `${base}?e=${encodeURIComponent(emergId)}&v=${encodeURIComponent(volId)}&n=${encodeURIComponent(volNombre)}`;
+}
+
+function buildMsgDespacho(e, contacto){
   const tpl=document.getElementById('wsp-template'); if(!tpl) return '';
   const prioLbl=['','🔴 Crítica','🟡 Alta','🔵 Media'][e.prioridad]||`P${e.prioridad}`;
   const ciasStr=(e.companias||[]).map(id=>{const c=COMPANIAS.find(x=>x.id===id);return c?c.num:id;}).join(', ');
   const mapa=e.lat&&e.lng?`https://maps.google.com/?q=${e.lat.toFixed(5)},${e.lng.toFixed(5)}`:'https://maps.google.com/?q=Frutillar,Chile';
-  return tpl.value
+  // Generar link de respuesta personalizado si viene un contacto con ID
+  let linkResp = '';
+  if (contacto && contacto.uid && e.id) {
+    const url = buildRespuestaUrl(e.id, contacto.uid, contacto.nombre);
+    linkResp = `
+
+✅ *¿Puedes ir?* Responde aquí:
+${url}`;
+  }
+  return (tpl.value
     .replace(/{ID}/g,e.id).replace(/{TIPO}/g,e.subtipo||e.tipo)
     .replace(/{DIRECCION}/g,e.direccion).replace(/{PRIORIDAD}/g,prioLbl)
-    .replace(/{UNIDADES}/g,ciasStr).replace(/{HORA}/g,e.hora).replace(/{MAPA}/g,mapa);
+    .replace(/{UNIDADES}/g,ciasStr).replace(/{HORA}/g,e.hora).replace(/{MAPA}/g,mapa)) + linkResp;
 }
 async function notificarDespacho(e){
   if(!document.getElementById('rule-despacho')?.checked) return;
-  const msg=buildMsgDespacho(e); if(!msg) return;
   const ciasDesp=new Set(e.companias||[]);
   let dest=contactosWsp.filter(c=>c.enabled&&c.wsp&&(ciasDesp.has(c.cia)||c.cia==='CENTRAL'));
   if(!dest.length) dest=contactosWsp.filter(c=>c.enabled&&c.wsp);
-  await enviarAContactos(dest,msg,e.id,'DESPACHO');
+  if(!dest.length){ addWspLog('SIN DEST','lt-a',e.id,'Sin contactos WSP activos.'); return; }
+  // Enviar mensaje personalizado con link de respuesta a cada voluntario
+  for(const contacto of dest){
+    const msg = buildMsgDespacho(e, contacto);
+    if(msg) await enviarAContactos([contacto], msg, e.id, 'DESPACHO');
+  }
 }
 async function notificarCierre(e){
   if(!document.getElementById('rule-cierre')?.checked) return;
@@ -3450,7 +3476,9 @@ function generarPartePDF(){
   const htmlParte=`<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <meta charset="UTF-8">
 <title>Parte de Asistencia ${e.id}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -3653,18 +3681,69 @@ function renderRespuestasVoluntarios(e) {
   var panelId = 'resp-panel-' + e.id;
   var panel = document.getElementById(panelId);
   if (!panel) return;
-  var resps = e.fbRespuestas || {};
-  var cnts = { cuartel:0, directo:0, no:0 };
-  Object.values(resps).forEach(function(r){ if(cnts[r]!==undefined) cnts[r]++; });
-  var total = Object.keys(resps).length;
-  panel.innerHTML =
-    '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-top:1px solid var(--border);flex-wrap:wrap;">' +
-    '<span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;">Voluntarios</span>' +
-    '<span style="font-size:11px;font-weight:700;color:var(--blue);">🏛️ '+cnts.cuartel+'</span>' +
-    '<span style="font-size:11px;font-weight:700;color:var(--green);">📍 '+cnts.directo+'</span>' +
-    '<span style="font-size:11px;font-weight:700;color:var(--text3);">❌ '+cnts.no+'</span>' +
-    '<span style="font-size:10px;color:var(--text3);margin-left:auto;">'+total+' respuestas</span>' +
-    '</div>';
+
+  // Unificar respuestas: PWA (fbRespuestas = {uid: tipo}) + WSP (respuestas_wsp = {uid: {tipo,nombre,via}})
+  var resps    = e.fbRespuestas     || {};   // {uid: 'cuartel'|'directo'|'no'}
+  var respsWsp = e.respuestas_wsp   || {};   // {uid: {tipo, nombre, via, hora}}
+
+  // Construir lista unificada
+  var todos = {};
+  Object.entries(resps).forEach(function([uid, tipo]){
+    todos[uid] = { tipo: tipo, via: respsWsp[uid] ? 'wsp' : 'pwa',
+                   nombre: respsWsp[uid]?.nombre || '' };
+  });
+  // Agregar respuestas WSP que no estén en fbRespuestas
+  Object.entries(respsWsp).forEach(function([uid, data]){
+    if(!todos[uid]) todos[uid] = { tipo: data.tipo, via:'wsp', nombre: data.nombre };
+  });
+
+  var voy    = Object.entries(todos).filter(function([,d]){ return d.tipo==='cuartel'||d.tipo==='directo'; });
+  var novan  = Object.entries(todos).filter(function([,d]){ return d.tipo==='no'; });
+  var total  = Object.keys(todos).length;
+  var cnts   = { cuartel:0, directo:0, no:0 };
+  Object.values(todos).forEach(function(d){ if(cnts[d.tipo]!==undefined) cnts[d.tipo]++; });
+
+  var TIPO_LBL = { cuartel:'🏛️ Cuartel', directo:'📍 Directo', no:'❌ No va' };
+  var VIA_ICO  = { pwa:'📱', wsp:'💬' };
+
+  // Construir HTML del panel
+  var html = '<div style="border-top:1px solid var(--border);padding:8px 10px 6px;">';
+
+  // Fila resumen contador
+  html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">';
+  html += '<span style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;">Voluntarios</span>';
+  html += '<span style="font-size:11px;font-weight:700;color:var(--blue);">🏛️ '+cnts.cuartel+'</span>';
+  html += '<span style="font-size:11px;font-weight:700;color:var(--green);">📍 '+cnts.directo+'</span>';
+  html += '<span style="font-size:11px;font-weight:700;color:var(--text3);">❌ '+cnts.no+'</span>';
+  html += '<span style="font-size:9px;color:var(--text3);margin-left:auto;">'+total+' resp.</span>';
+  html += '</div>';
+
+  // Lista de quien VA (cuartel + directo) con nombre y canal
+  if(voy.length > 0){
+    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
+    voy.forEach(function([uid, d]){
+      var nombre = d.nombre || ('Vol.'+uid.slice(-4));
+      var tipo   = d.tipo==='cuartel'?'🏛️':'📍';
+      var via    = VIA_ICO[d.via]||'';
+      html += '<span style="background:rgba(46,125,50,.15);border:1px solid rgba(46,125,50,.3);'
+            + 'border-radius:20px;padding:2px 8px;font-size:10px;color:var(--green);white-space:nowrap;">'
+            + tipo+' '+nombre+' <span style="opacity:.6;font-size:9px;">'+via+'</span></span>';
+    });
+    html += '</div>';
+  }
+
+  // Lista de quienes NO van (más discreta)
+  if(novan.length > 0){
+    var nombresNo = novan.map(function([uid,d]){ return d.nombre||('Vol.'+uid.slice(-4)); }).join(', ');
+    html += '<div style="font-size:9px;color:var(--text3);margin-top:2px;">No van: '+nombresNo+'</div>';
+  }
+
+  if(total===0){
+    html += '<div style="font-size:10px;color:var(--text3);font-style:italic;">Sin respuestas aún</div>';
+  }
+
+  html += '</div>';
+  panel.innerHTML = html;
 }
 
 // ===== INIT PARTE =====
