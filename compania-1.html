@@ -1923,12 +1923,19 @@ async function cargarDatosFirebase() {
       renderSalidas();
     }
     // Partes desde CAD
-    var partesSnap = await getDocs(query(collection(fbDb,'emergencias'), where('companias','array-contains',CIA_ID), where('estado','==','cerrada'), orderBy('timestamp','desc'), limit(20)));
-    if (!partesSnap.empty) {
-      var partesList = [];
-      partesSnap.forEach(function(d) { partesList.push(Object.assign({id:d.id}, d.data())); });
-      renderPartesFirebase(partesList);
-    }
+    // Traer todas las emergencias de la compañía (sin filtro de estado para evitar índice)
+    var partesSnap = await getDocs(query(collection(fbDb,'emergencias'),
+      where('companias','array-contains',CIA_ID),
+      limit(50)));
+    var partesList = [];
+    partesSnap.forEach(function(d) { partesList.push(Object.assign({id:d.id}, d.data())); });
+    // Ordenar en cliente por timestamp desc
+    partesList.sort(function(a,b){
+      var ta = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate().getTime() : 0;
+      var tb = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate().getTime() : 0;
+      return tb - ta;
+    });
+    if (partesList.length) renderPartesFirebase(partesList);
   } catch(e) {
     console.warn('[Firebase] Error cargando datos:', e.message);
     notif('⚠️ Firebase', 'Usando datos locales — ' + e.message);
