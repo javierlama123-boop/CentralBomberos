@@ -352,7 +352,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 <!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, doc, addDoc, updateDoc, onSnapshot,
+import { getFirestore, collection, doc, addDoc, updateDoc, getDoc, setDoc, onSnapshot,
          query, where, orderBy, serverTimestamp, Timestamp }
                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, signInAnonymously, signInWithEmailAndPassword,
@@ -548,6 +548,32 @@ window.fbEscucharRespuestas = function(fbId, callback) {
       if (callback) callback(data.respuestas || {}, data.respuestas_wsp || {});
     }
   });
+};
+
+// ── Contactos WSP en Firestore ──────────────────────────────
+window.fbCargarContactosWsp = async function() {
+  try {
+    const snap = await getDoc(doc(_fbDb, 'config_cad', 'contactos_wsp'));
+    if (snap.exists()) {
+      const data = snap.data().contactos;
+      if (Array.isArray(data) && data.length > 0) {
+        // Preservar cualquier edición local no guardada — reemplazar completo
+        window.contactosWsp = data;
+        if (typeof renderWspContacts === 'function') renderWspContacts();
+        if (typeof actualizarEstadoWsp === 'function') actualizarEstadoWsp();
+      }
+    }
+  } catch(e) { console.warn('[WSP] No se pudo cargar contactos:', e.message); }
+};
+
+window.fbGuardarContactosWsp = async function() {
+  try {
+    await setDoc(doc(_fbDb, 'config_cad', 'contactos_wsp'), {
+      contactos   : window.contactosWsp,
+      actualizado : serverTimestamp()
+    });
+    return true;
+  } catch(e) { console.error('[WSP] Error guardando contactos:', e.message); return false; }
 };
 
 console.log('[Firebase] Módulo CAD iniciado');
@@ -811,6 +837,7 @@ console.log('[Firebase] Módulo CAD iniciado');
         </div>
         <div id="wsp-contactos-list"></div>
         <button onclick="agregarContactoWsp()" style="margin-top:8px;width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:7px;border-radius:var(--r);cursor:pointer;font-size:12px;">+ Agregar contacto</button>
+         <button onclick="guardarContactosWspManual()" style="margin-top:8px;width:100%;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25D366;padding:7px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">💾 Guardar en la nube</button>
       </div>
       <!-- Config y plantilla -->
       <div style="display:flex;flex-direction:column;gap:12px;">
@@ -3062,10 +3089,12 @@ function buildMsgDespacho(e, contacto){
   const prioLbl=['','🔴 Crítica','🟡 Alta','🔵 Media'][e.prioridad]||`P${e.prioridad}`;
   const ciasStr=(e.companias||[]).map(id=>{const c=COMPANIAS.find(x=>x.id===id);return c?c.num:id;}).join(', ');
   const mapa=e.lat&&e.lng?`https://maps.google.com/?q=${e.lat.toFixed(5)},${e.lng.toFixed(5)}`:'https://maps.google.com/?q=Frutillar,Chile';
-  // Generar link de respuesta personalizado si viene un contacto con ID
+  // Generar link de respuesta personalizado — usa contacto.id (W1, W2...) o wsp como identificador
   let linkResp = '';
-  if (contacto && contacto.uid && e.id) {
-    const url = buildRespuestaUrl(e.id, contacto.uid, contacto.nombre);
+  if (contacto && e.id) {
+    const volId  = contacto.uid || contacto.id || contacto.wsp;
+    const volNom = contacto.nombre || '';
+    const url    = buildRespuestaUrl(e.id, volId, volNom);
     linkResp = `
 
 ✅ *¿Puedes ir?* Responde aquí:
@@ -3156,7 +3185,7 @@ function renderWspContacts(){
         <div style="display:flex;align-items:center;gap:6px;">
           <div style="width:8px;height:8px;border-radius:50%;background:${tieneKey&&c.enabled?'#25D366':'var(--text3)'};" title="${tieneKey&&c.enabled?'Activo':'Sin API key'}"></div>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;color:var(--text3);">
-            <input type="checkbox" ${c.enabled?'checked':''} style="accent-color:#25D366;" onchange="contactosWsp[${i}].enabled=this.checked;renderWspContacts();actualizarEstadoWsp();">
+            <input type="checkbox" ${c.enabled?'checked':''} style="accent-color:#25D366;" onchange="contactosWsp[${i}].enabled=this.checked;renderWspContacts();actualizarEstadoWsp();if(window.fbGuardarContactosWsp)window.fbGuardarContactosWsp();">
             Activo
           </label>
           <button onclick="eliminarContactoWsp(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;" title="Eliminar">×</button>
@@ -3174,7 +3203,7 @@ function renderWspContacts(){
       </div>
       <div style="margin-top:7px;">
         <div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;">Compañía</div>
-        <select class="fselect" style="font-size:11px;padding:5px 8px;" onchange="contactosWsp[${i}].cia=this.value;renderWspContacts();">
+        <select class="fselect" style="font-size:11px;padding:5px 8px;" onchange="contactosWsp[${i}].cia=this.value;renderWspContacts();if(window.fbGuardarContactosWsp)window.fbGuardarContactosWsp();">
           ${COMPANIAS.filter(x=>x.id!=='BX-3').map(x=>`<option value="${x.id}" ${c.cia===x.id?'selected':''}>${x.num} — ${x.nombre}</option>`).join('')}
           <option value="CENTRAL" ${c.cia==='CENTRAL'?'selected':''}>Central (todas)</option>
         </select>
@@ -3194,8 +3223,20 @@ function actualizarEstadoWsp(){
 function agregarContactoWsp(){
   contactosWsp.push({id:'W'+(contactosWsp.length+1),cia:'B-1',nombre:'Nuevo contacto',cargo:'Bombero',wsp:'',apikey:'',enabled:false});
   renderWspContacts();
+  if(window.fbGuardarContactosWsp) window.fbGuardarContactosWsp();
 }
-function eliminarContactoWsp(i){contactosWsp.splice(i,1);renderWspContacts();}
+function eliminarContactoWsp(i){contactosWsp.splice(i,1);renderWspContacts();
+  if(window.fbGuardarContactosWsp) window.fbGuardarContactosWsp();}
+async function guardarContactosWspManual(){
+  // Leer todos los inputs del formulario antes de guardar
+  const cards = document.querySelectorAll('#wsp-contactos-list .wsp-contact-card');
+  // Los valores ya están en contactosWsp por los onchange inline
+  if(!window.fbGuardarContactosWsp){ showNotif('⚠️','Sin conexión','Firebase no disponible'); return; }
+  const ok = await window.fbGuardarContactosWsp();
+  if(ok) showNotif('✅','Contactos guardados','Números y API keys guardados en la nube');
+  else   showNotif('❌','Error','No se pudo guardar en Firebase');
+}
+
 async function probarWsp(i){
   const c=contactosWsp[i]; if(!c.wsp){showNotif('Falta número','Ingresa el número primero.');return;}
   const key=c.apikey||contactosWsp.find(x=>x.apikey)?.apikey||'';
@@ -3206,7 +3247,7 @@ async function probarWsp(i){
     return;
   }
   if(resEl){resEl.style.display='block';resEl.className='test-result';resEl.textContent='⏳ Enviando mensaje de prueba...';}
-  const msg=`🧪 *PRUEBA CAD — Bomberos Frutillar*\nSistema funcionando correctamente ✅\n${new Date().toLocaleString('es-CL')}`;
+  const msg=`✅ *Conexión realizada con Despax*\nSistema CAD Bomberos de Frutillar operativo.\n${new Date().toLocaleString('es-CL')}`;
   await callMeBotEnviar(c.wsp,msg,key);
   addWspLog('PRUEBA','lt-w','TEST',`→ ${c.nombre} (${c.wsp})`);
   if(resEl){resEl.className='test-result test-ok';resEl.textContent=`✅ Solicitud enviada a ${c.nombre} (${c.wsp}). Revisa el WhatsApp en unos segundos.`;}
@@ -3755,6 +3796,8 @@ function init(){
   renderActivas();
   renderStats();
   renderWspContacts();
+  // Cargar contactos WSP desde Firebase (preserva API keys entre actualizaciones)
+  if(window.fbCargarContactosWsp) window.fbCargarContactosWsp();
   setTimeout(initCiaMarkers,800);
   addLog('INFO','lt-i','Mapa cargado — OpenStreetMap · Frutillar, Los Lagos, Chile');
   addLog('INFO','lt-i','<strong>Tabla de despacho cargada</strong> — 431 registros · Octubre 2025');
