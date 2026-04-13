@@ -1053,7 +1053,7 @@ window.navCuerpo = function(name, el) {
     'companias': cargarCompanias,
     'stats-cuerpo': cargarStatsCuerpo,
     'emergencias-cuerpo': cargarEmergenciasCuerpo,
-    'tabla-despacho': cargarTablaDespacho
+    'tabla-despacho': function(){ (window.cargarTablaDespacho||function(){})(); }
   };
   if (loaders[name]) loaders[name]();
 };
@@ -1357,11 +1357,13 @@ async function cargarVoluntarios() {
   document.getElementById('vol-titulo-tabla').textContent='Voluntarios de '+ciaActual.nombre;
   var tbody=document.getElementById('tbody-voluntarios');
   tbody.innerHTML='<tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var snap=await getDocs(query(collection(db,'voluntarios'),where('cia','==',ciaActual.id),orderBy('num')));
+  var snap=await getDocs(query(collection(db,'voluntarios'),where('cia','==',ciaActual.id)));
   if (snap.empty){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Sin voluntarios registrados</td></tr>';return;}
   tbody.innerHTML='';
-  snap.forEach(function(d){
-    var v=Object.assign({uid:d.id},d.data());
+  // Ordenar por número en cliente
+  var _vols=[]; snap.forEach(function(d){_vols.push(Object.assign({uid:d.id},d.data()));});
+  _vols.sort(function(a,b){return (parseInt(a.num)||0)-(parseInt(b.num)||0);});
+  _vols.forEach(function(v){
     var dispColor=v.disponibilidad==='disponible'?'var(--green)':v.disponibilidad==='casa'?'var(--amber)':'var(--text3)';
     var tr=document.createElement('tr');
     tr.innerHTML=
@@ -1371,9 +1373,9 @@ async function cargarVoluntarios() {
       '<td style="color:'+dispColor+';font-size:11px;">'+(v.disponibilidad||'—')+'</td>'+
       '<td><span class="badge '+(v.activo!==false?'activo':'inactivo')+'">'+(v.activo!==false?'Activo':'Inactivo')+'</span></td>'+
       '<td><div class="actions">'+
-        '<button class="btn-amber" data-uid="'+d.id+'" onclick="editarUsuario(this.dataset.uid,\'voluntario\')">Editar</button>'+
+        '<button class="btn-amber" data-uid="'+v.uid+'" onclick="editarUsuario(this.dataset.uid,\'voluntario\')">Editar</button>'+
         '<button class="btn-sec" data-email="'+(v.email||'')+'" onclick="resetPass(this.dataset.email)">Reset Pass</button>'+
-        '<button class="btn-danger" data-uid="'+d.id+'" data-activo="'+(v.activo!==false)+'" onclick="toggleActivo(this.dataset.uid,this.dataset.activo===\'true\',\'voluntarios\')">'+(v.activo!==false?'Desactivar':'Activar')+'</button>'+
+        '<button class="btn-danger" data-uid="'+v.uid+'" data-activo="'+(v.activo!==false)+'" onclick="toggleActivo(this.dataset.uid,this.dataset.activo===\'true\',\'voluntarios\')">'+(v.activo!==false?'Desactivar':'Activar')+'</button>'+
       '</div></td>';
     tbody.appendChild(tr);
   });
@@ -1386,11 +1388,14 @@ async function cargarVehiculos() {
   document.getElementById('veh-titulo-tabla').textContent='Vehículos de '+ciaActual.nombre;
   var tbody=document.getElementById('tbody-vehiculos');
   tbody.innerHTML='<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr>';
-  var snap=await getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id),orderBy('nombre')));
+  var snap=await getDocs(query(collection(db,'carros_cia'),where('cia','==',ciaActual.id)));
   if (snap.empty){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">Sin vehículos registrados</td></tr>';return;}
   tbody.innerHTML='';
-  snap.forEach(function(d){
-    var c=d.data();
+  // Ordenar por nombre en cliente (evita índice compuesto en Firestore)
+  var _docs=[]; snap.forEach(function(d){_docs.push({id:d.id,_d:d.data()});});
+  _docs.sort(function(a,b){return (a._d.nombre||'').localeCompare(b._d.nombre||'');});
+  _docs.forEach(function(item){
+    var c=item._d; var d={id:item.id,data:function(){return item._d;}};
     var estColor=c.estado==='disponible'?'var(--green)':c.estado==='mantencion'?'var(--amber)':'var(--red)';
     var tr=document.createElement('tr');
     tr.innerHTML=
@@ -2781,7 +2786,7 @@ window.enviarDespachoRadio = async function(ciaIds, codigoEmergencia, texto) {
 // ══════════════════════════════════════════════════════════════
 var tablaDespachoData = [];
 
-function cargarTablaDespacho() {
+window.cargarTablaDespacho = function cargarTablaDespacho() {
   if (!cuerpoActual) return;
   document.getElementById('td-titulo').textContent = 'Tabla de Despacho — ' + cuerpoActual.nombre;
   document.getElementById('td-sub').textContent = 'Define qué unidades salen por tipo de emergencia y sector geográfico';
@@ -2796,7 +2801,7 @@ function cargarTablaDespacho() {
   } catch(e) { renderTablaDespacho(); }
 }
 
-function renderTablaDespacho() {
+window.renderTablaDespacho = function renderTablaDespacho() {
   var tbody = document.getElementById('td-body');
   if (!tbody) return;
   var filtroTipo = (document.getElementById('td-filtro-tipo') || {}).value || '';
@@ -2911,7 +2916,7 @@ window.eliminarRegla = function(i) {
   renderTablaDespacho();
 };
 
-function guardarTablaDespacho() {
+window.guardarTablaDespacho = function guardarTablaDespacho() {
   if (!cuerpoActual) return;
   setDoc(doc(db, 'tabla_despacho', cuerpoActual.id), {
     cuerpoId   : cuerpoActual.id,
