@@ -512,7 +512,6 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
           <button class="cfg-tab" onclick="cfgTab('tts',this)">🔊 Voz TTS</button>
           <button class="cfg-tab" onclick="cfgTab('reglas',this)">📋 Reglas Despacho</button>
           <button class="cfg-tab" onclick="cfgTab('tonos-emergencia',this)">🔔 Tonos Emergencia</button>
-          <button class="cfg-tab" onclick="cfgTab('tonos-emergencia',this)">🔔 Tonos Emergencia</button>
         </div>
 
         <!-- TAB: RADIO VHF -->
@@ -753,28 +752,14 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
 
         <!-- TAB: TONOS POR EMERGENCIA -->
         <div class="cfg-panel" id="cfg-tonos-emergencia">
-          <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
-            Define el tono de alerta (WAV, frecuencia CTCSS o DTMF) para cada clasificación de emergencia. El sistema usará este tono al despachar ese tipo de llamado.
-          </div>
-          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-            <button class="btn-green" onclick="guardarTonos()">💾 Guardar todos los tonos</button>
-            <button class="btn-sec" onclick="testTonoEmerg('')">▶ Test tono genérico</button>
-            <button class="btn-sec" onclick="resetTonosDefault()">🔄 Restaurar valores por defecto</button>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+            <button class="btn-green" onclick="guardarQCyMDC()">💾 Guardar todo</button>
+            <button class="btn-sec" onclick="resetTonosDefault()">🔄 Restaurar Frutillar</button>
+            <span style="font-size:11px;color:var(--text3);margin-left:4px;">▶ Escuchar = reproduce en navegador &nbsp;·&nbsp; 📻 Radio = envía al servidor radio</span>
           </div>
           <div id="tonos-emerg-list"></div>
         </div>
-
-        <!-- TAB: TONOS POR EMERGENCIA -->
-        <div class="cfg-panel" id="cfg-tonos-emergencia">
-          <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
-            Define el tono de alerta para cada clasificación de emergencia. Se reproduce por radio al despachar ese tipo de llamado.
-          </div>
-          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-            <button class="btn-green" onclick="guardarTonos()">💾 Guardar todos los tonos</button>
-            <button class="btn-sec" onclick="resetTonosDefault()">🔄 Restaurar valores por defecto</button>
-          </div>
-          <div id="tonos-emerg-list"></div>
-        </div>
+      </div><!-- /page-configuracion -->
       </div><!-- /page-configuracion -->
 
     </div><!-- /content -->
@@ -2317,18 +2302,17 @@ function renderQuickCall() {
   if (!cont) return;
   cont.innerHTML = '';
 
-  // Header explicativo
-  var info = document.createElement('div');
-  info.style.cssText = 'background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2);';
-  info.innerHTML =
-    '<strong style="color:var(--blue);">📡 QuickCall II</strong> — Sistema de subtonos para activar <strong>timbres y luces</strong> del cuartel.<br>' +
-    'Cada compañía tiene un par de tonos: <strong>A-tone</strong> (alerta inicial ~1 seg) + <strong>B-tone</strong> (identificador de compañía ~3 seg).<br>' +
-    'Se transmiten por radio antes de la locución de voz. El equipo receptor decodifica el B-tone y activa el timbre/luz correspondiente.';
-  cont.appendChild(info);
+  // ── Banner QuickCall ──────────────────────────────────────────
+  var infoQC = document.createElement('div');
+  infoQC.style.cssText = 'background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2);';
+  infoQC.innerHTML =
+    '<strong style="color:var(--blue);">📡 QuickCall II</strong> — subtonos que activan <strong>timbres y luces</strong> del cuartel. ' +
+    'A-tone (~1s alerta) + B-tone (~3s identifica compañía). ' +
+    '<span style="color:var(--text3);">▶ Escuchar = naveg. &nbsp;·&nbsp; 📻 Radio = servidor local</span>';
+  cont.appendChild(infoQC);
 
-  // Una card por compañía
-  var cias = cuerpoActual ? cuerpoActual.companias : [
-    {id:'B-1',nombre:'1ª Compañía',color:'#e53935'},
+  var cias = (cuerpoActual && cuerpoActual.companias) || [
+    {id:'B-1',nombre:'1ª Compañía "Germania"',color:'#e53935'},
     {id:'B-2',nombre:'2ª Compañía',color:'#f97316'},
     {id:'B-3',nombre:'3ª Compañía',color:'#eab308'},
     {id:'B-4',nombre:'4ª Compañía',color:'#10b981'},
@@ -2336,118 +2320,239 @@ function renderQuickCall() {
     {id:'B-6',nombre:'6ª Compañía',color:'#8b5cf6'}
   ];
 
+  // ── Tabla QuickCall ───────────────────────────────────────────
+  var wrapQC = document.createElement('div');
+  wrapQC.className = 'table-wrap';
+  wrapQC.style.marginBottom = '20px';
+
+  var hdrQC = document.createElement('div');
+  hdrQC.className = 'table-header';
+  hdrQC.innerHTML =
+    '<div class="table-title">Subtonos por compañía (QuickCall II)</div>' +
+    '<span style="font-size:10px;color:var(--text3);">Timbres + luces cuartel</span>';
+  wrapQC.appendChild(hdrQC);
+
+  var tableQC = document.createElement('table');
+  tableQC.innerHTML =
+    '<thead><tr>' +
+      '<th>Compañía</th>' +
+      '<th>A-Tone (Hz)</th>' +
+      '<th>B-Tone (Hz)</th>' +
+      '<th>Dur. A (ms)</th>' +
+      '<th>Dur. B (ms)</th>' +
+      '<th>WAV fallback</th>' +
+      '<th>Activo</th>' +
+      '<th style="min-width:170px;">Acciones</th>' +
+    '</tr></thead>';
+
+  var tbodyQC = document.createElement('tbody');
+
   cias.forEach(function(cia) {
     var cfg = qcActual[cia.id] || QC_DEFAULT[cia.id] || {aTone:1371,bTone:600.9,durA:1000,durB:3000,wav:'',activo:true};
-    var card = document.createElement('div');
-    card.className = 'table-wrap';
-    card.style.marginBottom = '10px';
 
-    // Header
-    var hdr = document.createElement('div');
-    hdr.className = 'table-header';
-    hdr.style.borderLeft = '4px solid ' + cia.color;
-    hdr.innerHTML =
-      '<div style="display:flex;align-items:center;gap:10px;">' +
-        '<div style="width:12px;height:12px;border-radius:50%;background:'+cia.color+';"></div>' +
-        '<div class="table-title">'+cia.nombre+'</div>' +
-        '<span style="font-size:10px;color:var(--text3);">QuickCall II · '+cia.id+'</span>' +
-      '</div>' +
-      '<div style="display:flex;gap:6px;align-items:center;">' +
-        '<label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;">' +
-          '<input type="checkbox" id="qc-activo-'+cia.id+'" '+(cfg.activo?' checked':'')+' style="accent-color:var(--green);"/> Activo' +
-        '</label>' +
-        '<button class="btn-sec" style="font-size:10px;padding:4px 10px;" data-cia="'+cia.id+'" onclick="testQuickCall(this.dataset.cia)">▶ Test QC</button>' +
+    var tr = document.createElement('tr');
+
+    // Nombre con color
+    var tdNombre = document.createElement('td');
+    tdNombre.innerHTML =
+      '<div style="display:flex;align-items:center;gap:7px;">' +
+        '<div style="width:10px;height:10px;border-radius:50%;background:'+cia.color+';flex-shrink:0;"></div>' +
+        '<span style="font-weight:600;font-size:12px;">'+cia.nombre+'</span>' +
       '</div>';
 
-    // Body
-    var body = document.createElement('div');
-    body.style.cssText = 'padding:14px;display:grid;grid-template-columns:1fr 1fr 100px 100px 1fr;gap:12px;align-items:end;';
-
     // A-Tone selector
-    var optA = QC_FREQS_A.map(function(f) {
-      return '<option value="'+f.hz+'"'+(Math.abs(cfg.aTone-f.hz)<1?' selected':'')+'>'+f.label+'</option>';
-    }).join('');
-    var g1 = document.createElement('div');
-    g1.innerHTML = '<div class="flabel">A-Tone (alerta)</div><select class="fselect" style="font-size:11px;" id="qc-atone-'+cia.id+'">'+optA+'</select>';
+    var tdA = document.createElement('td');
+    var selA = document.createElement('select');
+    selA.className = 'fselect';
+    selA.id = 'qc-atone-'+cia.id;
+    selA.style.cssText = 'font-size:11px;padding:3px 6px;';
+    QC_FREQS_A.forEach(function(f) {
+      var o = document.createElement('option');
+      o.value = f.hz; o.textContent = f.label;
+      if (Math.abs(cfg.aTone - f.hz) < 1) o.selected = true;
+      selA.appendChild(o);
+    });
+    tdA.appendChild(selA);
 
     // B-Tone selector
-    var optB = QC_FREQS_B.map(function(f) {
-      return '<option value="'+f.hz+'"'+(Math.abs(cfg.bTone-f.hz)<1?' selected':'')+'>'+f.label+'</option>';
-    }).join('');
-    var g2 = document.createElement('div');
-    g2.innerHTML = '<div class="flabel">B-Tone (ID compañía)</div><select class="fselect" style="font-size:11px;" id="qc-btone-'+cia.id+'">'+optB+'</select>';
+    var tdB = document.createElement('td');
+    var selB = document.createElement('select');
+    selB.className = 'fselect';
+    selB.id = 'qc-btone-'+cia.id;
+    selB.style.cssText = 'font-size:11px;padding:3px 6px;';
+    QC_FREQS_B.forEach(function(f) {
+      var o = document.createElement('option');
+      o.value = f.hz; o.textContent = f.label;
+      if (Math.abs(cfg.bTone - f.hz) < 1) o.selected = true;
+      selB.appendChild(o);
+    });
+    tdB.appendChild(selB);
 
-    // Duración A
-    var g3 = document.createElement('div');
-    g3.innerHTML = '<div class="flabel">Dur. A (ms)</div><input class="finput" type="number" style="font-size:11px;" id="qc-dura-'+cia.id+'" value="'+(cfg.durA||1000)+'" min="500" max="3000" step="100"/>';
+    // Dur A
+    var tdDA = document.createElement('td');
+    tdDA.innerHTML = '<input class="finput" type="number" id="qc-dura-'+cia.id+'" value="'+(cfg.durA||1000)+'" min="300" max="5000" step="100" style="width:70px;font-size:11px;padding:3px 6px;"/>';
 
-    // Duración B
-    var g4 = document.createElement('div');
-    g4.innerHTML = '<div class="flabel">Dur. B (ms)</div><input class="finput" type="number" style="font-size:11px;" id="qc-durb-'+cia.id+'" value="'+(cfg.durB||3000)+'" min="1000" max="10000" step="100"/>';
+    // Dur B
+    var tdDB = document.createElement('td');
+    tdDB.innerHTML = '<input class="finput" type="number" id="qc-durb-'+cia.id+'" value="'+(cfg.durB||3000)+'" min="500" max="10000" step="100" style="width:70px;font-size:11px;padding:3px 6px;"/>';
 
-    // Archivo WAV (fallback si no hay tono generado)
-    var g5 = document.createElement('div');
-    g5.innerHTML = '<div class="flabel">WAV fallback</div><input class="finput" style="font-size:11px;" id="qc-wav-'+cia.id+'" value="'+(cfg.wav||'')+'" placeholder="primera.wav"/>';
+    // WAV
+    var tdWAV = document.createElement('td');
+    tdWAV.innerHTML = '<input class="finput" id="qc-wav-'+cia.id+'" value="'+(cfg.wav||'')+'" placeholder="primera.wav" style="width:100px;font-size:11px;padding:3px 6px;"/>';
 
-    body.appendChild(g1); body.appendChild(g2);
-    body.appendChild(g3); body.appendChild(g4); body.appendChild(g5);
-    card.appendChild(hdr); card.appendChild(body);
-    cont.appendChild(card);
+    // Activo
+    var tdAct = document.createElement('td');
+    tdAct.style.textAlign = 'center';
+    tdAct.innerHTML = '<input type="checkbox" id="qc-activo-'+cia.id+'" '+(cfg.activo!==false?'checked':'')+' style="accent-color:var(--green);width:15px;height:15px;"/>';
+
+    // Acciones
+    var tdAcc = document.createElement('td');
+    var btnEsc = document.createElement('button');
+    btnEsc.className = 'btn-sec';
+    btnEsc.style.cssText = 'font-size:10px;padding:4px 8px;margin-right:4px;';
+    btnEsc.textContent = '▶ Escuchar';
+    btnEsc.dataset.cia = cia.id;
+    btnEsc.onclick = function() { testQuickCall(this.dataset.cia); };
+
+    var btnRad = document.createElement('button');
+    btnRad.className = 'btn-amber';
+    btnRad.style.cssText = 'font-size:10px;padding:4px 8px;';
+    btnRad.textContent = '📻 Radio';
+    btnRad.dataset.cia = cia.id;
+    btnRad.onclick = function() { enviarQCRadio(this.dataset.cia); };
+
+    tdAcc.appendChild(btnEsc);
+    tdAcc.appendChild(btnRad);
+
+    tr.appendChild(tdNombre);
+    tr.appendChild(tdA);
+    tr.appendChild(tdB);
+    tr.appendChild(tdDA);
+    tr.appendChild(tdDB);
+    tr.appendChild(tdWAV);
+    tr.appendChild(tdAct);
+    tr.appendChild(tdAcc);
+    tbodyQC.appendChild(tr);
   });
 
-  // Botón guardar QuickCall
-  var btnQC = document.createElement('button');
-  btnQC.className = 'btn-green';
-  btnQC.style.cssText = 'margin-bottom:24px;';
-  btnQC.textContent = '💾 Guardar configuración QuickCall II';
-  btnQC.onclick = guardarQuickCall;
-  cont.appendChild(btnQC);
+  tableQC.appendChild(tbodyQC);
+  wrapQC.appendChild(tableQC);
 
-  // ── MDC ──────────────────────────────────────────────────────
+  // Botón guardar QuickCall
+  var footQC = document.createElement('div');
+  footQC.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;';
+  var btnSaveQC = document.createElement('button');
+  btnSaveQC.className = 'btn-green';
+  btnSaveQC.style.fontSize = '12px';
+  btnSaveQC.textContent = '💾 Guardar QuickCall II';
+  btnSaveQC.onclick = guardarQuickCall;
+  footQC.appendChild(btnSaveQC);
+  wrapQC.appendChild(footQC);
+  cont.appendChild(wrapQC);
+
+  // ── Banner MDC ────────────────────────────────────────────────
   var infoMDC = document.createElement('div');
-  infoMDC.style.cssText = 'background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.2);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2);';
+  infoMDC.style.cssText = 'background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2);';
   infoMDC.innerHTML =
-    '<strong style="color:var(--red);">📻 MDC (Motor Device Code)</strong> — Señal digital codificada en audio que activa las <strong>sirenas de los carros</strong>.<br>' +
-    'Se envía como archivo WAV antes de la locución. Cada tipo de emergencia tiene su propio código MDC.<br>' +
-    'Los archivos WAV originales están embebidos en <code>Consola CB Frutillar.exe</code> — extráelos con Resource Hacker.';
+    '<strong style="color:var(--red);">📻 MDC</strong> — señal digital codificada en audio que activa las <strong>sirenas de los carros</strong>. ' +
+    'Archivo WAV extraído de <code style="font-size:10px;">Consola CB Frutillar.exe</code> con Resource Hacker. ' +
+    '<span style="color:var(--text3);">▶ Escuchar = naveg. &nbsp;·&nbsp; 📻 Radio = servidor local</span>';
   cont.appendChild(infoMDC);
 
   renderMDC(cont);
-
-  var btnMDC = document.createElement('button');
-  btnMDC.className = 'btn-green';
-  btnMDC.textContent = '💾 Guardar configuración MDC';
-  btnMDC.onclick = guardarMDC;
-  cont.appendChild(btnMDC);
 }
 
 function renderMDC(cont) {
   if (!cont) cont = document.getElementById('tonos-emerg-list');
-  var grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;margin-bottom:16px;';
+
+  var wrapMDC = document.createElement('div');
+  wrapMDC.className = 'table-wrap';
+  wrapMDC.style.marginBottom = '16px';
+
+  var hdrMDC = document.createElement('div');
+  hdrMDC.className = 'table-header';
+  hdrMDC.innerHTML =
+    '<div class="table-title">Señales MDC por tipo de emergencia</div>' +
+    '<span style="font-size:10px;color:var(--text3);">Sirenas de los carros</span>';
+  wrapMDC.appendChild(hdrMDC);
+
+  var tableMDC = document.createElement('table');
+  tableMDC.innerHTML =
+    '<thead><tr>' +
+      '<th>Código</th>' +
+      '<th>Tipo de emergencia</th>' +
+      '<th>Archivo WAV (MDC)</th>' +
+      '<th>Código MDC</th>' +
+      '<th>Activo</th>' +
+      '<th style="min-width:170px;">Acciones</th>' +
+    '</tr></thead>';
+
+  var tbodyMDC = document.createElement('tbody');
 
   MDC_TIPOS.forEach(function(tipo) {
-    var cfg = mdcActual[tipo.codigo] || MDC_DEFAULT[tipo.codigo] || {};
-    var card = document.createElement('div');
-    card.className = 'table-wrap';
-    card.innerHTML =
-      '<div class="table-header" style="border-left:3px solid var(--red);">'+
-        '<div style="display:flex;align-items:center;gap:8px;">'+
-          '<span style="font-size:16px;">'+tipo.ico+'</span>'+
-          '<div><div class="table-title" style="font-size:11px;">'+tipo.label+'</div>'+
-          '<div style="font-size:10px;color:var(--text3);">MDC: '+tipo.mdcCode+'</div></div>'+
-        '</div>'+
-        '<button class="btn-sec" style="font-size:10px;padding:3px 8px;" data-cod="'+tipo.codigo+'" onclick="testMDC(this.dataset.cod)">▶</button>'+
-      '</div>'+
-      '<div style="padding:10px 14px;display:grid;grid-template-columns:1fr 60px;gap:8px;align-items:end;">'+
-        '<div><div class="flabel">Archivo WAV (MDC)</div>'+
-          '<input class="finput" style="font-size:11px;" id="mdc-wav-'+tipo.codigo+'" value="'+(cfg.wav||tipo.wavDefault)+'" placeholder="'+tipo.wavDefault+'"/></div>'+
-        '<div><div class="flabel">Activo</div>'+
-          '<input type="checkbox" id="mdc-activo-'+tipo.codigo+'" '+(cfg.activo!==false?' checked':'')+' style="accent-color:var(--green);width:18px;height:18px;margin-top:6px;"/></div>'+
-      '</div>';
-    grid.appendChild(card);
+    var cfg = mdcActual[tipo.codigo] || MDC_DEFAULT[tipo.codigo] || {wav:tipo.wavDefault,mdcCode:tipo.mdcCode,activo:true};
+
+    var tr = document.createElement('tr');
+
+    var tdCod = document.createElement('td');
+    tdCod.innerHTML =
+      '<span style="font-family:monospace;font-weight:700;font-size:12px;color:var(--blue);">'+tipo.codigo+'</span>';
+
+    var tdLabel = document.createElement('td');
+    tdLabel.innerHTML =
+      '<span style="font-size:12px;">'+tipo.ico+' '+tipo.label.replace(tipo.codigo+' ','')+'</span>';
+
+    var tdWAV = document.createElement('td');
+    tdWAV.innerHTML = '<input class="finput" id="mdc-wav-'+tipo.codigo+'" value="'+(cfg.wav||tipo.wavDefault)+'" placeholder="'+tipo.wavDefault+'" style="width:160px;font-size:11px;padding:3px 6px;"/>';
+
+    var tdMDC = document.createElement('td');
+    tdMDC.innerHTML = '<input class="finput" id="mdc-code-'+tipo.codigo+'" value="'+(cfg.mdcCode||tipo.mdcCode)+'" placeholder="001" style="width:50px;font-size:11px;padding:3px 6px;"/>';
+
+    var tdAct = document.createElement('td');
+    tdAct.style.textAlign = 'center';
+    tdAct.innerHTML = '<input type="checkbox" id="mdc-activo-'+tipo.codigo+'" '+(cfg.activo!==false?'checked':'')+' style="accent-color:var(--green);width:15px;height:15px;"/>';
+
+    var tdAcc = document.createElement('td');
+    var btnEsc = document.createElement('button');
+    btnEsc.className = 'btn-sec';
+    btnEsc.style.cssText = 'font-size:10px;padding:4px 8px;margin-right:4px;';
+    btnEsc.textContent = '▶ Escuchar';
+    btnEsc.dataset.cod = tipo.codigo;
+    btnEsc.onclick = function() { testMDC(this.dataset.cod); };
+
+    var btnRad = document.createElement('button');
+    btnRad.className = 'btn-amber';
+    btnRad.style.cssText = 'font-size:10px;padding:4px 8px;';
+    btnRad.textContent = '📻 Radio';
+    btnRad.dataset.cod = tipo.codigo;
+    btnRad.onclick = function() { enviarMDCRadio(this.dataset.cod); };
+
+    tdAcc.appendChild(btnEsc);
+    tdAcc.appendChild(btnRad);
+
+    tr.appendChild(tdCod);
+    tr.appendChild(tdLabel);
+    tr.appendChild(tdWAV);
+    tr.appendChild(tdMDC);
+    tr.appendChild(tdAct);
+    tr.appendChild(tdAcc);
+    tbodyMDC.appendChild(tr);
   });
-  cont.appendChild(grid);
+
+  tableMDC.appendChild(tbodyMDC);
+  wrapMDC.appendChild(tableMDC);
+
+  // Botón guardar MDC
+  var footMDC = document.createElement('div');
+  footMDC.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;';
+  var btnSaveMDC = document.createElement('button');
+  btnSaveMDC.className = 'btn-green';
+  btnSaveMDC.style.fontSize = '12px';
+  btnSaveMDC.textContent = '💾 Guardar MDC';
+  btnSaveMDC.onclick = guardarMDC;
+  footMDC.appendChild(btnSaveMDC);
+  wrapMDC.appendChild(footMDC);
+  cont.appendChild(wrapMDC);
 }
 
 // ── TEST ──────────────────────────────────────────────────────
@@ -2488,8 +2593,33 @@ window.testQuickCall = function(ciaId) {
 
 window.testMDC = function(codigo) {
   var tipo = MDC_TIPOS.find(function(t){ return t.codigo===codigo; });
-  var cfg = mdcActual[codigo] || {};
-  showNotif('📻', 'MDC ' + codigo, 'WAV: ' + (cfg.wav || (tipo?tipo.wavDefault:'—')) + ' — Se reproduce desde servidor radio');
+  var cfg = mdcActual[codigo] || MDC_DEFAULT[codigo] || {};
+  var wavFile = cfg.wav || (tipo ? tipo.wavDefault : 'otrosSS.wav');
+
+  // Simular tono MDC1200 en navegador: ráfaga de FSK 1200Hz/1800Hz (señal de datos)
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var now = ctx.currentTime;
+    var dur = 0.04; // 40ms por símbolo
+    var freqs = [1200, 1800, 1200, 1800, 1200, 1200, 1800, 1800,
+                 1200, 1800, 1200, 1800, 1800, 1200, 1800, 1200];
+    freqs.forEach(function(f, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = f;
+      osc.type = 'sine';
+      var t0 = now + i * dur;
+      gain.gain.setValueAtTime(0.3, t0);
+      gain.gain.setValueAtTime(0.3, t0 + dur - 0.004);
+      gain.gain.linearRampToValueAtTime(0, t0 + dur);
+      osc.start(t0); osc.stop(t0 + dur);
+      if (i === freqs.length - 1) osc.onended = function() { ctx.close(); };
+    });
+    showNotif('📻', 'MDC ' + codigo, tipo ? tipo.ico + ' ' + tipo.label : codigo);
+  } catch(e) {
+    showNotif('⚠️', 'Audio no disponible', e.message);
+  }
 };
 
 // ── GUARDAR ───────────────────────────────────────────────────
@@ -2567,6 +2697,80 @@ cargarConfiguracion = async function() {
 
 // Función legacy para compatibilidad
 window.guardarTonos = window.guardarMDC;
+
+window.guardarQCyMDC = async function() {
+  await guardarQuickCall();
+  await guardarMDC();
+};
+
+// ── ENVIAR QUICKCALL II POR RADIO ─────────────────────────────
+window.enviarQCRadio = async function(ciaId) {
+  var cfg = qcActual[ciaId] || QC_DEFAULT[ciaId];
+  if (!cfg) { showNotif('⚠️','Sin configuración','No hay tono configurado para '+ciaId); return; }
+  var servidorUrl = cfgActual.radio ? cfgActual.radio.servidorUrl : 'http://localhost:3000';
+  showNotif('📻','Enviando por radio...','QuickCall II → '+ciaId+' · WAV: '+(cfg.wav||'generado'));
+  try {
+    var r = await fetch(servidorUrl + '/test-audio/' + encodeURIComponent(cfg.wav || 'primera.wav'),
+                        { signal: AbortSignal.timeout(5000) });
+    var d = await r.json();
+    if (d.ok) {
+      showNotif('✅','Enviado por radio','QuickCall II reproducido en '+ciaId);
+    } else {
+      showNotif('❌','Error radio',d.error||'Sin respuesta del servidor');
+    }
+  } catch(e) {
+    showNotif('❌','Servidor radio no disponible','¿Está corriendo servidor-cad.js? · '+e.message);
+  }
+};
+
+// ── ENVIAR MDC POR RADIO ──────────────────────────────────────
+window.enviarMDCRadio = async function(codigo) {
+  var cfg = mdcActual[codigo] || MDC_DEFAULT[codigo];
+  if (!cfg) { showNotif('⚠️','Sin configuración','No hay MDC configurado para '+codigo); return; }
+  var servidorUrl = cfgActual.radio ? cfgActual.radio.servidorUrl : 'http://localhost:3000';
+  showNotif('📻','Enviando MDC por radio...','Código '+codigo+' · WAV: '+cfg.wav);
+  try {
+    var r = await fetch(servidorUrl + '/test-audio/' + encodeURIComponent(cfg.wav),
+                        { signal: AbortSignal.timeout(5000) });
+    var d = await r.json();
+    if (d.ok) {
+      showNotif('✅','MDC enviado por radio','Señal '+codigo+' reproducida en radio');
+    } else {
+      showNotif('❌','Error radio',d.error||'Sin respuesta del servidor');
+    }
+  } catch(e) {
+    showNotif('❌','Servidor radio no disponible','¿Está corriendo servidor-cad.js? · '+e.message);
+  }
+};
+
+// ── ENVIAR DESPACHO COMPLETO POR RADIO ────────────────────────
+// Reproduce secuencia completa: QuickCall II → MDC → TTS
+window.enviarDespachoRadio = async function(ciaIds, codigoEmergencia, texto) {
+  var servidorUrl = cfgActual.radio ? cfgActual.radio.servidorUrl : 'http://localhost:3000';
+  showNotif('📻','Enviando despacho por radio...','Compañías: '+ciaIds.join(', '));
+  try {
+    var r = await fetch(servidorUrl + '/despachar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: 'TEST-' + Date.now(),
+        codigo: codigoEmergencia || '10-0',
+        direccion: texto || 'Prueba desde panel admin',
+        companias: ciaIds,
+        hora: new Date().toLocaleTimeString('es-CL', {hour:'2-digit',minute:'2-digit'})
+      }),
+      signal: AbortSignal.timeout(15000)
+    });
+    var d = await r.json();
+    if (d.ok) {
+      showNotif('✅','Despacho transmitido','Secuencia completa enviada por radio');
+    } else {
+      showNotif('❌','Error despacho',d.error||'Sin respuesta');
+    }
+  } catch(e) {
+    showNotif('❌','Servidor no disponible',e.message);
+  }
+};
 </script>
 </body>
 </html>
