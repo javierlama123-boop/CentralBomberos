@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>1ª Compañía "Germania" — Frutillar</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -180,6 +182,7 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
   <div class="topbar">
     <div class="page-title" id="page-title-txt">📊 Dashboard <span>Vista general</span></div>
     <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:12px;color:var(--text2);font-weight:600;" id="cia-user-nombre"></div>
       <div style="font-family:DM Mono,monospace;font-size:14px;" id="clock-top">--:--:--</div>
       <a href="index.html" style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--r);font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.5px;" title="Ir a Central de Alarmas">
         📡 CAD
@@ -1731,22 +1734,37 @@ function imprimirSalida() {
 function leerPartesCAD() {
   try { var r=localStorage.getItem('cad_partes_b1'); return r?JSON.parse(r):[]; } catch(e){ return []; }
 }
+// Variable global para partes de Firebase
+var fbPartesData = [];
+
 function renderPartes() {
   var partesCAD = leerPartesCAD();
-  var todos = partes.concat(partesCAD);
+  var todos = partes.concat(partesCAD).concat(fbPartesData);
+  // Deduplicar por ID
+  var seen = new Set();
+  todos = todos.filter(function(p){ var k=p.id||p.fecha; if(seen.has(k)) return false; seen.add(k); return true; });
   document.getElementById('cnt-partes').textContent = todos.length;
   var el = document.getElementById('partes-list');
   if(!todos.length){
     el.innerHTML='<div class="card" style="text-align:center;color:var(--text3);font-size:12px;padding:20px">Sin partes. Los partes generados desde la Central de Alarmas aparecerán aquí automáticamente.</div>';
     return;
   }
-  el.innerHTML = todos.sort(function(a,b){return (b.fecha||b.fechaEmerg||'').localeCompare(a.fecha||a.fechaEmerg||'');}).map(function(p){
+  // Normalizar fecha para sort: soportar fecha local, fechaEmerg y timestamp de Firebase
+  todos = todos.map(function(p) {
+    if (!p._sortKey) {
+      if (p.timestamp && p.timestamp.toDate) p._sortKey = p.timestamp.toDate().toISOString();
+      else if (p.timestamp && typeof p.timestamp === 'string') p._sortKey = p.timestamp;
+      else p._sortKey = p.fecha || p.fechaEmerg || '';
+    }
+    return p;
+  });
+  el.innerHTML = todos.sort(function(a,b){return b._sortKey.localeCompare(a._sortKey);}).map(function(p){
     return '<div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">'+
-      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:rgba(224,62,62,.12);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:12px;font-weight:900;">'+(p.emergId?'CAD':'MAN')+'</div>'+
+      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:var(--r);background:rgba(224,62,62,.12);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:12px;font-weight:900;">'+(p.tipo||p.emergId?'CAD':'MAN')+'</div>'+
       '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:12px;font-weight:700;">'+(p.id||p.emergId||'—')+'</div>'+
+        '<div style="font-size:12px;font-weight:700;">'+(p.tipo||p.subtipo||p.id||'—')+'</div>'+
         '<div style="font-size:12px;color:var(--text2)">📍 '+(p.direccion||p.calle||'—')+'</div>'+
-        '<div style="font-size:10px;color:var(--text3)">'+(p.fecha||p.fechaEmerg||'—')+(p.hora?' · '+p.hora:'')+'</div>'+
+        '<div style="font-size:10px;color:var(--text3)">'+(p._sortKey?p._sortKey.replace('T',' ').slice(0,16):p.fecha||p.fechaEmerg||'—')+'</div>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -1819,7 +1837,7 @@ onAuthStateChanged(fbAuth, async function(user) {
     if (rolesOk || oficialOk) {
       var nombre = (perfil||volPerfil).nombre || user.email;
       document.getElementById('login-overlay').classList.add('hidden');
-      document.getElementById('cia-user-nombre').textContent = nombre.split(' ')[0];
+      var _unEl = document.getElementById('cia-user-nombre'); if(_unEl) _unEl.textContent = nombre.split(' ')[0];
       cargarDatosFirebase();
     } else {
       document.getElementById('cia-login-err').textContent = 'Sin permisos para acceder a este módulo.';
@@ -1990,7 +2008,11 @@ window.eliminarVoluntario = async function(id) {
 };
 
 // ── PARTES DESDE CAD ──────────────────────────────────────
-function renderPartesFirebase(partes) {
+function renderPartesFirebase(listaPartes) {
+  fbPartesData = listaPartes; // guardar globalmente para renderPartes
+  renderPartes(); // re-renderizar con todos los partes
+}
+function _renderPartesFirebase_orig(partes) {
   var cnt = document.getElementById('cnt-partes');
   var list = document.getElementById('partes-list');
   if (cnt) cnt.textContent = partes.length;
