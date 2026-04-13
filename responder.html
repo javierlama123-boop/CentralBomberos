@@ -142,9 +142,9 @@ const firebaseConfig = {
   apiKey           : "AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY",
   authDomain       : "cad-bomberos-frutillar.firebaseapp.com",
   projectId        : "cad-bomberos-frutillar",
-  storageBucket    : "cad-bomberos-frutillar.appspot.com",
-  messagingSenderId: "897186680",
-  appId            : "1:897186680:web:abc"
+  storageBucket    : "cad-bomberos-frutillar.firebasestorage.app",
+  messagingSenderId: "70874334886",
+  appId            : "1:70874334886:web:8afa79fc1ef371b5ffd667"
 };
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
@@ -172,7 +172,8 @@ async function init() {
     emergenciaData = { id: snap.id, ...snap.data() };
     mostrarContenido();
   } catch(err) {
-    mostrarError('Error de conexión. Intenta nuevamente.');
+    console.error('[responder] Error:', err);
+    mostrarError('Error de conexión: ' + (err.code || err.message || 'intenta nuevamente'));
   }
 }
 
