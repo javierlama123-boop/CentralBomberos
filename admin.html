@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin · Sistema CAD Bomberos</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -2772,6 +2774,203 @@ window.enviarDespachoRadio = async function(ciaIds, codigoEmergencia, texto) {
   } catch(e) {
     showNotif('❌','Servidor no disponible',e.message);
   }
+};
+
+// ══════════════════════════════════════════════════════════════
+// TABLA DE DESPACHO
+// ══════════════════════════════════════════════════════════════
+var tablaDespachoData = [];
+
+function cargarTablaDespacho() {
+  if (!cuerpoActual) return;
+  document.getElementById('td-titulo').textContent = 'Tabla de Despacho — ' + cuerpoActual.nombre;
+  document.getElementById('td-sub').textContent = 'Define qué unidades salen por tipo de emergencia y sector geográfico';
+  // Cargar desde Firebase
+  try {
+    getDoc(doc(db, 'tabla_despacho', cuerpoActual.id)).then(function(snap) {
+      tablaDespachoData = snap.exists() ? (snap.data().reglas || []) : [];
+      // Si no hay datos, cargar tabla default de Frutillar
+      if (!tablaDespachoData.length) cargarTablaDefault();
+      else renderTablaDespacho();
+    }).catch(function() { renderTablaDespacho(); });
+  } catch(e) { renderTablaDespacho(); }
+}
+
+function renderTablaDespacho() {
+  var tbody = document.getElementById('td-body');
+  if (!tbody) return;
+  var filtroTipo = (document.getElementById('td-filtro-tipo') || {}).value || '';
+  var filtroCia  = (document.getElementById('td-filtro-cia') || {}).value || '';
+  var data = tablaDespachoData.filter(function(r) {
+    return (!filtroTipo || r.tipo.toLowerCase().includes(filtroTipo.toLowerCase())) &&
+           (!filtroCia  || (r.companias||[]).some(function(c){ return c===filtroCia; }));
+  });
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px;">Sin reglas definidas. Usa "+ Nueva Regla" o carga la tabla predeterminada.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(function(r, i) {
+    var realIdx = tablaDespachoData.indexOf(r);
+    return '<tr>' +
+      '<td><strong>' + escHtml(r.tipo) + '</strong></td>' +
+      '<td>' + escHtml(r.sector || 'Todos') + '</td>' +
+      '<td>' + (r.companias||[]).map(function(c){ return '<span style="background:var(--red);color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;margin-right:3px;">'+escHtml(c)+'</span>'; }).join('') + '</td>' +
+      '<td>' + escHtml(r.descripcion || '') + '</td>' +
+      '<td style="white-space:nowrap;">' +
+        '<button class="btn-sec" style="font-size:10px;padding:3px 8px;margin-right:4px;" onclick="editarRegla('+realIdx+')">✏️ Editar</button>' +
+        '<button class="btn-sec" style="font-size:10px;padding:3px 8px;color:var(--red);" onclick="eliminarRegla('+realIdx+')">🗑️</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function escHtml(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+window.nuevaReglaDespacho = function() {
+  var tipos = ['10-0 Fuego Estructural','10-1 Fuego Vehículo','10-2 Forestal/Basura',
+               '10-3 Rescate Persona','10-4 Rescate Vehicular','10-5 HAZMAT',
+               '10-6 Gas','10-7 Eléctrico','10-9 Otros'];
+  var tipoOpts = tipos.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('');
+  var cias = (cuerpoActual.companias||[]);
+  var ciaOpts = cias.map(function(c){
+    return '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer;">' +
+           '<input type="checkbox" value="'+c.id+'" style="accent-color:var(--red);"> '+c.nombre+'</label>';
+  }).join('') || '<div style="color:var(--text3);font-size:12px;">Sin compañías configuradas</div>';
+
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = '<div style="background:var(--bg2);border-radius:12px;padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;">' +
+    '<div style="font-size:16px;font-weight:700;margin-bottom:16px;">Nueva Regla de Despacho</div>' +
+    '<label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Tipo de emergencia</label>' +
+    '<select id="nr-tipo" class="fselect" style="width:100%;margin-bottom:12px;">'+tipoOpts+'</select>' +
+    '<label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Sector / Zona (opcional)</label>' +
+    '<input id="nr-sector" class="finput" placeholder="Ej: Centro, Sur, Todos..." style="width:100%;margin-bottom:12px;">' +
+    '<label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">Compañías que responden</label>' +
+    '<div id="nr-cias" style="background:var(--bg3);border-radius:8px;padding:10px;margin-bottom:12px;">'+ciaOpts+'</div>' +
+    '<label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Descripción (opcional)</label>' +
+    '<input id="nr-desc" class="finput" placeholder="Ej: Primera salida estructural..." style="width:100%;margin-bottom:16px;">' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+    '<button class="btn-sec" onclick="this.closest(\'div[style*=fixed]\').remove()">Cancelar</button>' +
+    '<button class="btn-green" onclick="guardarNuevaRegla(this)">Guardar</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+};
+
+window.guardarNuevaRegla = function(btn) {
+  var modal = btn.closest('div[style*="fixed"]');
+  var tipo  = document.getElementById('nr-tipo').value;
+  var sector= document.getElementById('nr-sector').value.trim() || 'Todos';
+  var desc  = document.getElementById('nr-desc').value.trim();
+  var cias  = Array.from(modal.querySelectorAll('#nr-cias input:checked')).map(function(cb){ return cb.value; });
+  if (!cias.length) { showNotif('⚠️','Sin compañías','Selecciona al menos una compañía.'); return; }
+  tablaDespachoData.push({ tipo, sector, companias:cias, descripcion:desc });
+  guardarTablaDespacho();
+  renderTablaDespacho();
+  modal.remove();
+};
+
+window.editarRegla = function(i) {
+  var r = tablaDespachoData[i];
+  if (!r) return;
+  // Reusar modal de nueva regla y precargar valores
+  nuevaReglaDespacho();
+  setTimeout(function() {
+    var modal = document.querySelector('div[style*="fixed"]');
+    if (!modal) return;
+    modal.querySelector('.fn-title, [style*="font-size:16px"]') && (modal.querySelector('[style*="font-size:16px"]').textContent = 'Editar Regla');
+    var selTipo = document.getElementById('nr-tipo');
+    if (selTipo) selTipo.value = r.tipo;
+    var inSect = document.getElementById('nr-sector');
+    if (inSect) inSect.value = r.sector || '';
+    var inDesc = document.getElementById('nr-desc');
+    if (inDesc) inDesc.value = r.descripcion || '';
+    (r.companias||[]).forEach(function(cid) {
+      var cb = modal.querySelector('#nr-cias input[value="'+cid+'"]');
+      if (cb) cb.checked = true;
+    });
+    // Reemplazar guardar por actualizar
+    var btnGuardar = modal.querySelector('.btn-green');
+    if (btnGuardar) btnGuardar.onclick = function() {
+      tablaDespachoData[i] = {
+        tipo     : document.getElementById('nr-tipo').value,
+        sector   : document.getElementById('nr-sector').value.trim() || 'Todos',
+        companias: Array.from(modal.querySelectorAll('#nr-cias input:checked')).map(function(cb){ return cb.value; }),
+        descripcion: document.getElementById('nr-desc').value.trim()
+      };
+      guardarTablaDespacho();
+      renderTablaDespacho();
+      modal.remove();
+    };
+  }, 50);
+};
+
+window.eliminarRegla = function(i) {
+  if (!confirm('¿Eliminar esta regla?')) return;
+  tablaDespachoData.splice(i, 1);
+  guardarTablaDespacho();
+  renderTablaDespacho();
+};
+
+function guardarTablaDespacho() {
+  if (!cuerpoActual) return;
+  setDoc(doc(db, 'tabla_despacho', cuerpoActual.id), {
+    cuerpoId   : cuerpoActual.id,
+    reglas     : tablaDespachoData,
+    actualizado: serverTimestamp()
+  }).then(function() {
+    showNotif('✅','Tabla guardada','Reglas de despacho actualizadas');
+  }).catch(function(e) {
+    showNotif('❌','Error',e.message);
+  });
+}
+
+window.exportarTabla = function() {
+  var json = JSON.stringify({ cuerpo:cuerpoActual.id, reglas:tablaDespachoData }, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tabla_despacho_' + (cuerpoActual.id||'cuerpo') + '.json';
+  a.click();
+};
+
+window.importarTabla = function() {
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = function(e) {
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var data = JSON.parse(ev.target.result);
+        tablaDespachoData = data.reglas || data || [];
+        guardarTablaDespacho();
+        renderTablaDespacho();
+        showNotif('✅','Importado',tablaDespachoData.length + ' reglas cargadas');
+      } catch(err) { showNotif('❌','Error JSON',err.message); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
+
+window.cargarTablaDefault = function() {
+  var cias = (cuerpoActual.companias||[]).map(function(c){ return c.id; });
+  var c1 = cias[0]||'B-1', c2 = cias[1]||'B-2', c3 = cias[2]||'B-3';
+  tablaDespachoData = [
+    { tipo:'10-0 Fuego Estructural',   sector:'Todos', companias:[c1,c2], descripcion:'Primera salida fuego estructural' },
+    { tipo:'10-0 Fuego Estructural',   sector:'Centro', companias:[c1,c2,c3], descripcion:'Segunda salida o sector centro' },
+    { tipo:'10-1 Fuego Vehículo',      sector:'Todos', companias:[c1], descripcion:'Incendio vehicular' },
+    { tipo:'10-2 Forestal/Basura',     sector:'Todos', companias:[c2], descripcion:'Incendio forestal o basural' },
+    { tipo:'10-3 Rescate Persona',     sector:'Todos', companias:[c1,c3], descripcion:'Rescate de persona' },
+    { tipo:'10-4 Rescate Vehicular',   sector:'Todos', companias:[c1], descripcion:'Accidente de tránsito' },
+    { tipo:'10-5 HAZMAT',              sector:'Todos', companias:[c1,c2], descripcion:'Materiales peligrosos' },
+    { tipo:'10-6 Gas',                 sector:'Todos', companias:[c1], descripcion:'Emanación de gas' },
+    { tipo:'10-7 Eléctrico',           sector:'Todos', companias:[c1], descripcion:'Emergencia eléctrica' },
+    { tipo:'10-9 Otros',               sector:'Todos', companias:[c1], descripcion:'Otros servicios' },
+  ];
+  guardarTablaDespacho();
+  renderTablaDespacho();
+  showNotif('✅','Tabla default cargada','Reglas predeterminadas de Frutillar aplicadas');
 };
 </script>
 </body>
