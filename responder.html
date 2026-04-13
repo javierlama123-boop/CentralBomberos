@@ -134,9 +134,10 @@
 </div>
 
 <script type="module">
-import { initializeApp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp }                        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, doc, getDoc, updateDoc, serverTimestamp }
-                                   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+                                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, signInAnonymously }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey           : "AIzaSyAytlPb1S5bbOTEI2FPwNvKwWuXOrs2xEY",
@@ -146,14 +147,15 @@ const firebaseConfig = {
   messagingSenderId: "70874334886",
   appId            : "1:70874334886:web:8afa79fc1ef371b5ffd667"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
 // ── Leer parámetros del URL ───────────────────────────────
 const params   = new URLSearchParams(location.search);
-const emergId  = params.get('e');   // ID emergencia
-const volId    = params.get('v');   // ID voluntario (uid)
-const volNombre= params.get('n');   // Nombre (codificado)
+const emergId  = params.get('e');
+const volId    = params.get('v');
+const volNombre= params.get('n');
 
 let emergenciaData = null;
 let respuestaActual = null;
@@ -164,6 +166,8 @@ async function init() {
     return;
   }
   try {
+    // Autenticar anónimamente para cumplir las reglas de Firestore
+    await signInAnonymously(auth);
     const snap = await getDoc(doc(db, 'emergencias', emergId));
     if (!snap.exists()) {
       mostrarError('Esta emergencia ya no está activa o no existe.');
