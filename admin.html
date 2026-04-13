@@ -2256,30 +2256,34 @@ var QC_FREQS_B = [
 ];
 
 // MDC — Señales por tipo de emergencia
+// MDC_TIPOS — nombres EXACTOS de los recursos embebidos en Consola CB Frutillar.exe
+// Extraídos por descompilación del ensamblado .NET (tmr_Tono1_Tick ... tmr_Tono9_Tick)
+// Al extraer con Resource Hacker, guardar con estos mismos nombres
 var MDC_TIPOS = [
-  { codigo:'10-0', label:'10-0 Fuego Estructural',     ico:'🔥', wavDefault:'fuego1.wav',         mdcCode:'001' },
-  { codigo:'10-1', label:'10-1 Fuego en Vehículo',     ico:'🚗', wavDefault:'fuego2.wav',          mdcCode:'002' },
-  { codigo:'10-2', label:'10-2 Pastizales/Basura',     ico:'🌿', wavDefault:'pastizales.wav',      mdcCode:'003' },
-  { codigo:'10-3', label:'10-3 Rescate de Persona',    ico:'🧗', wavDefault:'rescate.wav',         mdcCode:'004' },
-  { codigo:'10-4', label:'10-4 Rescate Vehicular',     ico:'🚑', wavDefault:'rescate.wav',         mdcCode:'005' },
-  { codigo:'10-5', label:'10-5 Materiales Peligrosos', ico:'☢️', wavDefault:'hazmat.wav',          mdcCode:'006' },
-  { codigo:'10-6', label:'10-6 Emanación de Gas',      ico:'💨', wavDefault:'otrosSS.wav',         mdcCode:'007' },
-  { codigo:'10-7', label:'10-7 Eléctrico',             ico:'⚡', wavDefault:'alarma_de_incendio.wav', mdcCode:'008' },
-  { codigo:'10-8', label:'10-8 No Clasificado',        ico:'❓', wavDefault:'otrosSS.wav',         mdcCode:'009' },
-  { codigo:'10-9', label:'10-9 Otros Servicios',       ico:'🔧', wavDefault:'otrosSS.wav',         mdcCode:'010' },
-  { codigo:'10-10',label:'10-10 Remoción Escombros',   ico:'🏗️', wavDefault:'otrosSS.wav',         mdcCode:'011' },
-  { codigo:'10-11',label:'10-11 Emergencia Aérea',     ico:'✈️', wavDefault:'rescate.wav',         mdcCode:'012' },
-  { codigo:'10-12',label:'10-12 Apoyo Otros Cuerpos',  ico:'🤝', wavDefault:'general.wav',         mdcCode:'013' }
+  { btn:'btn_tono1', timer:'tmr_Tono1', codigo:'10-0',   label:'10-0 Llamado Estructural',              ico:'🔥', wavDefault:'Llamado_estructural.wav',                   duracion:4500 },
+  { btn:'btn_tono2', timer:'tmr_Tono2', codigo:'10-2',   label:'10-2 Pastizales y/o Basura',            ico:'🌿', wavDefault:'Pastizales_y_o_Basura.wav',                  duracion:4500 },
+  { btn:'btn_tono3', timer:'tmr_Tono3', codigo:'10-3/4', label:'10-3/4 Rescate y Salvamento',           ico:'🧗', wavDefault:'Rescate_y_salvamento.wav',                   duracion:4500 },
+  { btn:'btn_tono4', timer:'tmr_Tono4', codigo:'10-9',   label:'10-9 Llamado a Otros Servicios',        ico:'🔧', wavDefault:'Llamado_A_otros_servicios.wav',              duracion:4500 },
+  { btn:'btn_tono5', timer:'tmr_Tono5', codigo:'10-5',   label:'10-5 Llamado HAZMAT',                   ico:'☢️', wavDefault:'Llamado_Hazmat.wav',                        duracion:4500 },
+  { btn:'btn_tono6', timer:'tmr_Tono6', codigo:'10-7',   label:'10-7 Alarma de Incendio / Eléctrico',   ico:'⚡', wavDefault:'Alarma_de_incendio.wav',                    duracion:4500 },
+  { btn:'btn_tono7', timer:'tmr_Tono7', codigo:'10-12a', label:'10-12 / Informaciones / 4 Cuarteles (A)',ico:'📢', wavDefault:'tono_informaciones_o_12_4_cuarteles.wav',  duracion:4500 },
+  { btn:'btn_tono8', timer:'tmr_Tono8', codigo:'10-12b', label:'10-12 / Informaciones / 4 Cuarteles (B)',ico:'📢', wavDefault:'tono_informaciones_o_12_4_cuarteles.wav',  duracion:4500 },
+  { btn:'btn_tono9', timer:'tmr_Tono9', codigo:'ACUART', label:'Acuartelamiento General',               ico:'🚨', wavDefault:'acuartelamiento.wav',                       duracion:4500 }
 ];
 
 // Configuración QuickCall por compañía (valores por defecto Frutillar)
+// QC_DEFAULT — valores exactos extraídos del ensamblado .NET de Consola CB Frutillar.exe
+// Duración 4900ms = valor hardcodeado en tmr_Cx.Interval del IL descompilado
+// Los archivos WAV ya contienen la señal QuickCall II completa (A-tone + B-tone)
+// Las frecuencias A/B son solo referencia — el .exe reproduce el WAV directamente
 var QC_DEFAULT = {
-  'B-1': { aTone: 1371.0, bTone: 600.9,  durA: 1000, durB: 3000, wav:'primera.wav',  activo:true },
-  'B-2': { aTone: 1459.5, bTone: 637.5,  durA: 1000, durB: 3000, wav:'segunda.wav',  activo:true },
-  'B-3': { aTone: 1552.5, bTone: 677.0,  durA: 1000, durB: 3000, wav:'tercera.wav',  activo:true },
-  'B-4': { aTone: 1649.0, bTone: 718.8,  durA: 1000, durB: 3000, wav:'cuarta.wav',   activo:true },
-  'B-5': { aTone: 1748.5, bTone: 763.1,  durA: 1000, durB: 3000, wav:'quinta.wav',   activo:true },
-  'B-6': { aTone: 1850.0, bTone: 810.2,  durA: 1000, durB: 3000, wav:'sexta.wav',    activo:true }
+  'B-1': { wav:'primera.wav', duracion:4900, timer:'tmr_C1', activo:true },
+  'B-2': { wav:'segunda.wav', duracion:4900, timer:'tmr_C2', activo:true },
+  'B-3': { wav:'tercera.wav', duracion:4900, timer:'tmr_C3', activo:true },
+  'B-4': { wav:'cuarta.wav',  duracion:4900, timer:'tmr_C4', activo:true },
+  'B-5': { wav:'quinta.wav',  duracion:4900, timer:'tmr_C5', activo:true },
+  'B-6': { wav:'sexta.wav',   duracion:4900, timer:'tmr_C7', activo:true },
+  'GRAL':{ wav:'acuartelamiento.wav', duracion:4900, timer:'tmr_Tono9', activo:true }
 };
 
 // Configuración MDC por tipo de emergencia
@@ -2302,111 +2306,108 @@ function renderQuickCall() {
   if (!cont) return;
   cont.innerHTML = '';
 
-  // ── Banner QuickCall ──────────────────────────────────────────
-  var infoQC = document.createElement('div');
-  infoQC.style.cssText = 'background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2);';
-  infoQC.innerHTML =
-    '<strong style="color:var(--blue);">📡 QuickCall II</strong> — subtonos que activan <strong>timbres y luces</strong> del cuartel. ' +
-    'A-tone (~1s alerta) + B-tone (~3s identifica compañía). ' +
-    '<span style="color:var(--text3);">▶ Escuchar = naveg. &nbsp;·&nbsp; 📻 Radio = servidor local</span>';
-  cont.appendChild(infoQC);
+  // Banner explicativo
+  var info = document.createElement('div');
+  info.style.cssText = 'background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2);';
+  info.innerHTML =
+    '<strong style="color:var(--blue);">📡 QuickCall II — Subtonos por compañía</strong>' +
+    ' &nbsp;·&nbsp; Activan <strong>timbres y luces</strong> del cuartel.' +
+    '<br>El archivo WAV ya contiene la señal QuickCall II completa (A-tone + B-tone codificados).' +
+    ' Se reproduce directamente por radio, igual que en <code style="font-size:10px;">Consola CB Frutillar.exe</code>.' +
+    '<br><span style="color:var(--text3);">Duración hardcodeada en el .exe original: <b>4900 ms</b> por compañía &nbsp;·&nbsp; ▶ Escuchar = navegador &nbsp;·&nbsp; 📻 Radio = servidor local</span>';
+  cont.appendChild(info);
 
   var cias = (cuerpoActual && cuerpoActual.companias) || [
-    {id:'B-1',nombre:'1ª Compañía "Germania"',color:'#e53935'},
-    {id:'B-2',nombre:'2ª Compañía',color:'#f97316'},
-    {id:'B-3',nombre:'3ª Compañía',color:'#eab308'},
-    {id:'B-4',nombre:'4ª Compañía',color:'#10b981'},
-    {id:'B-5',nombre:'5ª Compañía',color:'#3b82f6'},
-    {id:'B-6',nombre:'6ª Compañía',color:'#8b5cf6'}
+    {id:'B-1', nombre:'1ª Compañía "Germania"', color:'#e53935'},
+    {id:'B-2', nombre:'2ª Compañía',            color:'#f97316'},
+    {id:'B-3', nombre:'3ª Compañía',            color:'#eab308'},
+    {id:'B-4', nombre:'4ª Compañía',            color:'#10b981'},
+    {id:'B-5', nombre:'5ª Compañía',            color:'#3b82f6'},
+    {id:'B-6', nombre:'6ª Compañía',            color:'#8b5cf6'}
   ];
 
-  // ── Tabla QuickCall ───────────────────────────────────────────
-  var wrapQC = document.createElement('div');
-  wrapQC.className = 'table-wrap';
-  wrapQC.style.marginBottom = '20px';
+  var wrap = document.createElement('div');
+  wrap.className = 'table-wrap';
+  wrap.style.marginBottom = '20px';
 
-  var hdrQC = document.createElement('div');
-  hdrQC.className = 'table-header';
-  hdrQC.innerHTML =
-    '<div class="table-title">Subtonos por compañía (QuickCall II)</div>' +
-    '<span style="font-size:10px;color:var(--text3);">Timbres + luces cuartel</span>';
-  wrapQC.appendChild(hdrQC);
+  var hdr = document.createElement('div');
+  hdr.className = 'table-header';
+  hdr.innerHTML =
+    '<div class="table-title">Subtonos QuickCall II por compañía</div>' +
+    '<span style="font-size:10px;color:var(--text3);">Fuente: Consola CB Frutillar.exe — tmr_C1…tmr_C7</span>';
+  wrap.appendChild(hdr);
 
-  var tableQC = document.createElement('table');
-  tableQC.innerHTML =
+  var tbl = document.createElement('table');
+  tbl.innerHTML =
     '<thead><tr>' +
       '<th>Compañía</th>' +
-      '<th>A-Tone (Hz)</th>' +
-      '<th>B-Tone (Hz)</th>' +
-      '<th>Dur. A (ms)</th>' +
-      '<th>Dur. B (ms)</th>' +
-      '<th>WAV fallback</th>' +
+      '<th>Timer (.exe)</th>' +
+      '<th>Archivo WAV (nombre exacto del .exe)</th>' +
+      '<th>Duración</th>' +
       '<th>Activo</th>' +
-      '<th style="min-width:170px;">Acciones</th>' +
+      '<th style="min-width:180px;">Acciones</th>' +
     '</tr></thead>';
 
-  var tbodyQC = document.createElement('tbody');
+  var tbody = document.createElement('tbody');
 
-  cias.forEach(function(cia) {
-    var cfg = qcActual[cia.id] || QC_DEFAULT[cia.id] || {aTone:1371,bTone:600.9,durA:1000,durB:3000,wav:'',activo:true};
+  // Tabla fija según descompilación — tmr_C1..C7 en orden exacto del .exe
+  var CIAS_EXE = [
+    { id:'B-1', nombre:'1ª Compañía "Germania"', color:'#e53935', timer:'tmr_C1', wavExe:'primera.wav' },
+    { id:'B-2', nombre:'2ª Compañía',            color:'#f97316', timer:'tmr_C2', wavExe:'segunda.wav' },
+    { id:'B-3', nombre:'3ª Compañía',            color:'#eab308', timer:'tmr_C3', wavExe:'tercera.wav' },
+    { id:'B-4', nombre:'4ª Compañía',            color:'#10b981', timer:'tmr_C4', wavExe:'cuarta.wav'  },
+    { id:'B-5', nombre:'5ª Compañía',            color:'#3b82f6', timer:'tmr_C5', wavExe:'quinta.wav'  },
+    { id:'B-6', nombre:'6ª Compañía',            color:'#8b5cf6', timer:'tmr_C7', wavExe:'sexta.wav'   },
+    { id:'GRAL',nombre:'Alarma General',          color:'#dc2626', timer:'tmr_Tono9', wavExe:'acuartelamiento.wav' }
+  ];
+
+  CIAS_EXE.forEach(function(cia) {
+    var saved = qcActual[cia.id] || QC_DEFAULT[cia.id] || {};
+    var wav = saved.wav || cia.wavExe;
+    var dur = saved.duracion || 4900;
+    var activo = saved.activo !== false;
 
     var tr = document.createElement('tr');
 
-    // Nombre con color
-    var tdNombre = document.createElement('td');
-    tdNombre.innerHTML =
+    var tdNom = document.createElement('td');
+    tdNom.innerHTML =
       '<div style="display:flex;align-items:center;gap:7px;">' +
         '<div style="width:10px;height:10px;border-radius:50%;background:'+cia.color+';flex-shrink:0;"></div>' +
-        '<span style="font-weight:600;font-size:12px;">'+cia.nombre+'</span>' +
+        '<div>' +
+          '<div style="font-weight:600;font-size:12px;">'+cia.nombre+'</div>' +
+          '<div style="font-size:10px;color:var(--text3);">'+cia.id+'</div>' +
+        '</div>' +
       '</div>';
 
-    // A-Tone selector
-    var tdA = document.createElement('td');
-    var selA = document.createElement('select');
-    selA.className = 'fselect';
-    selA.id = 'qc-atone-'+cia.id;
-    selA.style.cssText = 'font-size:11px;padding:3px 6px;';
-    QC_FREQS_A.forEach(function(f) {
-      var o = document.createElement('option');
-      o.value = f.hz; o.textContent = f.label;
-      if (Math.abs(cfg.aTone - f.hz) < 1) o.selected = true;
-      selA.appendChild(o);
-    });
-    tdA.appendChild(selA);
+    var tdTimer = document.createElement('td');
+    tdTimer.innerHTML = '<code style="font-size:10px;background:var(--bg3);padding:2px 5px;border-radius:3px;">'+cia.timer+'</code>';
 
-    // B-Tone selector
-    var tdB = document.createElement('td');
-    var selB = document.createElement('select');
-    selB.className = 'fselect';
-    selB.id = 'qc-btone-'+cia.id;
-    selB.style.cssText = 'font-size:11px;padding:3px 6px;';
-    QC_FREQS_B.forEach(function(f) {
-      var o = document.createElement('option');
-      o.value = f.hz; o.textContent = f.label;
-      if (Math.abs(cfg.bTone - f.hz) < 1) o.selected = true;
-      selB.appendChild(o);
-    });
-    tdB.appendChild(selB);
+    var tdWav = document.createElement('td');
+    var inpWav = document.createElement('input');
+    inpWav.className = 'finput';
+    inpWav.id = 'qc-wav-' + cia.id;
+    inpWav.value = wav;
+    inpWav.placeholder = cia.wavExe;
+    inpWav.style.cssText = 'font-size:11px;padding:3px 6px;font-family:monospace;';
+    // Indicador si difiere del nombre original del .exe
+    var span = document.createElement('span');
+    span.style.cssText = 'font-size:9px;color:var(--text3);display:block;margin-top:1px;';
+    span.textContent = 'Original .exe: ' + cia.wavExe;
+    tdWav.appendChild(inpWav);
+    tdWav.appendChild(span);
 
-    // Dur A
-    var tdDA = document.createElement('td');
-    tdDA.innerHTML = '<input class="finput" type="number" id="qc-dura-'+cia.id+'" value="'+(cfg.durA||1000)+'" min="300" max="5000" step="100" style="width:70px;font-size:11px;padding:3px 6px;"/>';
+    var tdDur = document.createElement('td');
+    tdDur.innerHTML =
+      '<input class="finput" type="number" id="qc-dur-'+cia.id+'" value="'+dur+'" min="1000" max="10000" step="100" ' +
+      'style="width:75px;font-size:11px;padding:3px 6px;"/> ' +
+      '<span style="font-size:9px;color:var(--text3);">ms</span>';
 
-    // Dur B
-    var tdDB = document.createElement('td');
-    tdDB.innerHTML = '<input class="finput" type="number" id="qc-durb-'+cia.id+'" value="'+(cfg.durB||3000)+'" min="500" max="10000" step="100" style="width:70px;font-size:11px;padding:3px 6px;"/>';
-
-    // WAV
-    var tdWAV = document.createElement('td');
-    tdWAV.innerHTML = '<input class="finput" id="qc-wav-'+cia.id+'" value="'+(cfg.wav||'')+'" placeholder="primera.wav" style="width:100px;font-size:11px;padding:3px 6px;"/>';
-
-    // Activo
     var tdAct = document.createElement('td');
     tdAct.style.textAlign = 'center';
-    tdAct.innerHTML = '<input type="checkbox" id="qc-activo-'+cia.id+'" '+(cfg.activo!==false?'checked':'')+' style="accent-color:var(--green);width:15px;height:15px;"/>';
+    tdAct.innerHTML = '<input type="checkbox" id="qc-activo-'+cia.id+'" '+(activo?'checked':'')+' style="accent-color:var(--green);width:15px;height:15px;"/>';
 
-    // Acciones
     var tdAcc = document.createElement('td');
+
     var btnEsc = document.createElement('button');
     btnEsc.className = 'btn-sec';
     btnEsc.style.cssText = 'font-size:10px;padding:4px 8px;margin-right:4px;';
@@ -2424,93 +2425,105 @@ function renderQuickCall() {
     tdAcc.appendChild(btnEsc);
     tdAcc.appendChild(btnRad);
 
-    tr.appendChild(tdNombre);
-    tr.appendChild(tdA);
-    tr.appendChild(tdB);
-    tr.appendChild(tdDA);
-    tr.appendChild(tdDB);
-    tr.appendChild(tdWAV);
-    tr.appendChild(tdAct);
-    tr.appendChild(tdAcc);
-    tbodyQC.appendChild(tr);
+    tr.appendChild(tdNom); tr.appendChild(tdTimer); tr.appendChild(tdWav);
+    tr.appendChild(tdDur); tr.appendChild(tdAct); tr.appendChild(tdAcc);
+    tbody.appendChild(tr);
   });
 
-  tableQC.appendChild(tbodyQC);
-  wrapQC.appendChild(tableQC);
+  tbl.appendChild(tbody);
+  wrap.appendChild(tbl);
 
-  // Botón guardar QuickCall
-  var footQC = document.createElement('div');
-  footQC.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;';
-  var btnSaveQC = document.createElement('button');
-  btnSaveQC.className = 'btn-green';
-  btnSaveQC.style.fontSize = '12px';
-  btnSaveQC.textContent = '💾 Guardar QuickCall II';
-  btnSaveQC.onclick = guardarQuickCall;
-  footQC.appendChild(btnSaveQC);
-  wrapQC.appendChild(footQC);
-  cont.appendChild(wrapQC);
-
-  // ── Banner MDC ────────────────────────────────────────────────
-  var infoMDC = document.createElement('div');
-  infoMDC.style.cssText = 'background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2);';
-  infoMDC.innerHTML =
-    '<strong style="color:var(--red);">📻 MDC</strong> — señal digital codificada en audio que activa las <strong>sirenas de los carros</strong>. ' +
-    'Archivo WAV extraído de <code style="font-size:10px;">Consola CB Frutillar.exe</code> con Resource Hacker. ' +
-    '<span style="color:var(--text3);">▶ Escuchar = naveg. &nbsp;·&nbsp; 📻 Radio = servidor local</span>';
-  cont.appendChild(infoMDC);
-
-  renderMDC(cont);
+  var foot = document.createElement('div');
+  foot.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;';
+  foot.innerHTML =
+    '<button class="btn-green" style="font-size:12px;" onclick="guardarQuickCall()">💾 Guardar QuickCall II</button>' +
+    '<span style="font-size:10px;color:var(--text3);">Los nombres de archivo deben coincidir exactamente con los recursos del .exe original</span>';
+  wrap.appendChild(foot);
+  cont.appendChild(wrap);
 }
+
 
 function renderMDC(cont) {
   if (!cont) cont = document.getElementById('tonos-emerg-list');
 
-  var wrapMDC = document.createElement('div');
-  wrapMDC.className = 'table-wrap';
-  wrapMDC.style.marginBottom = '16px';
+  // Banner MDC
+  var info = document.createElement('div');
+  info.style.cssText = 'background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2);';
+  info.innerHTML =
+    '<strong style="color:var(--red);">📻 MDC — Tonos de Emergencia (9 botones del .exe)</strong>' +
+    ' &nbsp;·&nbsp; Activan <strong>sirenas de los carros</strong>.' +
+    '<br>Corresponden exactamente a <b>btn_tono1…btn_tono9</b> de <code style="font-size:10px;">Consola CB Frutillar.exe</code>.' +
+    ' Los nombres de archivo son los nombres originales de los recursos embebidos en el ejecutable.' +
+    '<br><span style="color:var(--text3);">Duración hardcodeada en el .exe: <b>4500 ms</b> por tono &nbsp;·&nbsp; tmr_Tono7 tiene duración variable en el código</span>';
+  cont.appendChild(info);
 
-  var hdrMDC = document.createElement('div');
-  hdrMDC.className = 'table-header';
-  hdrMDC.innerHTML =
-    '<div class="table-title">Señales MDC por tipo de emergencia</div>' +
-    '<span style="font-size:10px;color:var(--text3);">Sirenas de los carros</span>';
-  wrapMDC.appendChild(hdrMDC);
+  var wrap = document.createElement('div');
+  wrap.className = 'table-wrap';
+  wrap.style.marginBottom = '16px';
 
-  var tableMDC = document.createElement('table');
-  tableMDC.innerHTML =
+  var hdr = document.createElement('div');
+  hdr.className = 'table-header';
+  hdr.innerHTML =
+    '<div class="table-title">Tonos MDC de emergencia</div>' +
+    '<span style="font-size:10px;color:var(--text3);">Fuente: Consola CB Frutillar.exe — tmr_Tono1…tmr_Tono9</span>';
+  wrap.appendChild(hdr);
+
+  var tbl = document.createElement('table');
+  tbl.innerHTML =
     '<thead><tr>' +
-      '<th>Código</th>' +
-      '<th>Tipo de emergencia</th>' +
-      '<th>Archivo WAV (MDC)</th>' +
-      '<th>Código MDC</th>' +
+      '<th>Botón (.exe)</th>' +
+      '<th>Timer</th>' +
+      '<th>Código emergencia</th>' +
+      '<th>Archivo WAV (nombre exacto del .exe)</th>' +
+      '<th>Duración</th>' +
       '<th>Activo</th>' +
-      '<th style="min-width:170px;">Acciones</th>' +
+      '<th style="min-width:180px;">Acciones</th>' +
     '</tr></thead>';
 
-  var tbodyMDC = document.createElement('tbody');
+  var tbody = document.createElement('tbody');
 
   MDC_TIPOS.forEach(function(tipo) {
-    var cfg = mdcActual[tipo.codigo] || MDC_DEFAULT[tipo.codigo] || {wav:tipo.wavDefault,mdcCode:tipo.mdcCode,activo:true};
+    var saved = mdcActual[tipo.codigo] || MDC_DEFAULT[tipo.codigo] || {};
+    var wav   = saved.wav || tipo.wavDefault;
+    var dur   = saved.duracion || tipo.duracion || 4500;
+    var activo = saved.activo !== false;
 
     var tr = document.createElement('tr');
+
+    var tdBtn = document.createElement('td');
+    tdBtn.innerHTML =
+      '<code style="font-size:10px;background:var(--bg3);padding:2px 5px;border-radius:3px;display:block;">'+tipo.btn+'</code>' +
+      '<span style="font-size:9px;color:var(--text3);">'+tipo.timer+'</span>';
 
     var tdCod = document.createElement('td');
     tdCod.innerHTML =
       '<span style="font-family:monospace;font-weight:700;font-size:12px;color:var(--blue);">'+tipo.codigo+'</span>';
 
     var tdLabel = document.createElement('td');
-    tdLabel.innerHTML =
-      '<span style="font-size:12px;">'+tipo.ico+' '+tipo.label.replace(tipo.codigo+' ','')+'</span>';
+    tdLabel.innerHTML = '<span style="font-size:11px;">'+tipo.ico+' '+tipo.label+'</span>';
 
-    var tdWAV = document.createElement('td');
-    tdWAV.innerHTML = '<input class="finput" id="mdc-wav-'+tipo.codigo+'" value="'+(cfg.wav||tipo.wavDefault)+'" placeholder="'+tipo.wavDefault+'" style="width:160px;font-size:11px;padding:3px 6px;"/>';
+    var tdWav = document.createElement('td');
+    var inpWav = document.createElement('input');
+    inpWav.className = 'finput';
+    inpWav.id = 'mdc-wav-' + tipo.codigo;
+    inpWav.value = wav;
+    inpWav.placeholder = tipo.wavDefault;
+    inpWav.style.cssText = 'font-size:10px;padding:3px 5px;font-family:monospace;width:100%;';
+    var spanWav = document.createElement('span');
+    spanWav.style.cssText = 'font-size:9px;color:var(--text3);display:block;margin-top:1px;';
+    spanWav.textContent = 'Original: ' + tipo.wavDefault;
+    tdWav.appendChild(inpWav);
+    tdWav.appendChild(spanWav);
 
-    var tdMDC = document.createElement('td');
-    tdMDC.innerHTML = '<input class="finput" id="mdc-code-'+tipo.codigo+'" value="'+(cfg.mdcCode||tipo.mdcCode)+'" placeholder="001" style="width:50px;font-size:11px;padding:3px 6px;"/>';
+    var tdDur = document.createElement('td');
+    tdDur.innerHTML =
+      '<input class="finput" type="number" id="mdc-dur-'+tipo.codigo+'" value="'+dur+'" min="500" max="10000" step="100" ' +
+      'style="width:70px;font-size:11px;padding:3px 5px;"/> ' +
+      '<span style="font-size:9px;color:var(--text3);">ms</span>';
 
     var tdAct = document.createElement('td');
     tdAct.style.textAlign = 'center';
-    tdAct.innerHTML = '<input type="checkbox" id="mdc-activo-'+tipo.codigo+'" '+(cfg.activo!==false?'checked':'')+' style="accent-color:var(--green);width:15px;height:15px;"/>';
+    tdAct.innerHTML = '<input type="checkbox" id="mdc-activo-'+tipo.codigo+'" '+(activo?'checked':'')+' style="accent-color:var(--green);width:15px;height:15px;"/>';
 
     var tdAcc = document.createElement('td');
     var btnEsc = document.createElement('button');
@@ -2530,30 +2543,23 @@ function renderMDC(cont) {
     tdAcc.appendChild(btnEsc);
     tdAcc.appendChild(btnRad);
 
-    tr.appendChild(tdCod);
-    tr.appendChild(tdLabel);
-    tr.appendChild(tdWAV);
-    tr.appendChild(tdMDC);
-    tr.appendChild(tdAct);
-    tr.appendChild(tdAcc);
-    tbodyMDC.appendChild(tr);
+    tr.appendChild(tdBtn); tr.appendChild(tdCod); tr.appendChild(tdLabel);
+    tr.appendChild(tdWav); tr.appendChild(tdDur); tr.appendChild(tdAct); tr.appendChild(tdAcc);
+    tbody.appendChild(tr);
   });
 
-  tableMDC.appendChild(tbodyMDC);
-  wrapMDC.appendChild(tableMDC);
+  tbl.appendChild(tbody);
+  wrap.appendChild(tbl);
 
-  // Botón guardar MDC
-  var footMDC = document.createElement('div');
-  footMDC.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;';
-  var btnSaveMDC = document.createElement('button');
-  btnSaveMDC.className = 'btn-green';
-  btnSaveMDC.style.fontSize = '12px';
-  btnSaveMDC.textContent = '💾 Guardar MDC';
-  btnSaveMDC.onclick = guardarMDC;
-  footMDC.appendChild(btnSaveMDC);
-  wrapMDC.appendChild(footMDC);
-  cont.appendChild(wrapMDC);
+  var foot = document.createElement('div');
+  foot.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;';
+  foot.innerHTML =
+    '<button class="btn-green" style="font-size:12px;" onclick="guardarMDC()">💾 Guardar MDC</button>' +
+    '<span style="font-size:10px;color:var(--text3);">Los nombres deben coincidir exactamente con los recursos extraídos de Consola CB Frutillar.exe</span>';
+  wrap.appendChild(foot);
+  cont.appendChild(wrap);
 }
+
 
 // ── TEST ──────────────────────────────────────────────────────
 window.testQuickCall = function(ciaId) {
@@ -2624,22 +2630,16 @@ window.testMDC = function(codigo) {
 
 // ── GUARDAR ───────────────────────────────────────────────────
 window.guardarQuickCall = async function() {
-  var cias = cuerpoActual ? cuerpoActual.companias.map(function(c){return c.id;}) : ['B-1','B-2','B-3','B-4','B-5','B-6'];
-  cias.forEach(function(ciaId) {
-    var aToneEl = document.getElementById('qc-atone-'+ciaId);
-    var bToneEl = document.getElementById('qc-btone-'+ciaId);
-    var durAEl  = document.getElementById('qc-dura-'+ciaId);
-    var durBEl  = document.getElementById('qc-durb-'+ciaId);
-    var wavEl   = document.getElementById('qc-wav-'+ciaId);
-    var activoEl= document.getElementById('qc-activo-'+ciaId);
-    if (aToneEl) {
+  var ciaIds = ['B-1','B-2','B-3','B-4','B-5','B-6','GRAL'];
+  ciaIds.forEach(function(ciaId) {
+    var wavEl    = document.getElementById('qc-wav-'+ciaId);
+    var durEl    = document.getElementById('qc-dur-'+ciaId);
+    var activoEl = document.getElementById('qc-activo-'+ciaId);
+    if (wavEl) {
       qcActual[ciaId] = {
-        aTone : parseFloat(aToneEl.value),
-        bTone : parseFloat(bToneEl.value),
-        durA  : parseInt(durAEl.value) || 1000,
-        durB  : parseInt(durBEl.value) || 3000,
-        wav   : wavEl ? wavEl.value : '',
-        activo: activoEl ? activoEl.checked : true
+        wav    : wavEl.value,
+        duracion: parseInt(durEl ? durEl.value : 4900) || 4900,
+        activo : activoEl ? activoEl.checked : true
       };
     }
   });
@@ -2652,12 +2652,14 @@ window.guardarQuickCall = async function() {
 window.guardarMDC = async function() {
   MDC_TIPOS.forEach(function(tipo) {
     var wavEl    = document.getElementById('mdc-wav-'+tipo.codigo);
+    var durEl    = document.getElementById('mdc-dur-'+tipo.codigo);
     var activoEl = document.getElementById('mdc-activo-'+tipo.codigo);
     if (wavEl) {
       mdcActual[tipo.codigo] = {
-        wav   : wavEl.value,
-        mdcCode: tipo.mdcCode,
-        activo: activoEl ? activoEl.checked : true
+        wav     : wavEl.value,
+        duracion: parseInt(durEl ? durEl.value : tipo.duracion) || tipo.duracion || 4500,
+        timer   : tipo.timer,
+        activo  : activoEl ? activoEl.checked : true
       };
     }
   });
