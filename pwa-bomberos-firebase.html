@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iI0I3MUMxQyIvPgogIDxwYXRoIGQ9Ik0xNiA0IEMxNCA4IDEwIDEwIDExIDE1IEM4IDEzIDkgOCA3IDkgQzUgMTIgNiAxOCAxMCAyMSBDOSAxOSAxMCAxNyAxMiAxNyBDMTEgMjAgMTMgMjQgMTYgMjYgQzE5IDI0IDIxIDIwIDIwIDE3IEMyMiAxNyAyMyAxOSAyMiAyMSBDMjYgMTggMjcgMTIgMjUgOSBDMjMgOCAyNCAxMyAyMSAxNSBDMjIgMTAgMTggOCAxNiA0WiIgZmlsbD0iI0ZGOEYwMCIvPgogIDxwYXRoIGQ9Ik0xNiAxMCBDMTUgMTMgMTMgMTQgMTQgMTcgQzEyIDE2IDEzIDEzIDEyIDEzIEMxMSAxNSAxMiAxOSAxNCAyMSBDMTQgMTkuNSAxNSAxOC41IDE2IDE5IEMxNyAxOC41IDE4IDE5LjUgMTggMjEgQzIwIDE5IDIxIDE1IDIwIDEzIEMxOSAxMyAyMCAxNiAxOCAxNyBDMTkgMTQgMTcgMTMgMTYgMTBaIiBmaWxsPSIjRkZDQzAyIi8+Cjwvc3ZnPg==">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -485,14 +487,27 @@ var chatEmergActual = null;
 onAuthStateChanged(auth, async function(user) {
   if (user) {
     usuarioActual = user;
-    var perfDoc = await getDoc(doc(db, 'voluntarios', user.uid));
-    if (perfDoc.exists()) {
-      perfilActual = perfDoc.data();
-      iniciarApp();
+    // Buscar perfil: primero en usuarios_admin, luego en voluntarios
+    var perfAdmin = await getDoc(doc(db, 'usuarios_admin', user.uid));
+    var perfVol   = await getDoc(doc(db, 'voluntarios', user.uid));
+    if (perfAdmin.exists()) {
+      perfilActual = perfAdmin.data();
+      // Compatibilidad legacy
+      if (perfilActual.rol === 'admin-cad') perfilActual.rol = 'admin-cuerpo';
+    } else if (perfVol.exists()) {
+      perfilActual = perfVol.data();
     } else {
       showToast('⚠️', 'Sin perfil', 'Contacta al administrador del sistema.');
       await signOut(auth);
+      return;
     }
+    // Todos los roles tienen acceso a la PWA
+    if (perfilActual.activo === false) {
+      showToast('⚠️', 'Cuenta desactivada', 'Contacta al administrador.');
+      await signOut(auth);
+      return;
+    }
+    iniciarApp();
   } else {
     mostrarLogin();
   }
