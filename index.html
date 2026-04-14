@@ -220,6 +220,9 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 /* ── LOGIN CAD ── */
+/* App oculta hasta autenticar */
+body.no-auth .topbar, body.no-auth .main, body.no-auth .sidebar,
+body.no-auth #ia-fab, body.no-auth .map-wrapper { display:none !important; }
 .login-overlay{display:flex;position:fixed;inset:0;background:var(--bg);z-index:99999;align-items:center;justify-content:center;}
 .login-overlay.hidden{display:none;}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px;width:100%;max-width:360px;}
@@ -383,6 +386,7 @@ onAuthStateChanged(_fbAuth, async function(user) {
       var rolOk = ['superadmin','admin-cad','operadora'].includes(perfil.rol);
       if (rolOk && perfil.activo !== false) {
         document.getElementById('login-overlay').classList.add('hidden');
+        document.body.classList.remove('no-auth');
         window._fbReady = true;
         window._fbUser  = user;
         window._fbPerfil = perfil;
@@ -424,6 +428,7 @@ window.cadLogin = async function() {
   // Acceso directo superadmin hardcodeado
   if (email===SUPERADMIN_EMAIL && pass===SUPERADMIN_PASS) {
     document.getElementById('login-overlay').classList.add('hidden');
+    document.body.classList.remove('no-auth');
     window._fbReady  = true;
     window._fbUser   = { email: SUPERADMIN_EMAIL };
     window._fbPerfil = { nombre:'Javier Lama', rol:'superadmin', activo:true };
@@ -579,7 +584,35 @@ window.fbGuardarContactosWsp = async function() {
 console.log('[Firebase] Módulo CAD iniciado');
 </script>
 </head>
-<body>
+<body class="no-auth">
+
+<!-- LOGIN OVERLAY CAD -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo-big">🚒</div>
+    <div class="login-box-title">Central de Alarmas</div>
+    <div class="login-box-sub">Cuerpo de Bomberos de Frutillar</div>
+    <div id="cad-login-err" style="color:var(--red);font-size:12px;text-align:center;margin-bottom:12px;display:none;"></div>
+    <div class="login-field">
+      <div class="login-lbl">Correo electrónico</div>
+      <input class="login-inp" id="cad-email" type="email" placeholder="operadora@cbfrutillar.cl"
+             autocomplete="username" onkeydown="if(event.key==='Enter') document.getElementById('cad-pass').focus()">
+    </div>
+    <div class="login-field">
+      <div class="login-lbl">Contraseña</div>
+      <input class="login-inp" id="cad-pass" type="password" placeholder="••••••••"
+             autocomplete="current-password" onkeydown="if(event.key==='Enter') cadLogin()">
+    </div>
+    <button class="login-btn" id="cad-login-btn" onclick="cadLogin()" style="width:100%;margin-top:8px;">
+      Ingresar
+    </button>
+    <div style="text-align:center;margin-top:16px;">
+      <span class="login-link" onclick="cadResetPass()" style="font-size:11px;color:var(--text3);cursor:pointer;">
+        ¿Olvidaste tu contraseña?
+      </span>
+    </div>
+  </div>
+</div>
 
 <!-- TOPBAR -->
 <div class="topbar">
