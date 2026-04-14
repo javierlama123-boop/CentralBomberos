@@ -383,7 +383,10 @@ onAuthStateChanged(_fbAuth, async function(user) {
       .then(function(m){ return m.getDoc(m.doc(_fbDb,'usuarios_admin',user.uid)); });
     if (snap.exists()) {
       var perfil = snap.data();
-      var rolOk = ['superadmin','admin-cad','operadora'].includes(perfil.rol);
+      var rolesIdx = ['superadmin','admin-cuerpo','operadora'];
+      // Compatibilidad con rol legacy 'admin-cad'
+      if (perfil.rol === 'admin-cad') perfil.rol = 'admin-cuerpo';
+      var rolOk = rolesIdx.includes(perfil.rol);
       if (rolOk && perfil.activo !== false) {
         document.getElementById('login-overlay').classList.add('hidden');
         document.body.classList.remove('no-auth');
