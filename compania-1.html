@@ -1868,8 +1868,17 @@ onAuthStateChanged(fbAuth, async function(user) {
     // También acepta voluntarios con rol oficial/capitan de esta compañía
     var volSnap = await getDoc(doc(fbDb, 'voluntarios', user.uid));
     var volPerfil = volSnap.exists() ? volSnap.data() : null;
-    var rolesOk = perfil && ['superadmin','admin-cad','admin-cuartel'].includes(perfil.rol) && perfil.activo !== false;
+    // Compatibilidad legacy + nuevos roles
+    if (perfil && perfil.rol === 'admin-cad') perfil.rol = 'admin-cuerpo';
+    if (perfil && perfil.rol === 'admin-cuartel') perfil.rol = 'admin-cuerpo';
+    var rolesOk = perfil && ['superadmin','admin-cuerpo'].includes(perfil.rol) && perfil.activo !== false;
+    // admin-cia: solo si es de esta compañía
+    if (perfil && perfil.rol === 'admin-cia' && perfil.cia === CIA_ID && perfil.activo !== false) rolesOk = true;
+    // admin-cia: solo si es de esta compañía
+    if (perfil && perfil.rol === 'admin-cia' && perfil.cia === CIA_ID && perfil.activo !== false) rolesOk = true;
     var oficialOk = volPerfil && ['oficial','capitan','teniente'].includes(volPerfil.rol) && volPerfil.cia === CIA_ID && volPerfil.activo !== false;
+    // También aceptar rol 'oficial' desde usuarios_admin con cia correcta
+    if (!oficialOk && perfil && perfil.rol === 'oficial' && perfil.cia === CIA_ID && perfil.activo !== false) oficialOk = true;
     if (rolesOk || oficialOk) {
       var nombre = (perfil||volPerfil).nombre || user.email;
       document.getElementById('login-overlay').classList.add('hidden');
