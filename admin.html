@@ -170,6 +170,14 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
 .divider{height:1px;background:var(--border);margin:16px 0;}
 .cia-colors{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .cia-dot{width:10px;height:10px;border-radius:50%;}
+
+/* ── Badges de roles ── */
+.badge.superadmin{background:rgba(183,28,28,.15);color:#ef5350;}
+.badge.admin-cuerpo{background:rgba(21,101,192,.15);color:#42a5f5;}
+.badge.operadora{background:rgba(230,81,0,.15);color:#ffa726;}
+.badge.admin-cia{background:rgba(46,125,50,.15);color:#66bb6a;}
+.badge.oficial{background:rgba(74,20,140,.15);color:#ab47bc;}
+.badge.voluntario{background:rgba(55,71,79,.15);color:var(--text2);}
 </style>
 </head>
 <body>
@@ -204,7 +212,7 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <div class="rol-badge" id="topbar-rol">SUPERADMIN</div>
+      <div class="rol-badge" id="topbar-rol"></div>
       <div style="font-size:12px;color:var(--text2);" id="topbar-nombre">—</div>
       <button class="btn-sec" onclick="doLogout()">Salir</button>
     </div>
@@ -819,12 +827,27 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
       </div>
       <div class="fgroup">
         <div class="flabel">Rol</div>
-        <select class="fselect" id="na-rol">
-          <option value="superadmin">Superadmin</option>
-          <option value="admin-cad">Admin CAD</option>
-          <option value="admin-cuartel">Admin Cuartel</option>
+        <select class="fselect" id="na-rol" onchange="var r=this.value;document.getElementById('na-cia-group').style.display=['admin-cia','oficial','voluntario'].includes(r)?'block':'none';">
+          <option value="superadmin">⭐ Superadmin — Acceso total a todo</option>
+          <option value="admin-cuerpo">🏛️ Admin Cuerpo — CAD + Admin + todas las compañías</option>
+          <option value="operadora">📡 Operadora — Solo CAD Central (despacho)</option>
+          <option value="admin-cia">🚒 Admin Compañía — Admin (su cía) + compañía propia</option>
+          <option value="oficial">👤 Oficial — Solo módulo de su compañía + PWA</option>
+          <option value="voluntario">🔔 Voluntario — Solo app móvil (PWA)</option>
         </select>
       </div>
+    </div>
+    <div class="form-group" id="na-cia-group" style="display:none;">
+      <label class="form-label">Compañía asignada</label>
+      <select class="fselect" id="na-cia">
+        <option value="">— Selecciona compañía —</option>
+        <option value="B-1">1ª Compañía "Germania"</option>
+        <option value="B-2">2ª Compañía</option>
+        <option value="B-3">3ª Compañía</option>
+        <option value="B-4">4ª Compañía</option>
+        <option value="B-5">5ª Compañía</option>
+        <option value="B-6">6ª Compañía</option>
+      </select>
     </div>
     <div class="modal-footer">
       <button class="btn-sec" onclick="closeModal('modal-nuevo-admin')">Cancelar</button>
@@ -940,11 +963,21 @@ onAuthStateChanged(auth, async function(user) {
     if (user.isAnonymous) return;
     try {
       var snap = await getDoc(doc(db,'usuarios_admin',user.uid));
-      if (snap.exists() && snap.data().activo !== false) {
-        perfilActual = snap.data();
-        iniciarApp();
+      if (snap.exists()) {
+        var p = snap.data();
+        // Compatibilidad legacy
+        if (p.rol === 'admin-cad') p.rol = 'admin-cuerpo';
+        if (p.rol === 'admin-cuartel') p.rol = 'admin-cuerpo';
+        var rolesAdmin = ['superadmin','admin-cuerpo','admin-cia'];
+        if (rolesAdmin.includes(p.rol) && p.activo !== false) {
+          perfilActual = p;
+          iniciarApp();
+        } else {
+          showNotif('⚠️','Sin acceso','Tu rol "'+p.rol+'" no tiene acceso al Panel de Administración.');
+          await signOut(auth);
+        }
       } else {
-        showNotif('⚠️','Sin acceso','No tienes permisos de administrador.');
+        showNotif('⚠️','Sin acceso','Usuario no registrado en el sistema.');
         await signOut(auth);
       }
     } catch(e) { console.error(e); mostrarLogin(); }
@@ -988,7 +1021,25 @@ function mostrarLogin(){ document.getElementById('login-wrap').style.display='fl
 function iniciarApp() {
   document.getElementById('login-wrap').style.display='none';
   document.getElementById('app').style.display='flex';
-  document.getElementById('topbar-nombre').textContent = perfilActual.nombre||usuarioActual.email;
+  var rol = perfilActual.rol || '';
+  var nombreRol = {
+    'superadmin':'Super Admin','admin-cuerpo':'Admin Cuerpo',
+    'admin-cia':'Admin Compañía','operadora':'Operadora',
+    'oficial':'Oficial','voluntario':'Voluntario'
+  }[rol] || rol;
+  document.getElementById('topbar-nombre').textContent = perfilActual.nombre || usuarioActual.email;
+  var rolEl = document.getElementById('topbar-rol');
+  if (rolEl) rolEl.textContent = nombreRol;
+  // Restringir navegación según rol
+  if (rol === 'admin-cia') {
+    // admin-cia: solo puede ver su compañía — ir directo a ella
+    setTimeout(function() {
+      if (perfilActual.cia) {
+        var cuerpoId = perfilActual.cuerpoId || (Object.keys(window._cuerposData||{})[0]);
+        if (cuerpoId) entrarCuerpo(cuerpoId, (window._cuerposData||{})[cuerpoId] || {nombre:'Cuerpo'});
+      }
+    }, 800);
+  }
   document.getElementById('mc-email').value  = usuarioActual.email||'';
   document.getElementById('mc-nombre').value = perfilActual.nombre||'';
   generarCamposCompanias(6);
@@ -1597,7 +1648,14 @@ async function cargarAdmins() {
     tr.innerHTML=
       '<td style="font-weight:600;">'+u.nombre+'</td>'+
       '<td style="font-size:11px;color:var(--text2);">'+u.email+'</td>'+
-      '<td><span class="badge '+(u.rol||'voluntario')+'">'+u.rol+'</span></td>'+
+      '<td>'+
+        '<span class="badge '+(u.rol||'voluntario')+'">'+{
+          'superadmin':'⭐ Superadmin','admin-cuerpo':'🏛️ Admin Cuerpo',
+          'operadora':'📡 Operadora','admin-cia':'🚒 Admin Cía',
+          'oficial':'👤 Oficial','voluntario':'🔔 Voluntario'
+        }[u.rol]+'</span>'+
+        (u.cia?'<br><span style="font-size:10px;color:var(--text3);">'+u.cia+'</span>':'')+
+      '</td>'+
       '<td style="font-size:11px;color:var(--text3);">'+(u.cuerpo||'Global')+'</td>'+
       '<td><span class="badge '+(u.activo?'activo':'inactivo')+'">'+(u.activo?'Activo':'Inactivo')+'</span></td>'+
       '<td><div class="actions">'+
@@ -1614,11 +1672,18 @@ window.crearAdmin = async function() {
   var email=document.getElementById('na-email').value.trim();
   var pass=document.getElementById('na-pass').value.trim();
   var rol=document.getElementById('na-rol').value;
+  var cia=document.getElementById('na-cia')?.value||'';
   if (!nombre||!email||!pass){showNotif('⚠️','Campos requeridos','Completa todos los campos.');return;}
+  // Validar cia para roles que la requieren
+  if (['admin-cia','oficial','voluntario'].includes(rol) && !cia){
+    showNotif('⚠️','Compañía requerida','Selecciona la compañía para este rol.');return;
+  }
+  var data = {nombre,email,rol,activo:true,creado:serverTimestamp()};
+  if (cia) data.cia = cia;
   try {
     var cred=await createUserWithEmailAndPassword(auth,email,pass);
-    await setDoc(doc(db,'usuarios_admin',cred.user.uid),{nombre,email,rol,activo:true,creado:serverTimestamp()});
-    showNotif('✅','Admin creado',nombre+' registrado como '+rol);
+    await setDoc(doc(db,'usuarios_admin',cred.user.uid), data);
+    showNotif('✅','Usuario creado',nombre+' registrado como '+rol);
     closeModal('modal-nuevo-admin');
     cargarAdmins();
   } catch(e){showNotif('❌','Error',e.code==='auth/email-already-in-use'?'Email ya registrado':e.message);}
