@@ -351,6 +351,209 @@ body.no-auth #ia-fab, body.no-auth .map-wrapper { display:none !important; }
 .ia-empty-ico{font-size:36px;opacity:.4;}
 .ia-empty-title{font-size:13px;font-weight:600;color:var(--text2);}
 .ia-empty-sub{font-size:11px;line-height:1.5;}
+  /* ════════════════════════════════════════════════════════════════════
+   DESPAX-CAD v1.0 · MÓDULO BITÁCORA ESTRUCTURADA
+   Pegar este bloque DENTRO del <style>...</style> existente del index.html
+   (justo antes del cierre </style>)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Layout: el panel derecho actual mantiene 290px, el de bitácora son 320px */
+.panel-bitacora{
+  width:320px;flex-shrink:0;
+  border-left:1px solid var(--border);
+  background:var(--bg);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.panel-bitacora.collapsed{width:36px;}
+.panel-bitacora.collapsed .bit-content,
+.panel-bitacora.collapsed .bit-toolbar,
+.panel-bitacora.collapsed .bit-empty{display:none;}
+.panel-bitacora.collapsed .bit-header-title,
+.panel-bitacora.collapsed .bit-emerg-id{display:none;}
+
+/* Header del panel */
+.bit-header{
+  background:linear-gradient(135deg,#b71c1c 0%,#8b1414 100%);
+  color:#fff;padding:10px 12px;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.bit-header-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;flex:1;
+  display:flex;align-items:center;gap:6px;
+}
+.bit-pulse{
+  width:7px;height:7px;border-radius:50%;background:#22c55e;
+  animation:bitPulse 1.6s infinite;flex-shrink:0;
+}
+@keyframes bitPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.bit-collapse-btn{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  color:#fff;width:24px;height:24px;border-radius:4px;cursor:pointer;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.bit-collapse-btn:hover{background:rgba(255,255,255,.25);}
+.bit-emerg-id{
+  font-size:10px;font-family:'JetBrains Mono',monospace;
+  background:rgba(0,0,0,.25);padding:2px 7px;border-radius:3px;
+  letter-spacing:.5px;
+}
+
+/* Toolbar (filtros + agregar nota) */
+.bit-toolbar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:8px 10px;display:flex;flex-direction:column;gap:7px;flex-shrink:0;
+}
+.bit-filters{display:flex;gap:4px;flex-wrap:wrap;}
+.bit-filter{
+  padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.4px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  color:var(--text3);cursor:pointer;font-family:'Barlow',sans-serif;
+}
+.bit-filter:hover{color:var(--text2);border-color:var(--border2);}
+.bit-filter.active{background:var(--red);color:#fff;border-color:var(--red);}
+.bit-add-row{display:flex;gap:5px;}
+.bit-add-input{
+  flex:1;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);border-radius:var(--r);padding:6px 9px;
+  font-size:11px;font-family:'Barlow',sans-serif;outline:none;
+}
+.bit-add-input:focus{border-color:var(--red);}
+.bit-add-input::placeholder{color:var(--text3);}
+.bit-add-btn{
+  background:var(--red);border:none;color:#fff;
+  border-radius:var(--r);padding:6px 11px;cursor:pointer;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.bit-add-btn:hover{background:#c62828;}
+.bit-add-btn:disabled{background:var(--bg4);color:var(--text3);cursor:default;}
+
+/* Lista timeline */
+.bit-content{flex:1;overflow-y:auto;padding:8px 10px;}
+.bit-content::-webkit-scrollbar{width:3px;}
+.bit-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* Estado vacío */
+.bit-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px 20px;text-align:center;color:var(--text3);
+}
+.bit-empty-ico{font-size:32px;opacity:.3;margin-bottom:10px;}
+.bit-empty-txt{font-size:12px;line-height:1.6;}
+
+/* Item de bitácora */
+.bit-item{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:8px 10px;margin-bottom:6px;
+  border-left:3px solid var(--red);
+  position:relative;animation:bitFadeIn .25s ease;
+}
+@keyframes bitFadeIn{
+  from{opacity:0;transform:translateY(-4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* Colores por tipo de evento */
+.bit-item[data-tipo="creacion"]      {border-left-color:#3b82f6;}
+.bit-item[data-tipo="contacto"]      {border-left-color:#8b5cf6;}
+.bit-item[data-tipo="coords"]        {border-left-color:#06b6d4;}
+.bit-item[data-tipo="sugerencia"]    {border-left-color:#eab308;}
+.bit-item[data-tipo="despacho"]      {border-left-color:#dc2626;}
+.bit-item[data-tipo="redespacho"]    {border-left-color:#dc2626;background:rgba(229,57,53,.06);}
+.bit-item[data-tipo="quickcall"]     {border-left-color:#f97316;}
+.bit-item[data-tipo="notif_wsp"]     {border-left-color:#25d366;}
+.bit-item[data-tipo="respuesta_vol"] {border-left-color:#10b981;}
+.bit-item[data-tipo="estado"]        {border-left-color:#f59e0b;}
+.bit-item[data-tipo="tripulacion"]   {border-left-color:#6366f1;}
+.bit-item[data-tipo="clave_rapida"]  {border-left-color:#14b8a6;}
+.bit-item[data-tipo="info"]          {border-left-color:#64748b;}
+.bit-item[data-tipo="manual"]        {border-left-color:#a78bfa;background:rgba(167,139,250,.04);}
+.bit-item[data-tipo="cierre"]        {border-left-color:#16a34a;background:rgba(22,163,74,.06);}
+
+/* Header del item */
+.bit-item-head{
+  display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;
+}
+.bit-item-tipo{
+  font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--text3);
+}
+.bit-item-hora{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);
+  margin-left:auto;
+}
+.bit-item-vehiculo{
+  background:#0f1117;color:#fff;padding:1px 6px;border-radius:3px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+}
+.bit-item-codigo{
+  background:var(--red);color:#fff;padding:1px 6px;border-radius:3px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+}
+
+/* Contenido */
+.bit-item-content{
+  font-size:12px;color:var(--text);line-height:1.45;word-wrap:break-word;
+}
+.bit-item-content strong{color:var(--text);font-weight:700;}
+
+/* Autor */
+.bit-item-author{
+  font-size:9px;color:var(--text3);margin-top:5px;font-style:italic;
+  display:flex;align-items:center;gap:4px;
+}
+.bit-item-edited{
+  color:var(--amber);font-weight:700;font-style:normal;cursor:help;
+}
+
+/* Acciones (editar) */
+.bit-item-actions{
+  position:absolute;top:5px;right:5px;display:none;gap:3px;
+}
+.bit-item:hover .bit-item-actions{display:flex;}
+.bit-action-btn{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);width:20px;height:20px;border-radius:3px;
+  cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;
+}
+.bit-action-btn:hover{background:var(--bg4);color:var(--text);}
+
+/* Modo edición inline */
+.bit-edit-textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--red);
+  color:var(--text);border-radius:var(--r);padding:5px 8px;
+  font-size:12px;font-family:'Barlow',sans-serif;outline:none;
+  resize:vertical;min-height:40px;
+}
+.bit-edit-actions{display:flex;gap:4px;margin-top:5px;}
+.bit-edit-save{
+  background:var(--green);border:none;color:#fff;
+  padding:4px 10px;border-radius:3px;cursor:pointer;
+  font-size:10px;font-weight:700;
+}
+.bit-edit-cancel{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  padding:4px 10px;border-radius:3px;cursor:pointer;
+  font-size:10px;font-weight:700;
+}
+
+/* Selector de emergencia (cuando hay varias activas) */
+.bit-emerg-select{
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);
+  color:#fff;padding:2px 6px;border-radius:3px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  outline:none;cursor:pointer;
+}
+.bit-emerg-select option{background:var(--bg2);color:var(--text);}
+
+/* Banner de superadmin con permisos especiales */
+.bit-sa-banner{
+  background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);
+  border-radius:var(--r);padding:5px 8px;margin-bottom:6px;
+  font-size:9px;color:var(--purple);font-weight:600;
+  display:flex;align-items:center;gap:5px;
+}
 </style>
 <!-- FIREBASE SDK -->
 <script type="module">
@@ -496,6 +699,7 @@ window.fbGuardarEmergencia = async function(e) {
       clavesEstado: e.clavesEstado || {},
       reportante  : e.reportante || '',
       telefono    : e.telefono || '',
+      relato      : e.relato || '',
       timestamp   : serverTimestamp()
     };
     var ref = await addDoc(collection(_fbDb, 'emergencias'), data);
@@ -805,7 +1009,51 @@ console.log('[Firebase] Módulo CAD iniciado');
       <div id="list-fuera"></div>
     </div>
   </div>
+<!-- ════════════════════════════════════════════════════════════════════
+     DESPAX-CAD v1.0 · MÓDULO BITÁCORA — PANEL HTML
+     UBICACIÓN: dentro de <div id="page-despacho" class="page-view active">
+                COMO HERMANO del .panel-right (DESPUÉS de </div> que cierra panel-right)
+                JUSTO ANTES del cierre </div><!-- fin page-despacho -->
+     ════════════════════════════════════════════════════════════════════ -->
 
+<!-- PANEL DE BITÁCORA — lateral derecho fijo -->
+<div class="panel-bitacora" id="panel-bitacora">
+  <div class="bit-header">
+    <div class="bit-pulse" id="bit-pulse"></div>
+    <div class="bit-header-title">📋 Bitácora</div>
+    <select class="bit-emerg-select" id="bit-emerg-selector" style="display:none;" onchange="bitCambiarEmergencia(this.value)"></select>
+    <div class="bit-emerg-id" id="bit-emerg-id" style="display:none;">—</div>
+    <button class="bit-collapse-btn" id="bit-collapse" onclick="bitTogglePanel()" title="Colapsar/Expandir">◀</button>
+  </div>
+
+  <div class="bit-toolbar" id="bit-toolbar">
+    <div class="bit-filters">
+      <div class="bit-filter active" data-filter="todos" onclick="bitFiltrar('todos',this)">Todos</div>
+      <div class="bit-filter" data-filter="estado" onclick="bitFiltrar('estado',this)">Estados</div>
+      <div class="bit-filter" data-filter="comunicacion" onclick="bitFiltrar('comunicacion',this)">Comm.</div>
+      <div class="bit-filter" data-filter="manual" onclick="bitFiltrar('manual',this)">Notas</div>
+    </div>
+    <div class="bit-add-row">
+      <input type="text" class="bit-add-input" id="bit-add-input"
+             placeholder="Agregar nota a la bitácora..."
+             onkeydown="if(event.key==='Enter')bitAgregarNota()">
+      <button class="bit-add-btn" id="bit-add-btn" onclick="bitAgregarNota()">+</button>
+    </div>
+    <div class="bit-sa-banner" id="bit-sa-banner" style="display:none;">
+      ⭐ <span>Modo superadmin · Edición sin restricciones</span>
+    </div>
+  </div>
+
+  <div class="bit-empty" id="bit-empty">
+    <div class="bit-empty-ico">📋</div>
+    <div class="bit-empty-txt">
+      Selecciona una emergencia activa<br>
+      o despacha una nueva para iniciar<br>la bitácora
+    </div>
+  </div>
+
+  <div class="bit-content" id="bit-content" style="display:none;"></div>
+</div>
 </div><!-- fin page-despacho -->
 
 <!-- ===== BITACORA ===== -->
@@ -2790,6 +3038,15 @@ function despachar(){
     window.fbGuardarEmergencia(e).then(function(fbId){
       if(fbId){
         addLog('INFO','lt-c','☁️ <strong>Firebase</strong> — Emergencia '+id+' publicada · Voluntarios notificados');
+        if(window.bitInicializar) window.bitInicializar(e);
+   if(window.bitAgregarEvento) window.bitAgregarEvento(fbId, {
+     tipo:'creacion',
+     contenido:'Emergencia creada · '+e.subtipo+' · '+e.direccion
+   });
+   if(window.bitAgregarEvento) window.bitAgregarEvento(fbId, {
+     tipo:'despacho',
+     contenido:'Compañías despachadas: '+e.companias.join(', ')
+   });
         // Escuchar respuestas en tiempo real
         e.fbUnsubscribe = window.fbEscucharRespuestas(fbId, function(respuestas, respuestasWsp){
           e.fbRespuestas    = respuestas;
@@ -2944,6 +3201,7 @@ function cerrarEmergencia(){
 }
 
 // ===== DETALLE MODAL =====
+  if(window.bitCambiarAEmergencia) window.bitCambiarAEmergencia(id);
 function abrirDetalle(id){
   const e=emergencias.find(x=>x.id===id); if(!e) return;
   activeEmergId=id;
@@ -3822,7 +4080,527 @@ function renderRespuestasVoluntarios(e) {
   html += '</div>';
   panel.innerHTML = html;
 }
+// ════════════════════════════════════════════════════════════════════
+// DESPAX-CAD v1.0 · MÓDULO BITÁCORA ESTRUCTURADA POR EMERGENCIA
+//
+// UBICACIÓN: pegar este bloque DENTRO del <script type="module"> de Firebase
+//            que ya tienes en index.html (después de los `import` y antes
+//            del `console.log('[Firebase] Módulo CAD iniciado');`)
+//
+// REQUIERE: imports ya presentes en el script (collection, doc, addDoc,
+//           onSnapshot, query, orderBy, serverTimestamp, etc.)
+//
+// SI ALGÚN IMPORT FALTA: agregar a la línea de imports de firestore:
+//   - addDoc, orderBy ya están
+//   - asegurar que `query` y `onSnapshot` están importados
+// ════════════════════════════════════════════════════════════════════
 
+// ── Estado global del módulo ─────────────────────────────────────────
+window.bitState = {
+  emergId      : null,          // ID Firestore de la emergencia activa en panel
+  emergCadId   : null,          // ID legible (E001, E017, ...)
+  unsubscribe  : null,          // función para cancelar suscripción
+  eventos      : [],            // eventos de la emergencia actual
+  filtroActual : 'todos',
+  panelOpen    : true,
+  modoEdicion  : null,          // ID del evento que se está editando
+};
+
+// ── Mapeo de tipos de evento a labels y emojis ──────────────────────
+window.BIT_TIPOS = {
+  creacion       : { lbl:'CREACIÓN',     emoji:'🆕', filtro:'estado'       },
+  contacto       : { lbl:'CONTACTO',     emoji:'📞', filtro:'comunicacion' },
+  coords         : { lbl:'COORDS',       emoji:'📍', filtro:'estado'       },
+  sugerencia     : { lbl:'SUGERENCIA',   emoji:'💡', filtro:'estado'       },
+  despacho       : { lbl:'DESPACHO',     emoji:'🚒', filtro:'estado'       },
+  redespacho     : { lbl:'RE-DESPACHO',  emoji:'⚡', filtro:'estado'       },
+  quickcall      : { lbl:'QUICKCALL',    emoji:'📡', filtro:'comunicacion' },
+  notif_wsp      : { lbl:'WSP',          emoji:'💬', filtro:'comunicacion' },
+  respuesta_vol  : { lbl:'RESPUESTA',    emoji:'✅', filtro:'comunicacion' },
+  estado         : { lbl:'ESTADO',       emoji:'🔄', filtro:'estado'       },
+  tripulacion    : { lbl:'TRIPULACIÓN',  emoji:'👥', filtro:'estado'       },
+  clave_rapida   : { lbl:'CLAVE',        emoji:'⚡', filtro:'estado'       },
+  info           : { lbl:'INFO',         emoji:'ℹ️', filtro:'comunicacion' },
+  manual         : { lbl:'NOTA',         emoji:'✏️', filtro:'manual'       },
+  cierre         : { lbl:'CIERRE',       emoji:'🏁', filtro:'estado'       },
+};
+
+// ════════════════════════════════════════════════════════════════════
+// API PRINCIPAL — funciones que se llaman desde el resto del código
+// ════════════════════════════════════════════════════════════════════
+
+/**
+ * Registra un evento en la bitácora de una emergencia.
+ * @param {string} fbId       - ID de Firestore de la emergencia
+ * @param {object} evento     - { tipo, contenido, vehiculo?, codigo?, metadata? }
+ * @returns {Promise<string>} ID del evento creado, o null si falla
+ */
+window.bitAgregarEvento = async function(fbId, evento) {
+  if (!fbId) {
+    console.warn('[Bitácora] Sin fbId — evento no guardado:', evento);
+    return null;
+  }
+  try {
+    var perfil = window._fbPerfil || { nombre:'Sistema', rol:'sistema' };
+    var user   = window._fbUser   || { uid:'system', email:'system' };
+    var data = {
+      tipo       : evento.tipo || 'info',
+      vehiculo   : evento.vehiculo || null,
+      codigo     : evento.codigo || null,
+      contenido  : evento.contenido || '',
+      metadata   : evento.metadata || {},
+      autor      : {
+        uid    : user.uid    || 'system',
+        nombre : perfil.nombre || user.email || 'Sistema',
+        rol    : perfil.rol  || 'sistema',
+      },
+      editado    : false,
+      historial  : [],
+      timestamp  : serverTimestamp(),
+    };
+    var ref = await addDoc(collection(_fbDb, 'emergencias', fbId, 'bitacora'), data);
+    return ref.id;
+  } catch(err) {
+    console.error('[Bitácora] Error agregando evento:', err);
+    return null;
+  }
+};
+
+/**
+ * Suscripción en tiempo real a la bitácora de una emergencia.
+ * @param {string} fbId - ID Firestore
+ * @param {function} callback - recibe array de eventos ordenados ASC
+ * @returns {function} unsubscribe
+ */
+window.bitEscuchar = function(fbId, callback) {
+  if (!fbId) return function(){};
+  var q = query(
+    collection(_fbDb, 'emergencias', fbId, 'bitacora'),
+    orderBy('timestamp', 'asc')
+  );
+  return onSnapshot(q, function(snap) {
+    var eventos = [];
+    snap.forEach(function(doc) {
+      eventos.push(Object.assign({ id: doc.id }, doc.data()));
+    });
+    if (callback) callback(eventos);
+  }, function(err) {
+    console.error('[Bitácora] Error en suscripción:', err);
+  });
+};
+
+/**
+ * Edita un evento existente. Guarda histórico para trazabilidad.
+ * Permisos:
+ *   - autor del evento → puede editar dentro de 5 min
+ *   - superadmin → puede editar siempre
+ */
+window.bitEditarEvento = async function(fbId, eventoId, nuevoContenido) {
+  if (!fbId || !eventoId) return false;
+  var perfil = window._fbPerfil || {};
+  var user   = window._fbUser   || {};
+  var esSuperadmin = perfil.rol === 'superadmin';
+  try {
+    var ref = doc(_fbDb, 'emergencias', fbId, 'bitacora', eventoId);
+    var snap = await getDoc(ref);
+    if (!snap.exists()) return false;
+    var actual = snap.data();
+    // Verificar permisos
+    var esAutor = actual.autor && actual.autor.uid === user.uid;
+    if (!esSuperadmin && !esAutor) {
+      bitNotif('🚫 Sin permiso','Solo el autor puede editar su nota.');
+      return false;
+    }
+    if (!esSuperadmin && esAutor && actual.timestamp && actual.timestamp.toDate) {
+      var edadMin = (Date.now() - actual.timestamp.toDate().getTime()) / 60000;
+      if (edadMin > 5) {
+        bitNotif('⏱ Tiempo expirado','Solo puedes editar dentro de los 5 min.');
+        return false;
+      }
+    }
+    // Append a histórico
+    var historial = actual.historial || [];
+    historial.push({
+      contenido_anterior : actual.contenido,
+      editado_at         : new Date().toISOString(),
+      editor             : { uid: user.uid, nombre: perfil.nombre || user.email, rol: perfil.rol },
+    });
+    await updateDoc(ref, {
+      contenido : nuevoContenido,
+      editado   : true,
+      historial : historial,
+    });
+    return true;
+  } catch(err) {
+    console.error('[Bitácora] Error editando:', err);
+    return false;
+  }
+};
+
+// ════════════════════════════════════════════════════════════════════
+// UI — render del panel
+// ════════════════════════════════════════════════════════════════════
+
+window.bitConectarPanel = function(fbId, cadId) {
+  // Cancelar suscripción previa
+  if (window.bitState.unsubscribe) {
+    try { window.bitState.unsubscribe(); } catch(e){}
+    window.bitState.unsubscribe = null;
+  }
+  window.bitState.emergId    = fbId;
+  window.bitState.emergCadId = cadId;
+  window.bitState.eventos    = [];
+
+  var emergIdEl = document.getElementById('bit-emerg-id');
+  if (emergIdEl) {
+    emergIdEl.textContent = cadId || '—';
+    emergIdEl.style.display = fbId ? 'inline-block' : 'none';
+  }
+  // Mostrar banner SA si aplica
+  var perfil = window._fbPerfil || {};
+  var sb = document.getElementById('bit-sa-banner');
+  if (sb) sb.style.display = perfil.rol === 'superadmin' ? 'flex' : 'none';
+
+  // Habilitar/ocultar campo de nota según rol
+  var addInput = document.getElementById('bit-add-input');
+  var addBtn   = document.getElementById('bit-add-btn');
+  var puedeAgregar = ['superadmin','admin-cuerpo','operadora'].includes(perfil.rol);
+  if (addInput) addInput.disabled = !puedeAgregar || !fbId;
+  if (addBtn)   addBtn.disabled   = !puedeAgregar || !fbId;
+  if (addInput) {
+    addInput.placeholder = !fbId
+      ? 'Selecciona una emergencia primero...'
+      : !puedeAgregar
+        ? 'Sin permiso para agregar notas'
+        : 'Agregar nota a la bitácora...';
+  }
+
+  if (!fbId) {
+    bitMostrarVacio();
+    return;
+  }
+  // Suscribirse
+  window.bitState.unsubscribe = window.bitEscuchar(fbId, function(eventos) {
+    window.bitState.eventos = eventos;
+    bitRender();
+  });
+};
+
+function bitMostrarVacio() {
+  var empty = document.getElementById('bit-empty');
+  var content = document.getElementById('bit-content');
+  if (empty)   empty.style.display = 'flex';
+  if (content) content.style.display = 'none';
+  var pulse = document.getElementById('bit-pulse');
+  if (pulse) pulse.style.background = 'var(--text3)';
+}
+
+function bitRender() {
+  var empty = document.getElementById('bit-empty');
+  var content = document.getElementById('bit-content');
+  if (!content) return;
+  var eventos = window.bitState.eventos || [];
+  // Filtrar
+  var filtro = window.bitState.filtroActual;
+  var filtrados = filtro === 'todos' ? eventos : eventos.filter(function(ev) {
+    var info = window.BIT_TIPOS[ev.tipo] || {};
+    return info.filtro === filtro;
+  });
+  if (!filtrados.length) {
+    if (empty)   empty.style.display = 'flex';
+    if (content) content.style.display = 'none';
+    var emp = document.getElementById('bit-empty');
+    if (emp) {
+      emp.innerHTML = '<div class="bit-empty-ico">📋</div>' +
+        '<div class="bit-empty-txt">' +
+        (eventos.length === 0
+          ? 'Sin eventos aún en esta emergencia.<br>El primero aparecerá automáticamente.'
+          : 'Sin eventos para este filtro.') +
+        '</div>';
+    }
+    var pulse = document.getElementById('bit-pulse');
+    if (pulse) pulse.style.background = '#22c55e';
+    return;
+  }
+  if (empty)   empty.style.display = 'none';
+  if (content) content.style.display = 'block';
+  var pulse = document.getElementById('bit-pulse');
+  if (pulse) pulse.style.background = '#22c55e';
+
+  // Render más nuevos arriba (reverse)
+  content.innerHTML = filtrados.slice().reverse().map(bitItemHTML).join('');
+}
+
+function bitItemHTML(ev) {
+  var info = window.BIT_TIPOS[ev.tipo] || { lbl: (ev.tipo||'').toUpperCase(), emoji:'📌' };
+  var hora = '—';
+  if (ev.timestamp && ev.timestamp.toDate) {
+    var d = ev.timestamp.toDate();
+    hora = String(d.getHours()).padStart(2,'0') + ':' +
+           String(d.getMinutes()).padStart(2,'0') + ':' +
+           String(d.getSeconds()).padStart(2,'0');
+  }
+  var perfil = window._fbPerfil || {};
+  var user   = window._fbUser   || {};
+  var esAutor = ev.autor && ev.autor.uid === user.uid;
+  var esSA    = perfil.rol === 'superadmin';
+  var edadMin = ev.timestamp && ev.timestamp.toDate
+    ? (Date.now() - ev.timestamp.toDate().getTime()) / 60000
+    : 999;
+  var puedeEditar = esSA || (esAutor && edadMin <= 5);
+  // Modo edición inline
+  if (window.bitState.modoEdicion === ev.id) {
+    return '<div class="bit-item" data-tipo="'+(ev.tipo||'info')+'" data-id="'+ev.id+'">' +
+      '<div class="bit-item-head">' +
+        '<span class="bit-item-tipo">'+info.emoji+' '+info.lbl+'</span>' +
+        (ev.vehiculo ? '<span class="bit-item-vehiculo">'+bitEscape(ev.vehiculo)+'</span>' : '') +
+        (ev.codigo ? '<span class="bit-item-codigo">'+bitEscape(ev.codigo)+'</span>' : '') +
+        '<span class="bit-item-hora">'+hora+'</span>' +
+      '</div>' +
+      '<textarea class="bit-edit-textarea" id="bit-edit-'+ev.id+'">'+bitEscape(ev.contenido||'')+'</textarea>' +
+      '<div class="bit-edit-actions">' +
+        '<button class="bit-edit-save" onclick="bitGuardarEdicion(\''+ev.id+'\')">Guardar</button>' +
+        '<button class="bit-edit-cancel" onclick="bitCancelarEdicion()">Cancelar</button>' +
+      '</div>' +
+    '</div>';
+  }
+  // Modo normal
+  var actions = puedeEditar
+    ? '<div class="bit-item-actions">' +
+        '<button class="bit-action-btn" onclick="bitIniciarEdicion(\''+ev.id+'\')" title="Editar">✎</button>' +
+      '</div>'
+    : '';
+  var editedTag = ev.editado
+    ? ' <span class="bit-item-edited" title="Editado '+(ev.historial?ev.historial.length:'1')+' vez(es)">✎</span>'
+    : '';
+  return '<div class="bit-item" data-tipo="'+(ev.tipo||'info')+'" data-id="'+ev.id+'">' +
+    actions +
+    '<div class="bit-item-head">' +
+      '<span class="bit-item-tipo">'+info.emoji+' '+info.lbl+'</span>' +
+      (ev.vehiculo ? '<span class="bit-item-vehiculo">'+bitEscape(ev.vehiculo)+'</span>' : '') +
+      (ev.codigo ? '<span class="bit-item-codigo">'+bitEscape(ev.codigo)+'</span>' : '') +
+      '<span class="bit-item-hora">'+hora+'</span>' +
+    '</div>' +
+    '<div class="bit-item-content">'+bitEscape(ev.contenido||'')+'</div>' +
+    '<div class="bit-item-author">— '+bitEscape((ev.autor&&ev.autor.nombre)||'Sistema')+
+      ' · '+bitEscape((ev.autor&&ev.autor.rol)||'-')+editedTag+
+    '</div>' +
+  '</div>';
+}
+
+function bitEscape(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// HANDLERS DE UI
+// ════════════════════════════════════════════════════════════════════
+
+window.bitTogglePanel = function() {
+  var panel = document.getElementById('panel-bitacora');
+  if (!panel) return;
+  panel.classList.toggle('collapsed');
+  window.bitState.panelOpen = !panel.classList.contains('collapsed');
+  var btn = document.getElementById('bit-collapse');
+  if (btn) btn.textContent = window.bitState.panelOpen ? '◀' : '▶';
+  // Reajustar mapa
+  if (window.map && window.map.invalidateSize) {
+    setTimeout(function(){ window.map.invalidateSize(); }, 280);
+  }
+};
+
+window.bitFiltrar = function(filtro, el) {
+  window.bitState.filtroActual = filtro;
+  document.querySelectorAll('.bit-filter').forEach(function(b){ b.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  bitRender();
+};
+
+window.bitAgregarNota = async function() {
+  var inp = document.getElementById('bit-add-input');
+  if (!inp) return;
+  var texto = (inp.value || '').trim();
+  if (!texto) return;
+  if (!window.bitState.emergId) {
+    bitNotif('⚠ Sin emergencia','Selecciona una emergencia primero.');
+    return;
+  }
+  var perfil = window._fbPerfil || {};
+  if (!['superadmin','admin-cuerpo','operadora'].includes(perfil.rol)) {
+    bitNotif('🚫 Sin permiso','Tu rol no puede agregar notas a la bitácora.');
+    return;
+  }
+  inp.disabled = true;
+  var ok = await window.bitAgregarEvento(window.bitState.emergId, {
+    tipo     : 'manual',
+    contenido: texto,
+  });
+  inp.disabled = false;
+  if (ok) {
+    inp.value = '';
+    inp.focus();
+  } else {
+    bitNotif('❌ Error','No se pudo guardar la nota.');
+  }
+};
+
+window.bitIniciarEdicion = function(eventoId) {
+  window.bitState.modoEdicion = eventoId;
+  bitRender();
+  setTimeout(function(){
+    var ta = document.getElementById('bit-edit-' + eventoId);
+    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }, 50);
+};
+
+window.bitCancelarEdicion = function() {
+  window.bitState.modoEdicion = null;
+  bitRender();
+};
+
+window.bitGuardarEdicion = async function(eventoId) {
+  var ta = document.getElementById('bit-edit-' + eventoId);
+  if (!ta) return;
+  var nuevo = (ta.value || '').trim();
+  if (!nuevo) {
+    bitNotif('⚠ Vacío','El contenido no puede estar vacío.');
+    return;
+  }
+  var ok = await window.bitEditarEvento(window.bitState.emergId, eventoId, nuevo);
+  if (ok) {
+    window.bitState.modoEdicion = null;
+    // El render se actualiza por el onSnapshot
+  }
+};
+
+window.bitCambiarEmergencia = function(fbId) {
+  // Permite al operador cambiar entre emergencias activas
+  if (typeof emergencias !== 'undefined' && emergencias) {
+    var emerg = emergencias.find(function(e){ return e.fbId === fbId; });
+    if (emerg) {
+      window.bitConectarPanel(emerg.fbId, emerg.id);
+    }
+  }
+};
+
+// Refresca el selector de emergencias activas en el header del panel
+window.bitActualizarSelector = function() {
+  var sel = document.getElementById('bit-emerg-selector');
+  var idLabel = document.getElementById('bit-emerg-id');
+  if (!sel || typeof emergencias === 'undefined') return;
+  var activas = emergencias.filter(function(e){ return e.estado === 'activa' && e.fbId; });
+  if (activas.length <= 1) {
+    sel.style.display = 'none';
+    if (idLabel) idLabel.style.display = activas.length === 1 ? 'inline-block' : 'none';
+    return;
+  }
+  // Mostrar selector cuando hay 2+ activas
+  sel.style.display = 'inline-block';
+  if (idLabel) idLabel.style.display = 'none';
+  var actualFbId = window.bitState.emergId;
+  sel.innerHTML = activas.map(function(e){
+    var sel = e.fbId === actualFbId ? ' selected' : '';
+    return '<option value="'+e.fbId+'"'+sel+'>'+e.id+' · '+(e.tipo||'')+'</option>';
+  }).join('');
+};
+
+function bitNotif(title, msg) {
+  if (typeof showNotif === 'function') showNotif(title, msg);
+  else console.log('[Bitácora]', title, msg);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// INTEGRACIÓN AUTOMÁTICA — registrar eventos de los flujos existentes
+// ════════════════════════════════════════════════════════════════════
+
+// Patch de fbGuardarEmergencia para registrar evento de creación + datos
+var _origFbGuardar = window.fbGuardarEmergencia;
+window.fbGuardarEmergencia = async function(e) {
+  var fbId = await _origFbGuardar(e);
+  if (fbId) {
+    // Conectar el panel automáticamente a la nueva emergencia
+    setTimeout(function(){
+      window.bitConectarPanel(fbId, e.id);
+      window.bitActualizarSelector();
+    }, 300);
+    // Eventos iniciales
+    await window.bitAgregarEvento(fbId, {
+      tipo     : 'creacion',
+      codigo   : e.subtipo || e.tipo,
+      contenido: 'Se crea despacho ' + e.id + '. Clave: ' + (e.subtipo || e.tipo) + '. ' +
+                 'Dirección: ' + (e.direccion || '—'),
+    });
+    if (e.reportante || e.telefono) {
+      await window.bitAgregarEvento(fbId, {
+        tipo     : 'contacto',
+        contenido: 'Reportante: ' + (e.reportante || '—') +
+                   (e.telefono ? ' · Tel: ' + e.telefono : ''),
+      });
+    }
+    if (e.lat && e.lng) {
+      await window.bitAgregarEvento(fbId, {
+        tipo     : 'coords',
+        contenido: 'Coordenadas: ' + e.lat.toFixed(6) + ', ' + e.lng.toFixed(6),
+        metadata : { lat: e.lat, lng: e.lng },
+      });
+    }
+    if (e.companias && e.companias.length) {
+      var carrosStr = (e.carros||[]).join(', ') || '—';
+      await window.bitAgregarEvento(fbId, {
+        tipo     : 'despacho',
+        contenido: 'Despacho: ' + e.companias.join(', ') + ' · Carros: ' + carrosStr,
+        metadata : { companias: e.companias, carros: e.carros },
+      });
+    }
+  }
+  return fbId;
+};
+
+// Patch de fbActualizarClaveEstado para registrar cambios de estado
+var _origFbClave = window.fbActualizarClaveEstado;
+window.fbActualizarClaveEstado = async function(fbId, ciaId, clave, valor) {
+  var r = await _origFbClave(fbId, ciaId, clave, valor);
+  // Mapeo de claves a labels legibles
+  var CLAVE_LBL = {
+    despacho: 'Despachado',
+    s60     : '6-0 · Salida del cuartel',
+    s63     : '6-3 · Llegada al lugar',
+    s67     : '6-7 · Emergencia controlada',
+    s69     : '6-9 · Salida del lugar',
+    s610    : '6-10 · Llegada al cuartel',
+  };
+  var codigoCorto = {
+    s60:'6-0', s63:'6-3', s67:'6-7', s69:'6-9', s610:'6-10', despacho:'DESP'
+  }[clave] || clave;
+  await window.bitAgregarEvento(fbId, {
+    tipo     : 'estado',
+    vehiculo : ciaId,
+    codigo   : codigoCorto,
+    contenido: ciaId + ' → ' + (CLAVE_LBL[clave] || clave) + ' a las ' + valor,
+    metadata : { ciaId: ciaId, clave: clave, hora: valor },
+  });
+  return r;
+};
+
+// Patch de fbCerrarEmergencia para registrar cierre
+var _origFbCerrar = window.fbCerrarEmergencia;
+window.fbCerrarEmergencia = async function(fbId, datosFinales) {
+  if (fbId) {
+    await window.bitAgregarEvento(fbId, {
+      tipo     : 'cierre',
+      contenido: 'Emergencia cerrada por el operador.',
+      metadata : datosFinales,
+    });
+  }
+  return _origFbCerrar(fbId, datosFinales);
+};
+
+console.log('[Bitácora] Módulo cargado · panel listo');
 // ===== INIT PARTE =====
 function init(){
   initSelector();
