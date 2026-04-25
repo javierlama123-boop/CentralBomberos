@@ -3201,8 +3201,8 @@ function cerrarEmergencia(){
 }
 
 // ===== DETALLE MODAL =====
-  if(window.bitCambiarAEmergencia) window.bitCambiarAEmergencia(id);
 function abrirDetalle(id){
+  if(window.bitCambiarAEmergencia) window.bitCambiarAEmergencia(id);
   const e=emergencias.find(x=>x.id===id); if(!e) return;
   activeEmergId=id;
   document.getElementById('modal-det-titulo').textContent=`${e.id} — ${e.subtipo||e.tipo}`;
