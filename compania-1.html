@@ -200,6 +200,10 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
         <div class="stat"><div class="stat-n" id="ds-sal" style="color:var(--amber)">0</div><div class="stat-l">Salidas mes</div></div>
         <div class="stat"><div class="stat-n" id="ds-par" style="color:var(--purple)">0</div><div class="stat-l">Partes</div></div>
       </div>
+      <!-- V2.4 — Presencia en cuartel -->
+      <div id="ds-presencia" style="background:rgba(34,197,94,.08);border:1px solid var(--green);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--text);">
+        🏠 <strong>0</strong> presente(s) · 🚒 <strong>0</strong> conductor(es) en cuartel
+      </div>
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
         <div class="card">
           <div class="card-title">Últimas Salidas <button class="btn btn-secondary btn-sm" onclick="navTo('salidas',document.querySelector('[onclick*=salidas]'))">Ver todas</button></div>
@@ -320,9 +324,16 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
         <div class="fg"><div class="fl">Fecha Ingreso</div><input class="fi" type="date" id="vol-ingreso"></div>
         <div class="fg" style="grid-column:1/-1">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);">
-            <input type="checkbox" id="vol-conductor" style="accent-color:var(--red);width:14px;height:14px;">
-            <div><div style="font-size:12px;font-weight:600;">🚒 Habilitado para conducir</div><div style="font-size:10px;color:var(--text3)">Aparecerá en selector de conductor</div></div>
+            <input type="checkbox" id="vol-conductor" style="accent-color:var(--red);width:14px;height:14px;" onchange="onVolConductorChange()">
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;">🚒 Habilitado para conducir</div><div style="font-size:10px;color:var(--text3)">Marca al menos un carro abajo. El selector del CAD filtrará por carro.</div></div>
           </label>
+        </div>
+        <!-- V2 — Habilitación por carro específico -->
+        <div class="fg" style="grid-column:1/-1;display:none;" id="vol-carros-block">
+          <div class="fl">Carros que está habilitado a conducir</div>
+          <div id="vol-carros-checks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:8px;max-height:160px;overflow-y:auto;">
+            <div style="font-size:11px;color:var(--text3);font-style:italic;">Cargá los carros de la cía primero (sección Vehículos).</div>
+          </div>
         </div>
         <div class="fg" style="grid-column:1/-1"><div class="fl">Observaciones</div><textarea class="fta" id="vol-obs" placeholder="Especialidades, notas..."></textarea></div>
       </div>
@@ -1163,10 +1174,18 @@ function renderDashboard() {
   var dispCar = carros.filter(function(c){ return c.estado==='disponible'; }).length;
   var mes = new Date().toISOString().slice(0,7);
   var salMes = salidas.filter(function(s){ return s.fecha && s.fecha.startsWith(mes); }).length;
+  // V2.4 — voluntarios presentes en cuartel
+  var presentes = voluntarios.filter(function(v){ return v.estado==='activo' && v.presenteEnCuartel; }).length;
+  var conductoresPresentes = voluntarios.filter(function(v){ return v.estado==='activo' && v.presenteEnCuartel && v.conductor; }).length;
   document.getElementById('ds-vol').textContent = activos;
   document.getElementById('ds-car').textContent = dispCar;
   document.getElementById('ds-sal').textContent = salMes;
   document.getElementById('ds-par').textContent = partes.length;
+  // Inyectar contador de presencia en el header del cuerpo (si existe el contenedor)
+  var presEl = document.getElementById('ds-presencia');
+  if(presEl){
+    presEl.innerHTML = '🏠 <strong>' + presentes + '</strong> presente(s) · 🚒 <strong>' + conductoresPresentes + '</strong> conductor(es) en cuartel';
+  }
 
   var ultimas = salidas.slice(-5).reverse();
   var dsls = document.getElementById('ds-last-salidas');
@@ -1280,8 +1299,23 @@ function renderVoluntarios() {
     var btns = document.createElement('div');
     btns.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;';
     btns.appendChild(dot);
+
+    // V2.4 — Presencia en cuartel
+    var btnPresencia = document.createElement('button');
+    var presente = !!v.presenteEnCuartel;
+    btnPresencia.className = 'btn btn-sm';
+    btnPresencia.style.cssText = presente
+      ? 'background:rgba(34,197,94,.18);color:var(--green);border:1px solid var(--green);font-weight:700;'
+      : 'background:transparent;color:var(--text3);border:1px dashed var(--border);';
+    btnPresencia.textContent = presente ? '🏠 En cuartel' : '🏠 Marcar';
+    btnPresencia.title = presente
+      ? 'Presente desde ' + (v.presenciaTimestamp ? new Date(v.presenciaTimestamp.toMillis ? v.presenciaTimestamp.toMillis() : v.presenciaTimestamp).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}) : '—') + ' — click para marcar fuera'
+      : 'Click para marcar como presente en cuartel';
+    btnPresencia.onclick = function(){ togglePresencia(vid); };
+
     var btnsRow = document.createElement('div');
     btnsRow.style.cssText = 'display:flex;gap:4px;';
+    btnsRow.appendChild(btnPresencia);
     btnsRow.appendChild(btnEditar);
     btnsRow.appendChild(btnEliminar);
     btns.appendChild(btnsRow);
@@ -1308,25 +1342,74 @@ function abrirModalVoluntario(id) {
   document.getElementById('vol-ingreso').value   = v ? v.ingreso : '';
   document.getElementById('vol-obs').value       = v ? v.obs     : '';
   document.getElementById('vol-conductor').checked = v ? !!v.conductor : false;
+  // V2 — render checkboxes per-carro de la cía
+  renderVolCarrosChecks(v);
   openModal('modal-voluntario');
+}
+
+// V2 — render de checkboxes "habilitado para conducir X carro" por cada carro de la cía
+function renderVolCarrosChecks(v) {
+  var bloque = document.getElementById('vol-carros-block');
+  var cont   = document.getElementById('vol-carros-checks');
+  if(!bloque || !cont) return;
+  var habilitado = v ? !!v.conductor : false;
+  bloque.style.display = habilitado ? '' : 'none';
+  if(!Array.isArray(carros) || carros.length === 0){
+    cont.innerHTML = '<div style="font-size:11px;color:var(--text3);font-style:italic;">No hay carros cargados aún. Agrega carros en la sección Vehículos.</div>';
+    return;
+  }
+  // Backwards compat: si no tiene array conductorCarros pero tiene conductor:true → asumir TODOS
+  var carrosHabil = (v && Array.isArray(v.conductorCarros)) ? v.conductorCarros
+                  : (v && v.conductor) ? carros.map(function(c){ return c.id; }).slice()
+                  : [];
+  cont.innerHTML = carros.map(function(c){
+    var checked = carrosHabil.indexOf(c.id) !== -1;
+    return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:5px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);font-size:11px;">' +
+      '<input type="checkbox" class="vol-carro-chk" data-carro="' + c.id + '" ' + (checked?'checked':'') + ' style="accent-color:var(--red);">' +
+      '<span><strong>' + c.nombre + '</strong> · ' + (c.tipo||'') + '</span>' +
+    '</label>';
+  }).join('');
+}
+
+// V2 — toggle del bloque per-carro al cambiar el flag conductor
+function onVolConductorChange() {
+  var habilitado = document.getElementById('vol-conductor').checked;
+  var bloque = document.getElementById('vol-carros-block');
+  if(bloque) bloque.style.display = habilitado ? '' : 'none';
+  // Si recién se habilita y no hay carros marcados, marcar todos por default
+  if(habilitado){
+    var checks = document.querySelectorAll('.vol-carro-chk');
+    var algunoMarcado = Array.from(checks).some(function(c){ return c.checked; });
+    if(!algunoMarcado) checks.forEach(function(c){ c.checked = true; });
+  }
 }
 
 function guardarVoluntario() {
   var editId = document.getElementById('vol-edit-id').value;
   var nombre = document.getElementById('vol-nombre').value.trim();
   if(!nombre){ notif('Campo requerido','Ingresa el nombre','var(--red)'); return; }
+  // V2 — leer checkboxes per-carro
+  var conductorFlag = document.getElementById('vol-conductor').checked;
+  var conductorCarros = conductorFlag
+    ? Array.from(document.querySelectorAll('.vol-carro-chk:checked')).map(function(c){ return c.dataset.carro; })
+    : [];
+  if(conductorFlag && conductorCarros.length === 0){
+    notif('Falta especificar', 'Marca al menos un carro al que está habilitado a conducir', 'var(--amber)');
+    return;
+  }
   var datos = {
-    nombre:    nombre,
-    num:       document.getElementById('vol-num').value,
-    cat:       document.getElementById('vol-cat').value,
-    cargo:     document.getElementById('vol-cargo').value,
-    tel:       document.getElementById('vol-tel').value,
-    wsp:       document.getElementById('vol-wsp').value,
-    email:     document.getElementById('vol-email').value,
-    estado:    document.getElementById('vol-estado').value,
-    ingreso:   document.getElementById('vol-ingreso').value,
-    obs:       document.getElementById('vol-obs').value,
-    conductor: document.getElementById('vol-conductor').checked
+    nombre:           nombre,
+    num:              document.getElementById('vol-num').value,
+    cat:              document.getElementById('vol-cat').value,
+    cargo:            document.getElementById('vol-cargo').value,
+    tel:              document.getElementById('vol-tel').value,
+    wsp:              document.getElementById('vol-wsp').value,
+    email:            document.getElementById('vol-email').value,
+    estado:           document.getElementById('vol-estado').value,
+    ingreso:          document.getElementById('vol-ingreso').value,
+    obs:              document.getElementById('vol-obs').value,
+    conductor:        conductorFlag,
+    conductorCarros:  conductorCarros
   };
   if(editId) {
     var idx = voluntarios.findIndex(function(x){ return x.id===editId; });
@@ -2000,7 +2083,9 @@ window.guardarVoluntario = async function() {
     var data = {
       nombre: v.nombre||'', num: v.num||'', cat: v.cat||'bombero', cargo: v.cargo||'',
       email: v.email||'', tel: v.tel||'', wsp: v.wsp||'', estado: v.estado||'activo',
-      conductor: v.conductor||false, obs: v.obs||'', ingreso: v.ingreso||'',
+      conductor: v.conductor||false,
+      conductorCarros: Array.isArray(v.conductorCarros) ? v.conductorCarros : [],   // V2
+      obs: v.obs||'', ingreso: v.ingreso||'',
       cia: CIA_ID, rol: (v.cat==='oficial'?'oficial':'voluntario'), activo: v.estado==='activo',
       actualizado: serverTimestamp()
     };
@@ -2056,6 +2141,45 @@ window.eliminarVoluntario = async function(id) {
   var v = voluntarios.find(function(x){return x.id===id;});
   if (v && v.fbId) {
     try { await deleteDoc(doc(fbDb,'voluntarios',v.fbId)); } catch(e){}
+  }
+};
+
+// ════════════════════════════════════════════════════════════════
+// V2.4 — Presencia en cuartel
+// Toggle binario por voluntario. Persiste a Firestore con timestamp y autor.
+// Visible en CAD (vía V2.4c) y en panel de monitoreo de la cía.
+// ════════════════════════════════════════════════════════════════
+window.togglePresencia = async function(volId) {
+  var v = voluntarios.find(function(x){ return x.id === volId; });
+  if (!v) return;
+  if (!v.fbId) {
+    notif('⚠️ Sin sincronizar', 'Guarda este voluntario primero (editar y guardar)', 'var(--amber)');
+    return;
+  }
+  var nuevo = !v.presenteEnCuartel;
+  // Optimistic UI update
+  var origPresente = v.presenteEnCuartel;
+  var origTs = v.presenciaTimestamp;
+  v.presenteEnCuartel = nuevo;
+  v.presenciaTimestamp = Date.now();
+  if (typeof renderVoluntarios === 'function') renderVoluntarios();
+  if (typeof renderDashboard   === 'function') renderDashboard();
+  try {
+    var perfil = window._fbPerfil || {};
+    await updateDoc(doc(fbDb,'voluntarios', v.fbId), {
+      presenteEnCuartel  : nuevo,
+      presenciaTimestamp : serverTimestamp(),
+      presenciaSetBy     : perfil.uid ? { uid: perfil.uid, nombre: perfil.nombre || '' } : null
+    });
+    notif(nuevo ? '🏠 En cuartel' : '↩ Salió del cuartel', v.nombre);
+  } catch(e) {
+    console.warn('[FB] Error togglePresencia:', e);
+    // Revertir UI
+    v.presenteEnCuartel = origPresente;
+    v.presenciaTimestamp = origTs;
+    if (typeof renderVoluntarios === 'function') renderVoluntarios();
+    if (typeof renderDashboard   === 'function') renderDashboard();
+    notif('⚠️ Error', 'No se pudo guardar el cambio', 'var(--red)');
   }
 };
 

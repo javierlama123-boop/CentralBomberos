@@ -249,6 +249,7 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
         <div class="sb-item" onclick="navCuerpo('stats-cuerpo',this)" id="nav-c-stats"><span class="ico">📈</span>Estadísticas</div>
         <div class="sb-item" onclick="navCuerpo('emergencias-cuerpo',this)" id="nav-c-emergencias"><span class="ico">🚨</span>Emergencias</div>
         <div class="sb-item" onclick="navCuerpo('tabla-despacho',this)" id="nav-c-tabla"><span class="ico">📋</span>Tabla de Despacho</div>
+        <div class="sb-item" onclick="navCuerpo('chips-relato',this)" id="nav-c-chips"><span class="ico">🏷️</span>Etiquetas Rápidas</div>
       </div>
 
       <!-- Vista Compañía -->
@@ -505,6 +506,46 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
             <thead><tr><th>Tipo de Emergencia</th><th>Clave</th><th>Zona</th><th>Unidades Despachadas</th><th>Prioridad</th><th>Acciones</th></tr></thead>
             <tbody id="tbody-tabla-despacho"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Cargando...</div></td></tr></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- ═══ ETIQUETAS RÁPIDAS DEL RELATO (V2 chips relato) ═══ -->
+      <div class="page" id="page-chips-relato">
+        <div class="page-title">Etiquetas Rápidas del Relato</div>
+        <div class="page-sub">Frases que aparecen como chips clickeables en el modal "Relato del llamado" del CAD, agrupadas por código de emergencia (10-X). El operador las usa para capturar rápido lo que dice el reportante.</div>
+
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+          <label style="font-size:12px;color:var(--text2);font-weight:600;">Código:</label>
+          <select class="fselect" id="chips-codigo-sel" onchange="renderChipsRelato()" style="width:240px;">
+            <option value="10-0">10-0 · Incendio estructural</option>
+            <option value="10-1">10-1 · Accidente vehicular</option>
+            <option value="10-2">10-2 · Emergencia médica</option>
+            <option value="10-3">10-3 · Animal en peligro</option>
+            <option value="10-4">10-4 · MAT-PEL / gas</option>
+            <option value="10-5">10-5 · Cable eléctrico</option>
+            <option value="10-6">10-6 · Fenómeno natural</option>
+            <option value="10-7">10-7 · Búsqueda persona</option>
+            <option value="DEF">DEF · Default (chips genéricos)</option>
+          </select>
+          <button class="btn-sec" onclick="cargarChipsDefault()" title="Restaurar las etiquetas predefinidas para este código">🔄 Restaurar default</button>
+          <span id="chips-status" style="font-size:11px;color:var(--text3);margin-left:auto;"></span>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-header" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div class="table-title">Chips para <strong id="chips-codigo-lbl">10-0</strong> · <span id="chips-cnt" style="color:var(--text3);font-weight:400;">0 etiquetas</span></div>
+            <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <input type="text" id="chips-nuevo-input" placeholder="Ej: Humo visible..." class="search-input" style="width:280px;" onkeydown="if(event.key==='Enter')agregarChip()" maxlength="80">
+              <button class="btn-green" onclick="agregarChip()">+ Agregar</button>
+            </div>
+          </div>
+          <div id="chips-list" style="padding:14px;display:flex;flex-wrap:wrap;gap:8px;min-height:60px;">
+            <div style="font-size:11px;color:var(--text3);font-style:italic;">Cargando...</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;padding:12px 14px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);border-radius:var(--r);font-size:12px;color:var(--text2);">
+          💡 <strong>Tip:</strong> Las etiquetas se guardan automáticamente al agregar/eliminar. El CAD las refresca al recargarse (Ctrl+Shift+R) o al iniciar sesión nueva.
         </div>
       </div>
 
@@ -1104,7 +1145,8 @@ window.navCuerpo = function(name, el) {
     'companias': cargarCompanias,
     'stats-cuerpo': cargarStatsCuerpo,
     'emergencias-cuerpo': cargarEmergenciasCuerpo,
-    'tabla-despacho': function(){ (window.cargarTablaDespacho||function(){})(); }
+    'tabla-despacho': function(){ (window.cargarTablaDespacho||function(){})(); },
+    'chips-relato':   function(){ (window.cargarChipsRelato||function(){})();   }
   };
   if (loaders[name]) loaders[name]();
 };
@@ -3042,6 +3084,122 @@ window.cargarTablaDefault = function() {
   renderTablaDespacho();
   showNotif('✅','Tabla default cargada','Reglas predeterminadas de Frutillar aplicadas');
 };
+
+// ════════════════════════════════════════════════════════════════
+// V2 · MANTENEDOR DE ETIQUETAS RÁPIDAS DEL RELATO
+// Persiste en Firestore: config_cad/relato_chips
+// Schema: { chips: { "10-0":[...], "10-1":[...], "DEF":[...] }, actualizado, autor }
+// El CAD (index.html) lee este doc al iniciar y reemplaza window.RELATO_CHIPS.
+// ════════════════════════════════════════════════════════════════
+const CHIPS_DEFAULT = {
+  '10-0': ['Hay personas adentro','Humo visible','Llamas visibles','Olor a quemado','Vecinos evacuados','Hay niños/adultos mayores','Cilindro de gas dentro'],
+  '10-1': ['Heridos atrapados','Vehículo volcado','Sin movimiento','Conductor inconsciente','Combustible derramado','Vidrios rotos','Múltiples vehículos'],
+  '10-2': ['Persona inconsciente','Dolor en pecho','No respira','Sangrado abundante','Convulsiones','Adulto mayor','Embarazada','Caída de altura'],
+  '10-3': ['Animal en árbol','Animal en techo','Animal herido','Animal en pozo/canal','Persona enfrentada con animal'],
+  '10-4': ['Olor a gas fuerte','Cilindro caído','Camión volcado','Mancha en el agua','Vecinos con síntomas','Humo extraño'],
+  '10-5': ['Cable caído','Transformador en llamas','Chispas','Postes inclinados','Sin luz en sector'],
+  '10-6': ['Árbol caído sobre casa','Árbol bloqueando vía','Inundación','Techo dañado','Línea eléctrica caída','Río desbordado'],
+  '10-7': ['Persona desaparecida','Persona en agua','Persona en cerro','Última vez vista','Sin abrigo','Adulto mayor con demencia'],
+  'DEF':  ['Hay personas en peligro','Múltiples afectados','Situación urgente','Vecinos pidiendo ayuda','No hay acceso fácil','Lugar de difícil llegada']
+};
+let chipsRelatoData = {};
+
+window.cargarChipsRelato = async function() {
+  document.getElementById('chips-status').textContent = 'Cargando…';
+  try {
+    var snap = await getDoc(doc(db, 'config_cad', 'relato_chips'));
+    if (snap.exists() && snap.data().chips) {
+      chipsRelatoData = snap.data().chips;
+      document.getElementById('chips-status').textContent = '☁ Sincronizado con Firebase';
+    } else {
+      // Primera vez: arrancar con defaults
+      chipsRelatoData = JSON.parse(JSON.stringify(CHIPS_DEFAULT));
+      await guardarChipsRelato(true);
+      document.getElementById('chips-status').textContent = '☁ Inicializado con defaults';
+    }
+  } catch(e) {
+    console.warn('[Chips] Error cargando:', e);
+    chipsRelatoData = JSON.parse(JSON.stringify(CHIPS_DEFAULT));
+    document.getElementById('chips-status').textContent = '⚠ Sin conexión — usando defaults';
+  }
+  renderChipsRelato();
+};
+
+window.renderChipsRelato = function() {
+  var sel = document.getElementById('chips-codigo-sel');
+  if (!sel) return;
+  var codigo = sel.value;
+  var lista  = chipsRelatoData[codigo] || [];
+  document.getElementById('chips-codigo-lbl').textContent = codigo;
+  document.getElementById('chips-cnt').textContent = lista.length + ' etiquetas';
+  var cont = document.getElementById('chips-list');
+  if (!lista.length) {
+    cont.innerHTML = '<div style="font-size:12px;color:var(--text3);font-style:italic;width:100%;text-align:center;padding:20px;">Sin etiquetas para este código. Agrega una arriba o restaura los defaults.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(function(txt, i) {
+    var safe = String(txt).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return '<div class="chip-item" style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);padding:5px 5px 5px 12px;border-radius:18px;font-size:12px;font-weight:500;color:var(--text);">' +
+      '<span>' + escHtml(txt) + '</span>' +
+      '<button onclick="eliminarChip(' + i + ')" title="Eliminar" style="width:22px;height:22px;border-radius:50%;background:rgba(229,57,53,.12);border:none;color:var(--red);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:700;line-height:1;">×</button>' +
+    '</div>';
+  }).join('');
+};
+
+window.agregarChip = async function() {
+  var inp = document.getElementById('chips-nuevo-input');
+  var txt = (inp.value || '').trim();
+  if (!txt) { showNotif('⚠️','Vacío','Escribe el texto de la etiqueta'); return; }
+  if (txt.length > 80) { showNotif('⚠️','Muy largo','Máximo 80 caracteres'); return; }
+  var codigo = document.getElementById('chips-codigo-sel').value;
+  if (!chipsRelatoData[codigo]) chipsRelatoData[codigo] = [];
+  // Evitar duplicados case-insensitive
+  if (chipsRelatoData[codigo].some(function(x){ return x.toLowerCase() === txt.toLowerCase(); })) {
+    showNotif('⚠️','Duplicado','Esta etiqueta ya existe en ' + codigo);
+    return;
+  }
+  chipsRelatoData[codigo].push(txt);
+  inp.value = '';
+  inp.focus();
+  renderChipsRelato();
+  await guardarChipsRelato();
+};
+
+window.eliminarChip = async function(idx) {
+  var codigo = document.getElementById('chips-codigo-sel').value;
+  if (!chipsRelatoData[codigo]) return;
+  var txt = chipsRelatoData[codigo][idx];
+  if (!confirm('¿Eliminar la etiqueta "' + txt + '"?')) return;
+  chipsRelatoData[codigo].splice(idx, 1);
+  renderChipsRelato();
+  await guardarChipsRelato();
+};
+
+window.cargarChipsDefault = async function() {
+  var codigo = document.getElementById('chips-codigo-sel').value;
+  if (!confirm('¿Restaurar las etiquetas predefinidas de ' + codigo + '?\n\nLas actuales se reemplazarán por completo.')) return;
+  chipsRelatoData[codigo] = (CHIPS_DEFAULT[codigo] || []).slice();
+  renderChipsRelato();
+  await guardarChipsRelato();
+  showNotif('🔄','Restaurado','Defaults aplicados a ' + codigo);
+};
+
+async function guardarChipsRelato(silent) {
+  try {
+    document.getElementById('chips-status').textContent = '💾 Guardando…';
+    await setDoc(doc(db, 'config_cad', 'relato_chips'), {
+      chips:       chipsRelatoData,
+      actualizado: serverTimestamp(),
+      autor:       (window._userPerfil && window._userPerfil.nombre) || (window._userEmail || 'admin')
+    });
+    document.getElementById('chips-status').textContent = '☁ Sincronizado con Firebase · ' + new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    if (!silent) showNotif('☁ Guardado','Sincronizado con Firebase');
+  } catch(e) {
+    console.error('[Chips] Error guardando:', e);
+    document.getElementById('chips-status').textContent = '❌ Error: ' + e.message;
+    if (!silent) showNotif('❌ Error','No se pudo guardar: ' + e.message);
+  }
+}
 </script>
 </body>
 </html>

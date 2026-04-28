@@ -65,6 +65,10 @@ html,body{height:100vh;overflow:hidden;background:var(--bg);color:var(--text);fo
 .finput,.fselect,.ftextarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:7px 9px;font-size:12px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .15s;}
 .finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--red);}
 .finput::placeholder{color:var(--text3);}
+.finput-wrap{display:flex;align-items:stretch;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .15s;}
+.finput-wrap:focus-within{border-color:var(--red);}
+.finput-prefix{display:flex;align-items:center;padding:7px 9px;background:var(--bg2);color:var(--text2);font-size:12px;font-family:'Barlow',sans-serif;font-weight:700;border-right:1px solid var(--border);user-select:none;flex-shrink:0;}
+.finput-wrap > .finput{border:none;border-radius:0;background:transparent;flex:1;min-width:0;}
 .ftextarea{resize:vertical;min-height:50px;}
 .fselect option{background:var(--bg3);}
 .geocode-results{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);z-index:900;max-height:180px;overflow-y:auto;}
@@ -367,7 +371,55 @@ body.no-auth #ia-fab, body.no-auth .map-wrapper { display:none !important; }
 .panel-bitacora.collapsed .bit-toolbar,
 .panel-bitacora.collapsed .bit-empty{display:none;}
 .panel-bitacora.collapsed .bit-header-title,
-.panel-bitacora.collapsed .bit-emerg-id{display:none;}
+.panel-bitacora.collapsed .bit-emerg-id,
+.panel-bitacora.collapsed .bit-pulse{display:none;}
+/* V2 fix — header colapsado: padding reducido y botón centrado para que se vea/clickee */
+.panel-bitacora.collapsed .bit-header{padding:6px 4px;justify-content:center;}
+.panel-bitacora.collapsed .bit-collapse-btn{width:28px;height:28px;font-size:14px;}
+
+/* V2 — Bitácora arriba del mapa (position-top): horizontal full width, altura dinámica */
+.panel-bitacora.position-top{
+  width:auto;flex-shrink:0;border-left:none;border-bottom:1px solid var(--border);
+  height:60px;       /* default: solo header visible */
+  transition:height .25s ease;
+}
+.panel-bitacora.position-top.connected{
+  height:280px;      /* auto-expanded cuando hay emergencia activa conectada */
+}
+.panel-bitacora.position-top.collapsed{
+  width:auto;        /* override del .collapsed{width:36px;} original */
+  height:36px;
+}
+.panel-bitacora.position-top .bit-empty{
+  flex-direction:row;padding:8px 14px;gap:10px;align-items:center;
+  justify-content:center;
+}
+.panel-bitacora.position-top .bit-empty-ico{font-size:18px;}
+.panel-bitacora.position-top .bit-empty-txt{font-size:11px;text-align:left;}
+.panel-bitacora.position-top .bit-content{
+  flex:1;overflow-y:auto;
+}
+/* En position-top, el botón de collapse cambia su flecha (▲ minimizar / ▼ expandir) */
+.panel-bitacora.position-top.collapsed .bit-toolbar,
+.panel-bitacora.position-top.collapsed .bit-empty,
+.panel-bitacora.position-top.collapsed .bit-content{display:none;}
+.panel-bitacora.position-top.collapsed .bit-header-title,
+.panel-bitacora.position-top.collapsed .bit-emerg-id,
+.panel-bitacora.position-top.collapsed .bit-pulse{display:flex;}
+.panel-bitacora.position-top.collapsed .bit-header{padding:10px 12px;justify-content:flex-start;}
+
+/* V2 — Panel Emergencias Activas a la derecha */
+.panel-activas-right{
+  width:320px;flex-shrink:0;
+  border-left:1px solid var(--border);
+  background:var(--bg);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.panel-activas-right .activas-header{
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  background:var(--bg2);flex-shrink:0;
+}
 
 /* Header del panel */
 .bit-header{
@@ -552,6 +604,481 @@ body.no-auth #ia-fab, body.no-auth .map-wrapper { display:none !important; }
   font-size:9px;color:var(--purple);font-weight:600;
   display:flex;align-items:center;gap:5px;
 }
+
+/* ════ MODAL RELATO DEL LLAMADO (Bloque 2 · narrativos · paso 1) ════ */
+.narr-modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);
+  width:560px;max-width:96vw;max-height:88vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  animation:narrIn .2s ease;
+}
+@keyframes narrIn{
+  from{opacity:0;transform:translateY(-6px) scale(.98);}
+  to  {opacity:1;transform:translateY(0)    scale(1);}
+}
+.narr-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.narr-header.relato{background:linear-gradient(135deg,rgba(168,85,247,.18),rgba(168,85,247,.05));border-bottom-color:rgba(168,85,247,.3);}
+.narr-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.narr-icon.relato{background:rgba(168,85,247,.2);color:#c084fc;}
+.narr-title-block{flex:1;min-width:0;}
+.narr-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;line-height:1.1;}
+.narr-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.narr-body{padding:18px;}
+.narr-context{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:10px 12px;margin-bottom:14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;
+}
+.narr-context-item{display:flex;flex-direction:column;gap:2px;}
+.narr-context-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;}
+.narr-context-val{font-size:12px;font-weight:600;color:var(--text);word-break:break-word;}
+.narr-question{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.narr-question .req{color:var(--red);}
+.narr-textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:var(--r);padding:10px 12px;font-size:13px;font-family:'Barlow',sans-serif;
+  line-height:1.5;outline:none;resize:vertical;min-height:90px;
+}
+.narr-textarea:focus{border-color:#a855f7;}
+.narr-textarea::placeholder{color:var(--text3);font-style:italic;}
+.narr-counter{font-size:10px;color:var(--text3);margin-top:4px;text-align:right;font-family:'JetBrains Mono',monospace;}
+.narr-chips-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:14px;margin-bottom:7px;}
+.narr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.narr-chip{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  border-radius:14px;padding:4px 11px;font-size:11px;font-weight:600;
+  cursor:pointer;font-family:'Barlow',sans-serif;transition:all .12s;
+}
+.narr-chip:hover{border-color:#a855f7;color:#c084fc;background:rgba(168,85,247,.08);}
+.narr-chip.added{background:rgba(168,85,247,.18);border-color:#a855f7;color:#c084fc;}
+.narr-footer{
+  padding:13px 18px;border-top:1px solid var(--border);
+  display:flex;gap:8px;justify-content:flex-end;align-items:center;background:var(--bg);
+}
+.narr-footer-info{flex:1;font-size:10px;color:var(--text3);font-style:italic;}
+.narr-btn-cancel{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  padding:8px 16px;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:600;
+}
+.narr-btn-cancel:hover{background:var(--bg4);color:var(--text);}
+.narr-btn-confirm{
+  background:#a855f7;border:none;color:#fff;
+  padding:9px 18px;border-radius:var(--r);cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:900;
+  letter-spacing:1px;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;transition:background .15s;
+}
+.narr-btn-confirm:hover{background:#9333ea;}
+.narr-btn-confirm:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;opacity:.6;}
+
+/* ════ MODAL PRIMERA IMPRESIÓN (Bloque 2 · paso 2) ════ */
+.narr-header.impresion{background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(249,115,22,.05));border-bottom-color:rgba(249,115,22,.3);}
+.narr-icon.impresion{background:rgba(249,115,22,.2);color:#f97316;}
+.narr-emergid{
+  background:var(--bg3);border:1px solid var(--border);
+  padding:3px 8px;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  color:var(--text);
+}
+.narr-context-item.full{grid-column:1/-1;}
+.narr-context-val.muted{color:var(--text3);font-weight:400;font-style:italic;font-size:11px;}
+.narr-textarea.impresion:focus{border-color:#f97316;}
+.narr-btn-skip{
+  background:transparent;border:1px solid var(--border);color:var(--text3);
+  padding:8px 14px;border-radius:var(--r);cursor:pointer;
+  font-size:11px;font-weight:600;
+}
+.narr-btn-skip:hover{border-color:var(--text2);color:var(--text2);}
+.narr-btn-confirm.orange{background:#f97316;}
+.narr-btn-confirm.orange:hover{background:#ea580c;}
+
+/* ════ MODAL PRE-INFORME (Bloque 2 · paso 3) ════ */
+.narr-header.preinfo{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(59,130,246,.05));border-bottom-color:rgba(59,130,246,.3);}
+.narr-icon.preinfo{background:rgba(59,130,246,.2);color:var(--blue);}
+.narr-textarea.preinfo:focus{border-color:var(--blue);}
+.preinfo-section{margin-top:16px;}
+.preinfo-section-title{
+  font-size:11px;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;
+  padding-bottom:5px;border-bottom:1px solid var(--border);
+}
+.preinfo-radios{display:flex;flex-direction:column;gap:5px;}
+.preinfo-radio{
+  display:flex;align-items:center;gap:9px;cursor:pointer;
+  padding:8px 11px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);transition:all .12s;
+}
+.preinfo-radio input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;}
+.preinfo-radio-content{flex:1;}
+.preinfo-radio-lbl{font-size:12px;font-weight:700;}
+.preinfo-radio-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+.preinfo-radio.checked-bajo      {border-color:var(--green); background:rgba(16,185,129,.05);}
+.preinfo-radio.checked-bajo .preinfo-radio-lbl{color:var(--green);}
+.preinfo-radio.checked-desarrollo{border-color:var(--amber); background:rgba(245,158,11,.05);}
+.preinfo-radio.checked-desarrollo .preinfo-radio-lbl{color:var(--amber);}
+.preinfo-radio.checked-refuerzo  {border-color:#f97316;      background:rgba(249,115,22,.07);}
+.preinfo-radio.checked-refuerzo .preinfo-radio-lbl{color:#f97316;}
+.preinfo-radio.checked-critico   {border-color:var(--red);   background:rgba(229,57,53,.08);}
+.preinfo-radio.checked-critico .preinfo-radio-lbl{color:var(--red);}
+.preinfo-numbers{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.preinfo-num-group{display:flex;flex-direction:column;gap:3px;}
+.preinfo-num-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
+.preinfo-num{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:var(--r);padding:8px 10px;font-size:14px;font-weight:700;
+  font-family:'JetBrains Mono',monospace;outline:none;text-align:center;
+}
+.preinfo-num:focus{border-color:var(--blue);}
+.preinfo-apoyo-toggle{
+  display:flex;align-items:center;gap:9px;
+  padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);cursor:pointer;
+}
+.preinfo-apoyo-toggle input{accent-color:var(--red);width:15px;height:15px;}
+.preinfo-apoyo-toggle.active{background:rgba(229,57,53,.07);border-color:var(--red);}
+.preinfo-apoyo-toggle-lbl{font-size:12px;font-weight:600;flex:1;}
+.preinfo-cias-grid{
+  display:none;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+  gap:5px;margin-top:8px;
+}
+.preinfo-cias-grid.show{display:grid;}
+.preinfo-cia-check{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);
+  padding:6px 9px;border-radius:var(--r);cursor:pointer;font-size:11px;
+}
+.preinfo-cia-check input{accent-color:var(--red);}
+.preinfo-cia-check.disabled{opacity:.4;cursor:not-allowed;}
+.preinfo-cia-check.checked{background:rgba(229,57,53,.1);border-color:var(--red);color:var(--red);}
+.narr-btn-confirm.blue{background:var(--blue);}
+.narr-btn-confirm.blue:hover{background:#2563eb;}
+
+/* Botón Pre-informe en card de emergencia activa */
+.emerg-pre-action{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);
+  color:var(--blue);padding:7px 11px;border-radius:var(--r);
+  cursor:pointer;font-size:11px;font-weight:700;width:100%;
+  margin-top:6px;justify-content:center;transition:all .15s;
+}
+.emerg-pre-action:hover{background:rgba(59,130,246,.18);border-color:var(--blue);}
+.emerg-pre-action.parpadeo{
+  border-color:var(--amber);background:rgba(245,158,11,.15);color:var(--amber);
+  animation:btnBlink 1.2s ease-in-out infinite;
+}
+@keyframes btnBlink{
+  0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.5);}
+  50%    {box-shadow:0 0 0 6px rgba(245,158,11,0);}
+}
+.emerg-pre-done{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);
+  color:var(--green);padding:6px 11px;border-radius:var(--r);
+  font-size:10px;font-weight:700;margin-top:6px;justify-content:space-between;
+}
+.estado-incidente{
+  font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.estado-bajo      {background:rgba(16,185,129,.18);color:var(--green);}
+.estado-desarrollo{background:rgba(245,158,11,.18);color:var(--amber);}
+.estado-refuerzo  {background:rgba(249,115,22,.18);color:#f97316;}
+.estado-critico   {background:rgba(229,57,53,.2);color:var(--red);}
+
+/* ════ RESUMEN TAB (V2 · KPIs y dashboard) ════ */
+#page-resumen .full-page{padding:18px 22px;overflow-y:auto;}
+.resumen-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:11px;
+}
+.resumen-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--rlg);padding:14px 16px;
+}
+.resumen-card-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:var(--text2);
+  margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);
+}
+.kpi-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--rlg);padding:13px 14px;
+  display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;
+}
+.kpi-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--accent,var(--blue));
+}
+.kpi-card.kpi-green {--accent:var(--green);}
+.kpi-card.kpi-amber {--accent:var(--amber);}
+.kpi-card.kpi-red   {--accent:var(--red);}
+.kpi-card.kpi-blue  {--accent:var(--blue);}
+.kpi-card.kpi-teal  {--accent:var(--teal);}
+.kpi-card.kpi-purple{--accent:var(--purple);}
+.kpi-label{
+  font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--text3);
+}
+.kpi-value{
+  font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;
+  line-height:1;color:var(--text);
+}
+.kpi-value.dim{color:var(--text3);}
+.kpi-trend{
+  font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;
+}
+.kpi-trend.up   {color:var(--green);}
+.kpi-trend.down {color:var(--red);}
+.kpi-trend.same {color:var(--text3);}
+.kpi-sub{font-size:10px;color:var(--text3);}
+.svc-row{
+  display:flex;align-items:center;gap:8px;padding:7px 0;
+  border-bottom:1px dashed var(--border);font-size:12px;
+}
+.svc-row:last-child{border-bottom:none;}
+.svc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.svc-dot.ok{background:var(--green);box-shadow:0 0 6px rgba(16,185,129,.5);}
+.svc-dot.bad{background:var(--red);}
+.svc-dot.warn{background:var(--amber);}
+.svc-detail{font-size:10px;color:var(--text3);margin-left:auto;}
+.tipos-bar-row{
+  display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;
+}
+.tipos-bar-fill{
+  height:14px;border-radius:3px;background:var(--blue);
+  display:flex;align-items:center;padding:0 6px;color:#fff;
+  font-size:10px;font-weight:700;min-width:24px;
+}
+.resumen-cia-mini{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+  padding:10px 12px;display:flex;flex-direction:column;gap:6px;
+}
+.resumen-cia-mini-head{display:flex;align-items:center;gap:9px;}
+.resumen-cia-mini-num{
+  width:28px;height:28px;border-radius:5px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;
+}
+.resumen-cia-mini-name{flex:1;font-size:12px;font-weight:700;}
+.resumen-cia-chips{display:flex;flex-wrap:wrap;gap:4px;font-size:9px;}
+.resumen-cia-chip{
+  padding:2px 7px;border-radius:3px;font-weight:700;letter-spacing:.3px;
+}
+@media (max-width: 800px){
+  .resumen-row-2col{grid-template-columns:1fr !important;}
+}
+
+/* ════ TAB BITÁCORA — feed de actividades (V2 Fase D) ════ */
+.bit-period-btn{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  padding:5px 12px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;
+  transition:all .12s;
+}
+.bit-period-btn:hover{border-color:var(--text3);}
+.bit-period-btn.active{background:rgba(59,130,246,.15);border-color:var(--blue);color:var(--blue);}
+.bit-feed-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:11px 14px;cursor:pointer;transition:all .12s;
+  display:grid;grid-template-columns:auto auto 1fr auto auto;gap:11px;align-items:center;
+}
+.bit-feed-card:hover{border-color:var(--blue);background:var(--bg3);}
+.bit-feed-card.activa{border-left:3px solid var(--red);}
+.bit-feed-card.cerrada{border-left:3px solid var(--green);opacity:.85;}
+.bit-feed-card.cerrada:hover{opacity:1;}
+.bit-feed-id{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;
+  background:var(--bg3);border:1px solid var(--border);
+  padding:3px 9px;border-radius:4px;color:var(--text);
+}
+.bit-feed-tipo{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:.5px;
+}
+.bit-feed-info{min-width:0;}
+.bit-feed-dir{font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bit-feed-meta{font-size:10px;color:var(--text3);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;}
+.bit-feed-status{
+  font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:3px;white-space:nowrap;
+}
+.bit-feed-status.activa{background:rgba(229,57,53,.15);color:var(--red);}
+.bit-feed-status.cerrada{background:rgba(16,185,129,.15);color:var(--green);}
+.bit-feed-time{
+  font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;
+  text-align:right;white-space:nowrap;
+}
+.bit-feed-empty{
+  text-align:center;padding:40px 20px;color:var(--text3);font-size:12px;
+  background:var(--bg2);border:1px dashed var(--border);border-radius:var(--rlg);
+}
+.bit-feed-summary-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:8px 11px;
+}
+.bit-feed-summary-label{
+  font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--text3);
+}
+.bit-feed-summary-value{
+  font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;
+  color:var(--text);line-height:1;margin-top:3px;
+}
+@media (max-width: 700px){
+  .bit-feed-card{grid-template-columns:auto 1fr auto;}
+  .bit-feed-card .bit-feed-tipo,
+  .bit-feed-card .bit-feed-time{display:none;}
+}
+
+/* ════ MODAL 6-7 EMERGENCIA CONTROLADA (Bloque 2 · paso 4) ════ */
+.narr-header.s67{background:linear-gradient(135deg,rgba(20,184,166,.15),rgba(20,184,166,.05));border-bottom-color:rgba(20,184,166,.3);}
+.narr-icon.s67  {background:rgba(20,184,166,.2);color:var(--teal);}
+.narr-btn-confirm.teal{background:var(--teal);}
+.narr-btn-confirm.teal:hover{background:#0f9b8e;}
+.s67-warning{
+  background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);
+  border-radius:var(--r);padding:10px 12px;margin-bottom:12px;
+  font-size:11px;color:var(--amber);line-height:1.5;
+}
+.emerg-67-action{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.3);
+  color:var(--teal);padding:7px 11px;border-radius:var(--r);
+  cursor:pointer;font-size:11px;font-weight:700;width:100%;
+  margin-top:4px;justify-content:center;transition:all .15s;
+}
+.emerg-67-action:hover{background:rgba(20,184,166,.18);border-color:var(--teal);}
+.emerg-67-done{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.3);
+  color:var(--teal);padding:6px 11px;border-radius:var(--r);
+  font-size:10px;font-weight:700;margin-top:4px;justify-content:center;
+}
+
+/* ════ MODAL 6-9 SALE DEL LUGAR (Bloque 2 · paso 5) ════ */
+.narr-header.s69{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border-bottom-color:rgba(245,158,11,.3);}
+.narr-icon.s69  {background:rgba(245,158,11,.2);color:var(--amber);}
+.narr-btn-confirm.amber{background:var(--amber);color:#1a0a00;}
+.narr-btn-confirm.amber:hover{background:#d97706;}
+.s69-options{display:flex;flex-direction:column;gap:9px;margin-top:6px;}
+.s69-option{
+  display:flex;align-items:flex-start;gap:11px;cursor:pointer;
+  padding:12px 14px;background:var(--bg3);border:2px solid var(--border);
+  border-radius:var(--r);transition:all .15s;
+}
+.s69-option:hover{border-color:var(--text3);}
+.s69-option input{margin-top:2px;width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+.s69-option-icon{font-size:18px;flex-shrink:0;}
+.s69-option-content{flex:1;}
+.s69-option-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.s69-option-title code{
+  background:rgba(0,0,0,.3);padding:1px 6px;border-radius:3px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+}
+.s69-option-desc{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5;}
+.s69-option.checked-09{border-color:var(--green);background:rgba(16,185,129,.06);}
+.s69-option.checked-09 input{accent-color:var(--green);}
+.s69-option.checked-09 .s69-option-title{color:var(--green);}
+.s69-option.checked-08{border-color:var(--amber);background:rgba(245,158,11,.06);}
+.s69-option.checked-08 input{accent-color:var(--amber);}
+.s69-option.checked-08 .s69-option-title{color:var(--amber);}
+
+/* ════ MODAL 6-10 LLEGA AL CUARTEL (Bloque 2 · paso 6) ════ */
+.narr-header.s610{background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border-bottom-color:rgba(16,185,129,.3);}
+.narr-icon.s610  {background:rgba(16,185,129,.2);color:var(--green);}
+.narr-btn-confirm.green{background:var(--green);}
+.narr-btn-confirm.green:hover{background:#059669;}
+.s610-default-msg{
+  margin-top:12px;background:rgba(16,185,129,.07);
+  border:1px solid rgba(16,185,129,.25);border-radius:var(--r);
+  padding:9px 11px;font-size:11px;color:var(--green);line-height:1.5;
+  display:flex;align-items:center;gap:8px;
+}
+.s610-default-msg code{background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;}
+.s610-checkbox-row{
+  display:flex;align-items:flex-start;gap:9px;
+  padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);cursor:pointer;margin-top:10px;
+}
+.s610-checkbox-row input{accent-color:var(--amber);width:15px;height:15px;flex-shrink:0;margin-top:2px;}
+.s610-checkbox-row.active{background:rgba(245,158,11,.07);border-color:var(--amber);}
+.s610-checkbox-content{flex:1;}
+.s610-checkbox-lbl{font-size:12px;font-weight:600;}
+.s610-checkbox-desc{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.4;}
+.s610-motivo{display:none;margin-top:8px;}
+.s610-motivo.show{display:block;}
+
+/* ════ MODAL 6-0 TRIPULACIÓN (Bloque 5 · paso 6) ════ */
+.narr-header.s60{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border-bottom-color:rgba(245,158,11,.3);}
+.narr-icon.s60  {background:rgba(245,158,11,.2);color:var(--amber);}
+.s60-field{margin-top:14px;}
+.s60-field-lbl{
+  font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;
+  display:flex;align-items:center;gap:5px;
+}
+.s60-field-lbl .req{color:var(--red);}
+.s60-select{
+  width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:var(--r);padding:9px 11px;font-size:13px;font-family:'Barlow',sans-serif;
+  outline:none;transition:border-color .15s;
+}
+.s60-select:focus{border-color:var(--amber);}
+.s60-select option{background:var(--bg3);color:var(--text);}
+.s60-select option[disabled]{color:var(--text3);font-style:italic;}
+.s60-num{
+  width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:var(--r);padding:11px;font-size:18px;font-weight:700;
+  font-family:'JetBrains Mono',monospace;text-align:center;outline:none;
+}
+.s60-num:focus{border-color:var(--amber);}
+.s60-info{
+  background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);
+  border-radius:var(--r);padding:9px 11px;font-size:11px;color:var(--blue);
+  display:flex;align-items:center;gap:8px;margin-bottom:6px;
+}
+
+/* ════ MODAL RE-DESPACHO (Bloque 5 · paso 7) ════ */
+.narr-header.redesp{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(59,130,246,.05));border-bottom-color:rgba(59,130,246,.3);}
+.narr-icon.redesp  {background:rgba(59,130,246,.2);color:var(--blue);}
+.redesp-filters{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;
+  padding-bottom:9px;border-bottom:1px solid var(--border);
+}
+.redesp-filter-chip{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  padding:4px 10px;border-radius:14px;font-size:10px;font-weight:600;cursor:pointer;
+}
+.redesp-filter-chip.active{background:rgba(59,130,246,.15);border-color:var(--blue);color:var(--blue);}
+.redesp-list{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.redesp-item{
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  padding:8px 11px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);transition:all .12s;
+}
+.redesp-item:hover{border-color:var(--text3);}
+.redesp-item.checked{background:rgba(59,130,246,.08);border-color:var(--blue);}
+.redesp-item.disabled{opacity:.4;cursor:not-allowed;}
+.redesp-item input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;}
+.redesp-item-badge{
+  width:28px;height:28px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;
+}
+.redesp-item-info{flex:1;min-width:0;}
+.redesp-item-name{font-size:12px;font-weight:700;}
+.redesp-item-detail{font-size:10px;color:var(--text3);margin-top:1px;}
+.redesp-item-tag{
+  font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.redesp-item-tag.disp{background:rgba(16,185,129,.15);color:var(--green);}
+.redesp-item-tag.busy{background:rgba(229,57,53,.15);color:var(--red);}
+.redesp-item-tag.fuera{background:rgba(245,158,11,.15);color:var(--amber);}
+.redesp-item-tag.match{background:rgba(168,85,247,.15);color:#c084fc;}
+.redesp-empty{
+  text-align:center;padding:24px;color:var(--text3);font-size:11px;font-style:italic;
+}
+.redesp-motivo-block{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
 </style>
 <!-- FIREBASE SDK -->
 <script type="module">
@@ -786,7 +1313,130 @@ window.fbGuardarContactosWsp = async function() {
   } catch(e) { console.error('[WSP] Error guardando contactos:', e.message); return false; }
 };
 
-console.log('[Firebase] Módulo CAD iniciado');
+// ── V2.4c — Subscribe a voluntarios de Firestore ─────────────
+// Reemplaza personal[] (hardcoded) con datos de Firestore en runtime.
+// Recibe live updates de presenteEnCuartel y conductor flags.
+window.fbSuscribirVoluntarios = function() {
+  if (!_fbDb) return;
+  try {
+    var unsub = onSnapshot(collection(_fbDb, 'voluntarios'), function(snap) {
+      var fbVols = [];
+      snap.forEach(function(d) {
+        fbVols.push(Object.assign({ id: d.id, fbId: d.id }, d.data()));
+      });
+      if (typeof window._actualizarPersonalDesdeFb === 'function') {
+        window._actualizarPersonalDesdeFb(fbVols);
+      }
+    }, function(err) {
+      console.warn('[FB] Error subscribiendo voluntarios:', err.message);
+    });
+    window._unsubVoluntarios = unsub;
+    console.log('[FB] Subscribed voluntarios collection');
+  } catch(e) { console.warn('[FB] No se pudo subscribir voluntarios:', e.message); }
+};
+
+// ── V2 — Subscribe a salidas_cia (actividades NO-emergencia de cada cía) ──
+// Usado por la tab Resumen para diferenciar llamados de emergencia vs salidas
+// (instrucción, ejercicios, actos oficiales, etc.).
+window._salidasCia = [];
+window.fbSuscribirSalidasCia = function() {
+  if (!_fbDb) return;
+  try {
+    var unsub = onSnapshot(collection(_fbDb, 'salidas_cia'), function(snap) {
+      window._salidasCia = [];
+      snap.forEach(function(d) {
+        window._salidasCia.push(Object.assign({ id: d.id, fbId: d.id }, d.data()));
+      });
+      // Re-renders dependientes
+      if (typeof renderResumen === 'function') {
+        var pg = document.getElementById('page-resumen');
+        if (pg && pg.classList.contains('active')) renderResumen();
+      }
+      if (typeof renderBitacoraFeed === 'function') {
+        var pgB = document.getElementById('page-bitacora');
+        if (pgB && pgB.classList.contains('active')) renderBitacoraFeed();
+      }
+      console.log('[FB] Salidas cía sync:', window._salidasCia.length);
+    }, function(err) {
+      console.warn('[FB] Error subscribiendo salidas_cia:', err.message);
+    });
+    window._unsubSalidasCia = unsub;
+  } catch(e) { console.warn('[FB] No se pudo subscribir salidas_cia:', e.message); }
+};
+
+// ── V2 — Cargar etiquetas rápidas (chips relato) desde Firestore ──
+// Reemplaza window.RELATO_CHIPS con lo que el admin haya configurado.
+// Si el doc no existe (primera vez), se mantienen los defaults hardcoded.
+window.fbCargarChipsRelato = async function() {
+  if (!_fbDb) return;
+  try {
+    var snap = await getDoc(doc(_fbDb, 'config_cad', 'relato_chips'));
+    if (snap.exists() && snap.data().chips) {
+      window.RELATO_CHIPS = snap.data().chips;
+      console.log('[FB] Chips relato cargados:', Object.keys(window.RELATO_CHIPS).length, 'códigos');
+    } else {
+      console.log('[FB] Chips relato: usando defaults (no doc en Firestore aún)');
+    }
+  } catch(e) {
+    console.warn('[FB] Error cargando chips relato:', e.message);
+  }
+};
+
+// V2 fix — exponer imports del módulo a window para que el script clásico
+// (donde vive bitAgregarEvento, bitConectarPanel, etc.) pueda usarlos.
+// Sin esto: ReferenceError: serverTimestamp is not defined al llamar bitAgregarEvento.
+window._fbDb            = _fbDb;
+window.serverTimestamp  = serverTimestamp;
+window.addDoc           = addDoc;
+window.collection       = collection;
+window.doc              = doc;
+window.updateDoc        = updateDoc;
+window.getDoc           = getDoc;
+window.setDoc           = setDoc;
+window.onSnapshot       = onSnapshot;
+window.query            = query;
+window.orderBy          = orderBy;
+window.where            = where;
+
+// V2 dev helper — setup rápido de conductor de prueba (escribe a Firestore).
+// Uso desde consola: window._setupTestConductor()
+window._setupTestConductor = async function(opts) {
+  opts = opts || {};
+  var nombreBuscar = opts.nombre || 'Javier Lama';
+  var carros = opts.carros || ['B1','BX1','R1'];
+  // Buscar el voluntario por nombre en personal[]
+  if (typeof personal === 'undefined' || !personal.length) {
+    console.error('✗ personal[] vacío. Esperá a que cargue Firestore primero.');
+    return;
+  }
+  var v = personal.find(function(p){ return p.nombre && p.nombre.toLowerCase().includes(nombreBuscar.toLowerCase()); });
+  if (!v) {
+    console.error('✗ No se encontró voluntario con nombre que contenga:', nombreBuscar);
+    console.log('   B-1 disponibles:', personal.filter(function(p){return p.cia==='B-1';})
+      .slice(0,10).map(function(p){return p.nombre;}));
+    return;
+  }
+  if (!v.fbId) {
+    console.error('✗ Voluntario sin fbId — no está en Firestore. Crealo primero desde compania-1.html');
+    console.log('   Voluntario encontrado:', v);
+    return;
+  }
+  try {
+    await updateDoc(doc(_fbDb, 'voluntarios', v.fbId), {
+      conductor: true,
+      conductorCarros: carros,
+      presenteEnCuartel: true,
+      presenciaTimestamp: serverTimestamp(),
+      presenciaSetBy: { uid:'setup', nombre:'Setup CAD' }
+    });
+    console.log('✅ ' + v.nombre + ' actualizado como conductor habilitado para ' + carros.join(', ') + ' + presente en cuartel');
+    console.log('   El onSnapshot va a refrescar personal[] en ~1s');
+  } catch(e) {
+    console.error('✗ Error actualizando Firestore:', e.message);
+  }
+};
+
+console.log('[Firebase] Módulo CAD iniciado · helpers expuestos: window._setupTestConductor()');
 </script>
 </head>
 <body class="no-auth">
@@ -833,7 +1483,6 @@ console.log('[Firebase] Módulo CAD iniciado');
       <div class="clock" id="clock">00:00:00</div>
       <div class="clock-date" id="clock-date">--</div>
     </div>
-    <button class="btn-top danger" onclick="openModal('modal-alarma')">🚨 Alarma General</button>
     <button class="btn-top" onclick="cadLogout()" title="Cerrar sesión">Salir</button>
     <a href="compania-1.html" style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--r);font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.5px;" title="Ir al módulo 1ª Compañía">
       🚒 1ª Cía.
@@ -844,8 +1493,9 @@ console.log('[Firebase] Módulo CAD iniciado');
 <!-- NAV TABS -->
 <div class="nav-tabs">
   <div class="tab active" onclick="switchTab('despacho',this)">📡 Despacho <span class="tab-badge" id="badge-activas">0</span></div>
+  <div class="tab" onclick="switchTab('resumen',this)">📊 Resumen</div>
   <div class="tab" onclick="switchTab('bitacora',this)">📋 Bitácora</div>
-  <div class="tab" onclick="switchTab('estadisticas',this)">📊 Estadísticas</div>
+  <div class="tab" onclick="switchTab('estadisticas',this)">📈 Estadísticas</div>
   <div class="tab" onclick="switchTab('carros',this)">🚒 Unidades</div>
   <div class="tab" onclick="switchTab('whatsapp',this)">💬 WhatsApp <span class="tab-badge green" id="badge-wsp">0</span></div>
   <div class="tab" onclick="switchTab('parte',this)">📄 Parte</div>
@@ -910,12 +1560,17 @@ console.log('[Firebase] Módulo CAD iniciado');
 
         <div class="form-row">
           <div class="fgroup">
-            <div class="flabel">Reportante</div>
-            <input class="finput" id="reportante" placeholder="Nombre">
+            <div class="flabel">Reportante <span style="color:var(--red);">*</span></div>
+            <input class="finput" id="reportante" placeholder="Nombre" required>
           </div>
           <div class="fgroup">
-            <div class="flabel">Teléfono</div>
-            <input class="finput" id="telefono" placeholder="+56 9 ...">
+            <div class="flabel">Teléfono <span style="color:var(--red);">*</span></div>
+            <div class="finput-wrap">
+              <span class="finput-prefix">+56</span>
+              <input class="finput" id="telefono" placeholder="9 8821 4433"
+                     inputmode="numeric" maxlength="13"
+                     oninput="this.value=this.value.replace(/[^0-9 ]/g,'')" required>
+            </div>
           </div>
         </div>
 
@@ -939,7 +1594,7 @@ console.log('[Firebase] Módulo CAD iniciado');
           <textarea class="ftextarea" id="descripcion" placeholder="Detalles del siniestro..."></textarea>
         </div>
 
-        <button class="btn-despachar" onclick="despachar()">🚒 Despachar Emergencia</button>
+        <button class="btn-despachar" onclick="iniciarDespacho()">🚒 Despachar Emergencia</button>
       </div>
     </div>
   </div>
@@ -947,22 +1602,40 @@ console.log('[Firebase] Módulo CAD iniciado');
   <!-- CENTER: Panel activas + Mapa -->
   <div class="panel-center">
 
-    <!-- PANEL EMERGENCIAS ACTIVAS (siempre visible, parte del layout) -->
-    <div class="activas-panel">
-      <div class="activas-header" onclick="toggleActivas()">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div id="activas-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;"></div>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);">Emergencias Activas</span>
-          <span id="activas-count" style="background:var(--bg3);border:1px solid var(--border);padding:1px 8px;border-radius:10px;font-size:12px;font-weight:700;color:var(--text);">0</span>
-        </div>
-        <span id="activas-toggle-lbl" style="font-size:11px;color:var(--text3);">▼ ver</span>
+    <!-- V2 — Bitácora arriba del mapa (movida desde el lateral derecho).
+         Altura dinámica: pequeña sin emergencia, expandida al despachar. -->
+    <div class="panel-bitacora position-top" id="panel-bitacora">
+      <div class="bit-header">
+        <div class="bit-pulse" id="bit-pulse"></div>
+        <div class="bit-header-title">📋 Bitácora</div>
+        <select class="bit-emerg-select" id="bit-emerg-selector" style="display:none;" onchange="bitCambiarEmergencia(this.value)"></select>
+        <div class="bit-emerg-id" id="bit-emerg-id" style="display:none;">—</div>
+        <button class="bit-collapse-btn" id="bit-collapse" onclick="bitTogglePanel()" title="Minimizar/Expandir">▲</button>
       </div>
-      <div id="activas-list" style="display:block;">
-        <div id="activas-empty" style="display:flex;align-items:center;padding:14px 16px;gap:8px;">
-          <span style="font-size:16px;opacity:.3;">📡</span>
-          <span style="font-size:11px;color:var(--text3);">Sin emergencias activas — aquí aparecerán al despachar</span>
+      <div class="bit-toolbar" id="bit-toolbar">
+        <div class="bit-filters">
+          <div class="bit-filter active" data-filter="todos" onclick="bitFiltrar('todos',this)">Todos</div>
+          <div class="bit-filter" data-filter="estado" onclick="bitFiltrar('estado',this)">Estados</div>
+          <div class="bit-filter" data-filter="comunicacion" onclick="bitFiltrar('comunicacion',this)">Comm.</div>
+          <div class="bit-filter" data-filter="manual" onclick="bitFiltrar('manual',this)">Notas</div>
+        </div>
+        <div class="bit-add-row">
+          <input type="text" class="bit-add-input" id="bit-add-input"
+                 placeholder="Agregar nota a la bitácora..."
+                 onkeydown="if(event.key==='Enter')bitAgregarNota()">
+          <button class="bit-add-btn" id="bit-add-btn" onclick="bitAgregarNota()">+</button>
+        </div>
+        <div class="bit-sa-banner" id="bit-sa-banner" style="display:none;">
+          ⭐ <span>Modo superadmin · Edición sin restricciones</span>
         </div>
       </div>
+      <div class="bit-empty" id="bit-empty">
+        <div class="bit-empty-ico">📋</div>
+        <div class="bit-empty-txt">
+          Selecciona una emergencia activa o despacha una nueva para iniciar la bitácora
+        </div>
+      </div>
+      <div class="bit-content" id="bit-content" style="display:none;"></div>
     </div>
 
     <!-- MAPA -->
@@ -979,10 +1652,13 @@ console.log('[Firebase] Módulo CAD iniciado');
     </div>
   </div>
 
-  <!-- RIGHT: Panel compañías / grifos / dotación -->
-  <div class="panel-right">
+  <!-- RIGHT: Panel compañías / grifos / dotación
+       V2 · OCULTO en Despacho — toda esta info migró a la tab "Resumen".
+       Mantenemos el DOM para no romper renderCompaniasEstado/renderCarrosPanel etc. -->
+  <div class="panel-right" style="display:none;">
     <div class="rpanel-tabs">
       <div class="rpanel-tab active" onclick="switchRPanel('companias',this)">Cías.</div>
+      <div class="rpanel-tab" onclick="switchRPanel('carros',this)">Carros</div>
       <div class="rpanel-tab" onclick="switchRPanel('grifos',this)">Grifos</div>
       <div class="rpanel-tab" onclick="switchRPanel('dotacion',this)">Dotación</div>
     </div>
@@ -992,6 +1668,13 @@ console.log('[Firebase] Módulo CAD iniciado');
         <span style="font-size:10px;color:var(--text3);" id="cia-disp-count"></span>
       </div>
       <div id="companias-estado-list"></div>
+    </div>
+    <div id="rp-carros" class="scroll" style="display:none;">
+      <div class="panel-header" style="position:sticky;top:0;z-index:5;">
+        <span class="panel-title">Carros del Cuerpo</span>
+        <span style="font-size:10px;color:var(--text3);" id="carros-disp-count"></span>
+      </div>
+      <div id="carros-list"></div>
     </div>
     <div id="rp-grifos" class="scroll" style="display:none;">
       <div class="panel-header"><span class="panel-title">Red de Grifos</span><span style="color:var(--green);font-size:10px;">● 4 operativos</span></div>
@@ -1007,65 +1690,114 @@ console.log('[Firebase] Módulo CAD iniciado');
       <div id="list-fuera"></div>
     </div>
   </div>
-<!-- ════════════════════════════════════════════════════════════════════
-     DESPAX-CAD v1.0 · MÓDULO BITÁCORA — PANEL HTML
-     UBICACIÓN: dentro de <div id="page-despacho" class="page-view active">
-                COMO HERMANO del .panel-right (DESPUÉS de </div> que cierra panel-right)
-                JUSTO ANTES del cierre </div><!-- fin page-despacho -->
-     ════════════════════════════════════════════════════════════════════ -->
-
-<!-- PANEL DE BITÁCORA — lateral derecho fijo -->
-<div class="panel-bitacora" id="panel-bitacora">
-  <div class="bit-header">
-    <div class="bit-pulse" id="bit-pulse"></div>
-    <div class="bit-header-title">📋 Bitácora</div>
-    <select class="bit-emerg-select" id="bit-emerg-selector" style="display:none;" onchange="bitCambiarEmergencia(this.value)"></select>
-    <div class="bit-emerg-id" id="bit-emerg-id" style="display:none;">—</div>
-    <button class="bit-collapse-btn" id="bit-collapse" onclick="bitTogglePanel()" title="Colapsar/Expandir">◀</button>
+<!-- V2 — Panel de Emergencias Activas (lateral derecho — movido desde panel-center) -->
+<div class="panel-activas-right">
+  <div class="activas-header" onclick="toggleActivas()">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div id="activas-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;"></div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);">Emergencias Activas</span>
+      <span id="activas-count" style="background:var(--bg3);border:1px solid var(--border);padding:1px 8px;border-radius:10px;font-size:12px;font-weight:700;color:var(--text);">0</span>
+    </div>
+    <span id="activas-toggle-lbl" style="font-size:11px;color:var(--text3);">▼ ver</span>
   </div>
-
-  <div class="bit-toolbar" id="bit-toolbar">
-    <div class="bit-filters">
-      <div class="bit-filter active" data-filter="todos" onclick="bitFiltrar('todos',this)">Todos</div>
-      <div class="bit-filter" data-filter="estado" onclick="bitFiltrar('estado',this)">Estados</div>
-      <div class="bit-filter" data-filter="comunicacion" onclick="bitFiltrar('comunicacion',this)">Comm.</div>
-      <div class="bit-filter" data-filter="manual" onclick="bitFiltrar('manual',this)">Notas</div>
-    </div>
-    <div class="bit-add-row">
-      <input type="text" class="bit-add-input" id="bit-add-input"
-             placeholder="Agregar nota a la bitácora..."
-             onkeydown="if(event.key==='Enter')bitAgregarNota()">
-      <button class="bit-add-btn" id="bit-add-btn" onclick="bitAgregarNota()">+</button>
-    </div>
-    <div class="bit-sa-banner" id="bit-sa-banner" style="display:none;">
-      ⭐ <span>Modo superadmin · Edición sin restricciones</span>
+  <div id="activas-list" style="display:block;flex:1;overflow-y:auto;">
+    <div id="activas-empty" style="display:flex;align-items:center;padding:14px 16px;gap:8px;">
+      <span style="font-size:16px;opacity:.3;">📡</span>
+      <span style="font-size:11px;color:var(--text3);">Sin emergencias activas — aquí aparecerán al despachar</span>
     </div>
   </div>
-
-  <div class="bit-empty" id="bit-empty">
-    <div class="bit-empty-ico">📋</div>
-    <div class="bit-empty-txt">
-      Selecciona una emergencia activa<br>
-      o despacha una nueva para iniciar<br>la bitácora
-    </div>
-  </div>
-
-  <div class="bit-content" id="bit-content" style="display:none;"></div>
 </div>
 </div><!-- fin page-despacho -->
 
-<!-- ===== BITACORA ===== -->
-<div id="page-bitacora" class="page-view">
+<!-- ===== RESUMEN (V2) ===== -->
+<div id="page-resumen" class="page-view">
   <div class="full-page">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;">
-      <div class="full-title">Bitácora del Turno</div>
-      <button class="btn-top" onclick="exportCSV()">⬇ Exportar CSV</button>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;">
-      <div id="bitacora-list">
-        <div class="log-entry"><span class="log-time">--:--</span><span class="log-type lt-i">SISTEMA</span><span class="log-msg">CAD iniciado — Cuerpo de Bomberos de Frutillar</span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div class="full-title">📊 Resumen del Cuerpo</div>
+        <div style="font-size:11px;color:var(--text3);" id="resumen-subtitle">Vista macro · refresh cada 30s</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-size:10px;color:var(--text3);" id="resumen-last-update">—</span>
+        <button class="btn-top" onclick="renderResumen(true)">🔄 Refrescar</button>
       </div>
     </div>
+
+    <div class="resumen-grid" id="resumen-kpis"></div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:13px;margin-top:13px;" class="resumen-row-2col">
+      <div class="resumen-card">
+        <div class="resumen-card-title">⚙️ Estado de servicios</div>
+        <div id="resumen-servicios"></div>
+      </div>
+      <div class="resumen-card">
+        <div class="resumen-card-title">👤 Turno actual</div>
+        <div id="resumen-turno"></div>
+      </div>
+    </div>
+
+    <div class="resumen-card" style="margin-top:13px;">
+      <div class="resumen-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>🚒 Estado del Cuerpo</span>
+        <span style="font-size:10px;color:var(--text3);font-weight:400;" id="resumen-cias-disp"></span>
+      </div>
+      <div id="resumen-cias-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;"></div>
+    </div>
+
+    <div class="resumen-card" style="margin-top:13px;">
+      <div class="resumen-card-title">📈 Distribución de llamados hoy por tipo</div>
+      <div id="resumen-tipos-bar"></div>
+    </div>
+
+    <!-- V2 — Otras actividades del cuerpo (salidas no-emergencia) -->
+    <div class="resumen-card" style="margin-top:13px;">
+      <div class="resumen-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>📅 Otras actividades del cuerpo (no-emergencia)</span>
+        <span style="font-size:10px;color:var(--text3);font-weight:400;" id="resumen-salidas-cnt"></span>
+      </div>
+      <div id="resumen-salidas-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BITACORA (V2 — feed de actividades) ===== -->
+<div id="page-bitacora" class="page-view">
+  <div class="full-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div class="full-title">📋 Bitácora del Turno</div>
+        <div style="font-size:11px;color:var(--text3);">Feed cronológico de emergencias y actividades del cuerpo</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="bit-search" placeholder="🔍 Buscar por ID, dirección, tipo..." class="search-input" style="width:280px;" oninput="renderBitacoraFeed()">
+        <button class="btn-top" onclick="exportCSV()">⬇ CSV</button>
+      </div>
+    </div>
+
+    <!-- Filtros de período -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Período:</span>
+      <button class="bit-period-btn active" data-periodo="hoy"  onclick="setBitPeriodo('hoy', this)">Hoy</button>
+      <button class="bit-period-btn"        data-periodo="3d"   onclick="setBitPeriodo('3d', this)">Últimos 3 días</button>
+      <button class="bit-period-btn"        data-periodo="7d"   onclick="setBitPeriodo('7d', this)">Última semana</button>
+      <button class="bit-period-btn"        data-periodo="30d"  onclick="setBitPeriodo('30d', this)">Mes</button>
+      <button class="bit-period-btn"        data-periodo="all"  onclick="setBitPeriodo('all', this)">Todo</button>
+      <span id="bit-feed-count" style="margin-left:auto;font-size:10px;color:var(--text3);"></span>
+    </div>
+
+    <!-- Resumen del período -->
+    <div id="bit-feed-summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;margin-bottom:12px;"></div>
+
+    <!-- Feed de actividades -->
+    <div id="bit-feed-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+
+    <!-- Sistema log (fallback) - colapsable -->
+    <details style="margin-top:18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;">
+      <summary style="padding:11px 14px;cursor:pointer;font-size:11px;font-weight:700;color:var(--text2);background:var(--bg3);">📟 Log del sistema (eventos técnicos)</summary>
+      <div id="bitacora-list" style="max-height:320px;overflow-y:auto;">
+        <div class="log-entry"><span class="log-time">--:--</span><span class="log-type lt-i">SISTEMA</span><span class="log-msg">CAD iniciado — Cuerpo de Bomberos de Frutillar</span></div>
+      </div>
+    </details>
   </div>
 </div>
 
@@ -1316,6 +2048,387 @@ _Central de Alarmas Frutillar_</textarea>
   </div>
 </div>
 
+<!-- ═══ MODAL · RELATO DEL LLAMADO (bloqueante pre-despacho) ═══ -->
+<div class="modal-overlay" id="modal-relato">
+  <div class="narr-modal">
+    <div class="narr-header relato">
+      <div class="narr-icon relato">📞</div>
+      <div class="narr-title-block">
+        <div class="narr-title">Relato del llamado</div>
+        <div class="narr-sub">Capturemos lo que dijo el reportante antes de despachar</div>
+      </div>
+    </div>
+    <div class="narr-body">
+      <div class="narr-context" id="relato-context">
+        <div class="narr-context-item">
+          <span class="narr-context-lbl">Reportante</span>
+          <span class="narr-context-val" id="relato-reportante">—</span>
+        </div>
+        <div class="narr-context-item">
+          <span class="narr-context-lbl">Teléfono</span>
+          <span class="narr-context-val" id="relato-telefono">—</span>
+        </div>
+        <div class="narr-context-item">
+          <span class="narr-context-lbl">Tipo</span>
+          <span class="narr-context-val" id="relato-tipo">—</span>
+        </div>
+        <div class="narr-context-item">
+          <span class="narr-context-lbl">Dirección</span>
+          <span class="narr-context-val" id="relato-direccion">—</span>
+        </div>
+      </div>
+      <div class="narr-question">
+        ¿Qué relató la persona que llamó? <span class="req">*</span>
+      </div>
+      <textarea class="narr-textarea" id="relato-textarea"
+                placeholder="Ej: Mi casa de 2 pisos tiene fuego en la cocina, hay humo saliendo por la ventana..."
+                oninput="onRelatoInput()"
+                onkeydown="if(event.ctrlKey&&event.key==='Enter')confirmarRelato()"></textarea>
+      <div class="narr-counter"><span id="relato-counter">0</span> caracteres</div>
+      <div class="narr-chips-label">Etiquetas rápidas (click para agregar)</div>
+      <div class="narr-chips" id="relato-chips"></div>
+    </div>
+    <div class="narr-footer">
+      <div class="narr-footer-info">⌨ Ctrl+Enter para despachar</div>
+      <button class="narr-btn-cancel" onclick="closeModal('modal-relato')">← Volver</button>
+      <button class="narr-btn-confirm" id="relato-btn-confirm" disabled onclick="confirmarRelato()">
+        🚒 Despachar y registrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · PRIMERA IMPRESIÓN (al primer 6-3) ═══ -->
+<div class="modal-overlay" id="modal-impresion">
+  <div class="narr-modal">
+    <div class="narr-header impresion">
+      <div class="narr-icon impresion">👁️</div>
+      <div class="narr-title-block">
+        <div class="narr-title">Primera impresión</div>
+        <div class="narr-sub">Primer carro en llegar — ¿qué se ve desde afuera?</div>
+      </div>
+      <div class="narr-emergid" id="impresion-emergid">—</div>
+    </div>
+    <div class="narr-body">
+      <div class="narr-context">
+        <div class="narr-context-item">
+          <span class="narr-context-lbl">Vehículo (6-3)</span>
+          <span class="narr-context-val" id="impresion-vehiculo">—</span>
+        </div>
+        <div class="narr-context-item">
+          <span class="narr-context-lbl">Hora de llegada</span>
+          <span class="narr-context-val" id="impresion-hora">—</span>
+        </div>
+        <div class="narr-context-item full">
+          <span class="narr-context-lbl">Relato original del llamado</span>
+          <span class="narr-context-val muted" id="impresion-relato">—</span>
+        </div>
+      </div>
+      <div class="narr-question">¿Qué observas al llegar?</div>
+      <textarea class="narr-textarea impresion" id="impresion-textarea"
+                placeholder="Ej: Casa de 2 pisos con humo en ventana superior. Sin llamas visibles aún. Se ven personas en el patio..."
+                onkeydown="if(event.ctrlKey&&event.key==='Enter')confirmarImpresion()"></textarea>
+    </div>
+    <div class="narr-footer">
+      <div class="narr-footer-info">⌨ Ctrl+Enter para guardar</div>
+      <button class="narr-btn-skip" onclick="saltarImpresion()">Saltar</button>
+      <button class="narr-btn-confirm orange" onclick="confirmarImpresion()">
+        👁️ Guardar primera impresión
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · PRE-INFORME (uno por emergencia) ═══ -->
+<div class="modal-overlay" id="modal-preinfo">
+  <div class="narr-modal">
+    <div class="narr-header preinfo">
+      <div class="narr-icon preinfo">📋</div>
+      <div class="narr-title-block">
+        <div class="narr-title">Pre-informe</div>
+        <div class="narr-sub">Diagnóstico tras inspección del incidente</div>
+      </div>
+      <div class="narr-emergid" id="preinfo-emergid">—</div>
+    </div>
+    <div class="narr-body">
+      <div class="narr-context">
+        <div class="narr-context-item full">
+          <span class="narr-context-lbl">Primera impresión</span>
+          <span class="narr-context-val muted" id="preinfo-impresion">—</span>
+        </div>
+      </div>
+      <div class="narr-question">Diagnóstico tras inspección <span class="req">*</span></div>
+      <textarea class="narr-textarea preinfo" id="preinfo-textarea"
+                placeholder="Ej: Fuego controlado en cocina del 1er piso. Sin propagación a otras dependencias. 4 personas evacuadas, sin heridos. Daños materiales menores..."></textarea>
+      <div class="preinfo-section">
+        <div class="preinfo-section-title">Estado del incidente</div>
+        <div class="preinfo-radios">
+          <label class="preinfo-radio" id="preinfo-r-bajo" onclick="onPreinfoEstado('bajo')">
+            <input type="radio" name="preinfo-estado" value="bajo">
+            <div class="preinfo-radio-content">
+              <div class="preinfo-radio-lbl">🟢 Bajo control</div>
+              <div class="preinfo-radio-sub">Situación contenida, no requiere recursos extra</div>
+            </div>
+          </label>
+          <label class="preinfo-radio" id="preinfo-r-desarrollo" onclick="onPreinfoEstado('desarrollo')">
+            <input type="radio" name="preinfo-estado" value="desarrollo">
+            <div class="preinfo-radio-content">
+              <div class="preinfo-radio-lbl">🟡 En desarrollo</div>
+              <div class="preinfo-radio-sub">Trabajando — situación estable, monitoreada</div>
+            </div>
+          </label>
+          <label class="preinfo-radio" id="preinfo-r-refuerzo" onclick="onPreinfoEstado('refuerzo')">
+            <input type="radio" name="preinfo-estado" value="refuerzo">
+            <div class="preinfo-radio-content">
+              <div class="preinfo-radio-lbl">🟠 Requiere refuerzo</div>
+              <div class="preinfo-radio-sub">Solicitar apoyo de otra(s) compañía(s)</div>
+            </div>
+          </label>
+          <label class="preinfo-radio" id="preinfo-r-critico" onclick="onPreinfoEstado('critico')">
+            <input type="radio" name="preinfo-estado" value="critico">
+            <div class="preinfo-radio-content">
+              <div class="preinfo-radio-lbl">🔴 Crítico</div>
+              <div class="preinfo-radio-sub">Riesgo a vidas, daños mayores, escalar</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="preinfo-section">
+        <div class="preinfo-section-title">Personas afectadas</div>
+        <div class="preinfo-numbers">
+          <div class="preinfo-num-group">
+            <span class="preinfo-num-lbl">Heridos</span>
+            <input type="number" class="preinfo-num" id="preinfo-heridos" min="0" value="0">
+          </div>
+          <div class="preinfo-num-group">
+            <span class="preinfo-num-lbl">Evacuados</span>
+            <input type="number" class="preinfo-num" id="preinfo-evacuados" min="0" value="0">
+          </div>
+        </div>
+      </div>
+      <div class="preinfo-section">
+        <div class="preinfo-section-title">Solicitar apoyo adicional</div>
+        <label class="preinfo-apoyo-toggle" id="preinfo-apoyo" onclick="onPreinfoApoyo()">
+          <input type="checkbox" id="preinfo-apoyo-chk">
+          <span class="preinfo-apoyo-toggle-lbl">Solicitar apoyo de otras compañías</span>
+        </label>
+        <div class="preinfo-cias-grid" id="preinfo-cias-grid"></div>
+      </div>
+    </div>
+    <div class="narr-footer">
+      <button class="narr-btn-cancel" onclick="closeModal('modal-preinfo')">Cancelar</button>
+      <button class="narr-btn-confirm blue" onclick="confirmarPreInforme()">
+        📋 Guardar pre-informe
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · 6-7 EMERGENCIA CONTROLADA (a nivel emergencia) ═══ -->
+<div class="modal-overlay" id="modal-s67">
+  <div class="narr-modal" style="width:480px;">
+    <div class="narr-header s67">
+      <div class="narr-icon s67">✅</div>
+      <div class="narr-title-block">
+        <div class="narr-title">Marcar 6-7 · Emergencia controlada</div>
+        <div class="narr-sub">A nivel de emergencia, no por carro individual</div>
+      </div>
+      <div class="narr-emergid" id="s67-emergid">—</div>
+    </div>
+    <div class="narr-body">
+      <div class="narr-context">
+        <div class="narr-context-item full">
+          <span class="narr-context-lbl">Pre-informe</span>
+          <span class="narr-context-val" id="s67-preinfo-status">—</span>
+        </div>
+      </div>
+      <div id="s67-warning" class="s67-warning" style="display:none;">
+        ⚠️ <strong>Aún no se ha registrado pre-informe.</strong><br>
+        Lo recomendable es registrar el pre-informe antes del 6-7 para dejar constancia del diagnóstico final. ¿Marcar 6-7 igualmente?
+      </div>
+      <div class="narr-question">Comentarios adicionales (opcional)</div>
+      <textarea class="narr-textarea" id="s67-textarea" style="min-height:60px;"
+                placeholder="Ej: Situación controlada, fuego apagado, esperando peritaje..."
+                onkeydown="if(event.ctrlKey&&event.key==='Enter')confirmarS67()"></textarea>
+    </div>
+    <div class="narr-footer">
+      <button class="narr-btn-cancel" onclick="closeModal('modal-s67')">Cancelar</button>
+      <button class="narr-btn-confirm teal" onclick="confirmarS67()">
+        ✅ Marcar 6-7 Controlada
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · 6-9 SALE DEL LUGAR (con disponibilidad 0-9 / 0-8) ═══ -->
+<div class="modal-overlay" id="modal-s69">
+  <div class="narr-modal" style="width:520px;">
+    <div class="narr-header s69">
+      <div class="narr-icon s69">↩️</div>
+      <div class="narr-title-block">
+        <div class="narr-title" id="s69-titulo">Marcar 6-9</div>
+        <div class="narr-sub">Carro sale del lugar de la emergencia</div>
+      </div>
+    </div>
+    <div class="narr-body">
+      <div class="narr-question">¿En qué estado se retira el carro?</div>
+      <div class="s69-options">
+        <label class="s69-option" id="s69-opt-09" onclick="onS69Opt('0-9')">
+          <input type="radio" name="s69-disp" value="0-9">
+          <div class="s69-option-icon">🟢</div>
+          <div class="s69-option-content">
+            <div class="s69-option-title"><code>0-9</code> Disponible</div>
+            <div class="s69-option-desc">
+              Con agua y equipo completo. Puede ser despachado a otra emergencia inmediatamente.
+            </div>
+          </div>
+        </label>
+        <label class="s69-option" id="s69-opt-08" onclick="onS69Opt('0-8')">
+          <input type="radio" name="s69-disp" value="0-8">
+          <div class="s69-option-icon">🟡</div>
+          <div class="s69-option-content">
+            <div class="s69-option-title"><code>0-8</code> Fuera de servicio</div>
+            <div class="s69-option-desc">
+              Sin agua, sin equipo o requiere recarga. Vuelve al cuartel y NO está disponible para otra emergencia hasta marcar 0-9 / 6-10.
+            </div>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div class="narr-footer">
+      <button class="narr-btn-cancel" onclick="closeModal('modal-s69')">Cancelar</button>
+      <button class="narr-btn-confirm amber" id="s69-btn-confirm" disabled onclick="confirmarS69()">
+        ↩️ Confirmar 6-9
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · 6-10 LLEGA AL CUARTEL (con KM + opción fuera de servicio) ═══ -->
+<div class="modal-overlay" id="modal-s610">
+  <div class="narr-modal" style="width:500px;">
+    <div class="narr-header s610">
+      <div class="narr-icon s610">🏠</div>
+      <div class="narr-title-block">
+        <div class="narr-title" id="s610-titulo">Marcar 6-10</div>
+        <div class="narr-sub">Carro llega al cuartel</div>
+      </div>
+    </div>
+    <div class="narr-body">
+      <div class="narr-question">Kilometraje de llegada <span class="req">*</span></div>
+      <input type="number" class="preinfo-num" id="s610-km" placeholder="Ej: 18450"
+             style="width:100%;font-size:18px;padding:11px;" oninput="onS610KmInput()">
+      <div class="s610-default-msg" id="s610-default-msg">
+        ✅ <span><strong>Por defecto:</strong> el carro pasa a <code>disponible (0-9)</code> al confirmar 6-10.</span>
+      </div>
+      <label class="s610-checkbox-row" id="s610-fuera-toggle" onclick="onS610Fuera()">
+        <input type="checkbox" id="s610-fuera-chk">
+        <div class="s610-checkbox-content">
+          <div class="s610-checkbox-lbl">Mantener fuera de servicio (0-8)</div>
+          <div class="s610-checkbox-desc">Marcar solo si el carro requiere mantenimiento, reparación o no está operativo aún.</div>
+        </div>
+      </label>
+      <div class="s610-motivo" id="s610-motivo-block">
+        <div class="narr-chips-label">Motivo (opcional)</div>
+        <input type="text" class="finput" id="s610-motivo-input"
+               placeholder="Ej: Sin agua, esperando recarga / Falla mecánica / Mantenimiento..." style="width:100%;">
+      </div>
+    </div>
+    <div class="narr-footer">
+      <button class="narr-btn-cancel" onclick="closeModal('modal-s610')">Cancelar</button>
+      <button class="narr-btn-confirm green" id="s610-btn-confirm" disabled onclick="confirmarS610()">
+        🏠 Confirmar 6-10
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · 6-0 TRIPULACIÓN (Bloque 5: conductor + oficial + cantidad) ═══ -->
+<div class="modal-overlay" id="modal-s60">
+  <div class="narr-modal" style="width:520px;">
+    <div class="narr-header s60">
+      <div class="narr-icon s60">🚒</div>
+      <div class="narr-title-block">
+        <div class="narr-title" id="s60-titulo">Marcar 6-0 · Salida del cuartel</div>
+        <div class="narr-sub">Datos de tripulación del carro</div>
+      </div>
+    </div>
+    <div class="narr-body">
+      <div class="s60-info" id="s60-info">🚒 <span id="s60-carro-info">—</span></div>
+
+      <div class="s60-field">
+        <div class="s60-field-lbl">Conductor <span class="req">*</span></div>
+        <select class="s60-select" id="s60-conductor" onchange="onS60Change()">
+          <option value="">— Seleccionar conductor —</option>
+        </select>
+      </div>
+
+      <div class="s60-field">
+        <div class="s60-field-lbl">Voluntario a cargo (oficial) <span class="req">*</span></div>
+        <select class="s60-select" id="s60-oficial" onchange="onS60Change()">
+          <option value="">— Seleccionar oficial —</option>
+        </select>
+      </div>
+
+      <div class="s60-field">
+        <div class="s60-field-lbl">Cantidad de tripulación a bordo <span class="req">*</span></div>
+        <input type="number" class="s60-num" id="s60-cantidad" min="1" max="20" placeholder="Ej: 5" oninput="onS60Change()">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;text-align:center;font-style:italic;">
+          Incluye al conductor y al oficial.
+        </div>
+      </div>
+
+      <div class="s60-field">
+        <div class="s60-field-lbl">Notas (opcional)</div>
+        <textarea class="narr-textarea" id="s60-notas" style="min-height:50px;" placeholder="Ej: Tripulación reducida, refuerzo desde 2ª Cía..."></textarea>
+      </div>
+    </div>
+    <div class="narr-footer">
+      <button class="narr-btn-cancel" onclick="closeModal('modal-s60')">Cancelar</button>
+      <button class="narr-btn-confirm amber" id="s60-btn-confirm" disabled onclick="confirmarS60()">
+        🚒 Confirmar 6-0
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL · RE-DESPACHO (Bloque 5: agregar carros a emergencia activa) ═══ -->
+<div class="modal-overlay" id="modal-redespacho">
+  <div class="narr-modal" style="width:580px;">
+    <div class="narr-header redesp">
+      <div class="narr-icon redesp">+</div>
+      <div class="narr-title-block">
+        <div class="narr-title">Despachar más recursos</div>
+        <div class="narr-sub">Selecciona carros adicionales para esta emergencia</div>
+      </div>
+      <div class="narr-emergid" id="redesp-emergid">—</div>
+    </div>
+    <div class="narr-body">
+      <div class="redesp-filters" id="redesp-filters">
+        <div class="redesp-filter-chip active" data-tipo="todos" onclick="onRedespFilter('todos')">Todos</div>
+        <div class="redesp-filter-chip" data-tipo="B"  onclick="onRedespFilter('B')">Bombas</div>
+        <div class="redesp-filter-chip" data-tipo="BX" onclick="onRedespFilter('BX')">Apoyo</div>
+        <div class="redesp-filter-chip" data-tipo="R"  onclick="onRedespFilter('R')">Rescates</div>
+        <div class="redesp-filter-chip" data-tipo="Z"  onclick="onRedespFilter('Z')">Escala</div>
+      </div>
+      <div class="redesp-list" id="redesp-list"></div>
+      <div class="redesp-motivo-block">
+        <div class="narr-question">Motivo del re-despacho <span class="req">*</span></div>
+        <textarea class="narr-textarea" id="redesp-motivo" style="min-height:60px;"
+                  placeholder="Ej: Refuerzo solicitado por OG, fuego en propagación al 2do piso..."
+                  oninput="onRedespChange()"></textarea>
+      </div>
+    </div>
+    <div class="narr-footer">
+      <div class="narr-footer-info"><span id="redesp-count">0</span> carro(s) seleccionado(s)</div>
+      <button class="narr-btn-cancel" onclick="closeModal('modal-redespacho')">Cancelar</button>
+      <button class="narr-btn-confirm blue" id="redesp-btn-confirm" disabled onclick="confirmarRedespacho()">
+        + Despachar
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="notif" id="notif"><div class="notif-title" id="notif-title"></div><div class="notif-msg" id="notif-msg"></div></div>
 
 <!-- CHAT IA FLOTANTE -->
@@ -1407,6 +2520,86 @@ function estadoCia(ciaId){
   return carros.some(c=>c.estado==='disponible') ? 'disponible' : 'en-emergencia';
 }
 
+// ════════════════════════════════════════════════════════════════
+// HELPERS BLOQUE 5 · GRANULARIDAD POR CARRO
+// El modelo de datos pasa de clavesEstado[ciaId] → clavesEstado[carroId].
+// e.carros[] es source of truth; e.companias[] (dispatch units) se mantiene
+// para backwards compat con WSP/parte/notif.
+// ════════════════════════════════════════════════════════════════
+function _carroACiaReal(carroId){
+  const c = CARROS.find(x => x.id === carroId);
+  return c ? c.cia : null;
+}
+function _ciasRealesDeCarros(carrosIds){
+  const s = {};
+  (carrosIds||[]).forEach(id => { const cia = _carroACiaReal(id); if(cia) s[cia] = true; });
+  return Object.keys(s);
+}
+// Dispatch unit (B-1, BX-3, RX-1, etc.) → carro asignado en una emergencia
+function _carroDeUnidadEnEmerg(emerg, dispatchUnitId){
+  if(!emerg || !emerg.carros) return null;
+  const m = CIA_MAP[dispatchUnitId]; if(!m) return null;
+  for(let i=0; i<emerg.carros.length; i++){
+    const c = CARROS.find(x => x.id === emerg.carros[i]);
+    if(c && c.cia === m.cia && c.espec === m.espec) return emerg.carros[i];
+  }
+  return null;
+}
+// Acepta carroId o dispatchUnitId, devuelve carroId
+window._resolverACarro = function(emerg, id){
+  if(!id) return null;
+  if(CARROS.find(c => c.id === id)) return id;          // ya es carroId
+  return _carroDeUnidadEnEmerg(emerg, id);              // era dispatch unit
+};
+// V2.4d — ¿la cía tiene al menos 1 conductor activo presente en cuartel?
+window._ciaTieneConductorPresente = function(ciaId){
+  if(typeof personal === 'undefined') return true;  // sin datos → no bloquear
+  return personal.some(function(p){
+    return p.cia === ciaId
+        && p.conductor === true
+        && p.presenteEnCuartel === true
+        && p.estado !== 'inactivo';
+  });
+};
+// V2.4d / V2 — ¿este carro está "sin-conductor"? Granular per-carro:
+// hay al menos 1 voluntario presente, activo, habilitado PARA ESTE CARRO.
+window._carroSinConductor = function(carroId){
+  var c = (typeof CARROS !== 'undefined') ? CARROS.find(function(x){ return x.id === carroId; }) : null;
+  if(!c) return false;
+  if(typeof personal === 'undefined') return false;
+  var hayConductor = personal.some(function(p){
+    if(!p.presenteEnCuartel || p.estado === 'inactivo') return false;
+    if(p.cia !== c.cia) return false;
+    if(Array.isArray(p.conductorCarros) && p.conductorCarros.length){
+      return p.conductorCarros.indexOf(carroId) !== -1;  // habilitado específicamente
+    }
+    return !!p.conductor;  // fallback legacy: conductor:true sin array → habilitado para todos
+  });
+  return !hayConductor;
+};
+// V2.4d — lista de conductores de una cía (todos, presentes o no)
+window._conductoresDeCia = function(ciaId){
+  if(typeof personal === 'undefined') return [];
+  return personal.filter(function(p){
+    return p.cia === ciaId && p.conductor === true && p.estado !== 'inactivo';
+  });
+};
+
+// Aggregate: clave más avanzada de cualquier carro de una cía REAL
+window._estadoCiaRealEnEmerg = function(emerg, ciaIdReal){
+  if(!emerg || !emerg.clavesEstado) return null;
+  const SEQ_KEYS = ['despacho','s60','s63','s67','s69','s610'];
+  let topIdx = -1;
+  Object.keys(emerg.clavesEstado).forEach(carroId => {
+    if(_carroACiaReal(carroId) !== ciaIdReal) return;
+    const est = emerg.clavesEstado[carroId] || {};
+    for(let i=SEQ_KEYS.length-1; i>=0; i--){
+      if(est[SEQ_KEYS[i]] && i > topIdx){ topIdx = i; break; }
+    }
+  });
+  return topIdx >= 0 ? SEQ_KEYS[topIdx] : null;
+};
+
 // Personal completo 1ª Compañía "Germania" de Frutillar
 // Categorías: oficial, honorario, bombero, aspirante, cadete
 let personal = [
@@ -1436,7 +2629,7 @@ let personal = [
   {id:'P122',num:'122', nombre:'José Vargas Padilla',            cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
   {id:'P123',num:'123', nombre:'Ricardo Haro Guerrero',          cargo:'Honorario',        cat:'honorario',  cia:'B-1', estado:'fuera'},
   // BOMBEROS
-  {id:'P124',num:'124', nombre:'Javier Lama Díaz',               cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'cuartel'},
+  {id:'P124',num:'124', nombre:'Javier Lama Díaz',               cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'cuartel', conductor:true, conductorCarros:['B1','BX1','R1'], presenteEnCuartel:true},
   {id:'P125',num:'125', nombre:'Joaquín Díaz Nannig',            cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
   {id:'P126',num:'126', nombre:'Walter Brecht Winkler',          cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
   {id:'P128',num:'128', nombre:'Rodrigo Astete Contreras',       cargo:'Bombero',          cat:'bombero',    cia:'B-1', estado:'fuera'},
@@ -1487,6 +2680,53 @@ let personal = [
   // PRUEBAS WSP (mantener para pruebas)
   {id:'P_W2',num:'',    nombre:'Andrés Aguirre',                 cargo:'Bombero (prueba)', cat:'bombero',    cia:'B-1', estado:'cuartel'},
 ];
+
+// ════════════════════════════════════════════════════════════════
+// V2.4c — Sync voluntarios desde Firestore al array personal[]
+// El módulo Firebase llama a esta función cada vez que cambia la
+// colección voluntarios (onSnapshot). Acá traducimos al formato
+// que espera personal[] y disparamos los re-renders dependientes.
+// ════════════════════════════════════════════════════════════════
+window._actualizarPersonalDesdeFb = function(fbVols) {
+  if (!Array.isArray(fbVols)) return;
+  // V2 fix — MERGE en lugar de replace.
+  // Los voluntarios hardcoded usan ids como P124, P125, mientras que los de
+  // Firestore usan ids random (addDoc). Por lo tanto NO chocan por id.
+  // Estrategia: keep hardcoded entries cuyo id no esté en FB. Anexar todo lo de FB.
+  var fbList = fbVols.map(function(v){
+    return {
+      id:                  v.id || v.fbId,
+      fbId:                v.fbId,
+      num:                 v.num     || '',
+      nombre:              v.nombre  || '',
+      cargo:               v.cargo   || 'Bombero',
+      cat:                 v.cat     || (v.rol === 'oficial' ? 'oficial' : 'bombero'),
+      cia:                 v.cia     || '',
+      estado:              v.estado  || (v.activo === false ? 'inactivo' : 'activo'),
+      conductor:           !!v.conductor,
+      conductorCarros:     Array.isArray(v.conductorCarros) ? v.conductorCarros : [],
+      presenteEnCuartel:   !!v.presenteEnCuartel,
+      presenciaTimestamp:  v.presenciaTimestamp,
+      presenciaSetBy:      v.presenciaSetBy,
+      tel:                 v.tel     || '',
+      wsp:                 v.wsp     || '',
+      email:               v.email   || ''
+    };
+  });
+  var fbIds = new Set(fbList.map(function(v){ return v.id; }));
+  // Conservar hardcoded que NO están en FB (incluye conductor de prueba P124)
+  var hardcodedKeep = personal.filter(function(p){ return !fbIds.has(p.id); });
+  personal.length = 0;
+  hardcodedKeep.forEach(function(p){ personal.push(p); });
+  fbList.forEach(function(v){ personal.push(v); });
+  // Re-renders dependientes (silencioso si la función aún no existe)
+  if (typeof renderDotacion         === 'function') renderDotacion();
+  if (typeof renderCompaniasEstado  === 'function') renderCompaniasEstado();
+  if (typeof renderCompaniasForm    === 'function') renderCompaniasForm();
+  if (typeof renderCarrosPanel      === 'function') renderCarrosPanel();
+  console.log('[FB] Voluntarios sync:', fbVols.length, 'cargados desde Firestore');
+};
+
 let contactosWsp = [
   {id:'W1',cia:'B-1',nombre:'Javier Lama',   cargo:'Bombero 1ª Cía.',wsp:'+56982290186',apikey:'',enabled:true},
   {id:'W2',cia:'B-1',nombre:'Andrés Aguirre',cargo:'Bombero 1ª Cía.',wsp:'+56971375299',apikey:'',enabled:true},
@@ -2374,6 +3614,8 @@ function switchTab(tab,el){
   const pg=document.getElementById('page-'+tab);
   pg.classList.add('active'); pg.style.display='';
   if(tab==='despacho') setTimeout(()=>map.invalidateSize(),100);
+  if(tab==='resumen') renderResumen();
+  if(tab==='bitacora') renderBitacoraFeed();
   if(tab==='estadisticas') renderStats();
   if(tab==='carros') renderCarrosFull();
   if(tab==='whatsapp') renderWspContacts();
@@ -2381,15 +3623,555 @@ function switchTab(tab,el){
 }
 function switchRPanel(p,el){
   document.querySelectorAll('.rpanel-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
-  ['companias','grifos','dotacion'].forEach(x=>{const d=document.getElementById('rp-'+x);if(d)d.style.display=x===p?'':'none';});
+  ['companias','carros','grifos','dotacion'].forEach(x=>{const d=document.getElementById('rp-'+x);if(d)d.style.display=x===p?'':'none';});
   if(p==='companias') renderCompaniasEstado();
-  if(p==='dotacion') renderDotacion();
+  if(p==='carros')    renderCarrosPanel();
+  if(p==='dotacion')  renderDotacion();
+}
+
+// BLOQUE 5: panel de carros (vista plana del cuerpo)
+function renderCarrosPanel(){
+  const el = document.getElementById('carros-list');
+  if(!el) return;
+  const disp = CARROS.filter(c=>c.estado==='disponible').length;
+  const cnt  = document.getElementById('carros-disp-count');
+  if(cnt) cnt.textContent = disp + '/' + CARROS.length + ' disponibles';
+  // Ordenar por cía + nombre
+  const ordenados = CARROS.slice().sort(function(a,b){
+    if(a.cia !== b.cia) return a.cia.localeCompare(b.cia);
+    return a.nombre.localeCompare(b.nombre);
+  });
+  el.innerHTML = ordenados.map(function(c){
+    const cia = COMPANIAS.find(x=>x.id===c.cia);
+    const color = cia ? cia.color : '#888';
+    let stadoLbl, stadoCol, stadoBg;
+    if(c.estado === 'en-emergencia'){
+      stadoLbl = '🔴 EN EMERG. ' + (c.emergenciaId || '');
+      stadoCol = 'var(--red)'; stadoBg = 'rgba(229,57,53,.1)';
+    } else if(c.estado === 'fuera-servicio' || c.disponibilidad === '0-8'){
+      stadoLbl = '🟡 0-8 FUERA SERVICIO';
+      stadoCol = 'var(--amber)'; stadoBg = 'rgba(245,158,11,.1)';
+    } else if(c.estado === 'mantencion'){
+      stadoLbl = '🔧 MANTENCIÓN';
+      stadoCol = 'var(--text3)'; stadoBg = 'rgba(255,255,255,.04)';
+    } else {
+      stadoLbl = '🟢 DISPONIBLE';
+      stadoCol = 'var(--green)'; stadoBg = 'rgba(16,185,129,.08)';
+    }
+    const motivoLine = c.motivoFueraServicio
+      ? '<div style="font-size:10px;color:var(--amber);font-style:italic;margin-top:3px;">⚠ ' + c.motivoFueraServicio + '</div>'
+      : '';
+    const btnRecuperar = (c.estado === 'fuera-servicio' || c.disponibilidad === '0-8')
+      ? '<button onclick="recuperarCarro(\'' + c.id + '\')" style="margin-top:5px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green);padding:4px 8px;border-radius:var(--r);cursor:pointer;font-size:10px;font-weight:700;">↻ Marcar 0-9 (recuperado)</button>'
+      : '';
+    // V2.4d — Warning sin-conductor (solo si carro está disponible — los otros estados ya tienen su badge)
+    let sinCondLine = '';
+    if(c.estado !== 'en-emergencia' && c.estado !== 'fuera-servicio' && c.estado !== 'mantencion'
+       && window._carroSinConductor && window._carroSinConductor(c.id)){
+      const conductores = window._conductoresDeCia ? window._conductoresDeCia(c.cia) : [];
+      const nConds = conductores.length;
+      sinCondLine = '<div style="margin-top:5px;padding:5px 8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:var(--r);font-size:10px;color:var(--blue);display:flex;align-items:center;gap:6px;">'
+        + '⚠ <strong>Sin conductor en cuartel</strong>'
+        + (nConds === 0
+            ? ' — la cía no tiene conductores marcados'
+            : ' — ' + nConds + ' conductor(es) registrados, ninguno presente')
+        + '<button title="Función pendiente: cargar teléfonos de conductores" disabled style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid var(--blue);color:var(--blue);padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;cursor:not-allowed;opacity:.5;">📞 Llamar</button>'
+        + '</div>';
+    }
+    return '<div style="border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;margin-bottom:5px;background:' + stadoBg + ';">' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<div style="width:32px;height:32px;border-radius:6px;background:' + color + '22;color:' + color + ';display:flex;align-items:center;justify-content:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:12px;flex-shrink:0;">' + (cia ? cia.num : c.cia) + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:12px;font-weight:700;">' + c.nombre + ' · ' + c.tipo + '</div>' +
+          '<div style="font-size:10px;color:var(--text3);">' + (cia ? cia.nombre : c.cia) + ' · KM ' + c.km + ' · ' + (c.modelo || '') + '</div>' +
+        '</div>' +
+        '<span style="font-size:9px;font-weight:700;color:' + stadoCol + ';white-space:nowrap;">' + stadoLbl + '</span>' +
+      '</div>' +
+      motivoLine +
+      sinCondLine +
+      btnRecuperar +
+    '</div>';
+  }).join('');
+}
+
+// BLOQUE 5: marcar carro 0-8 → 0-9 (oficial recargó / arregló el carro)
+window.recuperarCarro = function(carroId){
+  const c = CARROS.find(x=>x.id===carroId);
+  if(!c) return;
+  if(!confirm('¿Marcar ' + c.nombre + ' como disponible (0-9)?\n\nEsto significa que el carro fue recargado / reparado y vuelve al servicio.')) return;
+  c.estado = 'disponible';
+  c.disponibilidad = '0-9';
+  delete c.motivoFueraServicio;
+  renderCarrosPanel();
+  renderCompaniasEstado();
+  updateCiaMarkers();
+  renderCompaniasForm();
+  if (typeof renderResumen === 'function') renderResumen();
+  showNotif('↻ ' + c.nombre + ' recuperado', 'Marcado como 0-9 (disponible).');
+};
+
+// ════════════════════════════════════════════════════════════════
+// V2 — RESUMEN TAB · Vista macro con KPIs operativos
+// ════════════════════════════════════════════════════════════════
+window._resumenInterval = null;
+
+function _delta(actual, anterior){
+  if (anterior === 0) return actual === 0 ? { txt:'→', cls:'same' } : { txt:'+'+actual+' nuevos', cls:'up' };
+  var diff = actual - anterior;
+  if (diff === 0) return { txt:'igual que ayer', cls:'same' };
+  var pct = Math.round((diff / anterior) * 100);
+  return diff > 0
+    ? { txt:'▲ '+Math.abs(pct)+'% vs ayer', cls:'up' }
+    : { txt:'▼ '+Math.abs(pct)+'% vs ayer', cls:'down' };
+}
+
+function _formatHaceCuanto(timestamp){
+  if (!timestamp) return '—';
+  var diffMs = Date.now() - timestamp;
+  var diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'hace segundos';
+  if (diffMin < 60) return 'hace ' + diffMin + ' min';
+  var h = Math.floor(diffMin / 60);
+  if (h < 24) return 'hace ' + h + ' h';
+  var d = Math.floor(h / 24);
+  return 'hace ' + d + ' día(s)';
+}
+
+function renderResumen(forceFlash){
+  var kpisEl = document.getElementById('resumen-kpis');
+  if (!kpisEl) return;
+
+  // === Datos base ===
+  var hoy0 = new Date(); hoy0.setHours(0,0,0,0);
+  var ayer0 = new Date(hoy0.getTime() - 86400000);
+  var todasEmerg = (typeof emergencias !== 'undefined') ? emergencias : [];
+  var hoyEmerg   = todasEmerg.filter(function(e){ return e.timestamp >= hoy0.getTime(); });
+  var ayerEmerg  = todasEmerg.filter(function(e){ return e.timestamp >= ayer0.getTime() && e.timestamp < hoy0.getTime(); });
+  var activas    = todasEmerg.filter(function(e){ return e.estado === 'activa'; });
+
+  // Carros
+  var carrosArr = (typeof CARROS !== 'undefined') ? CARROS : [];
+  var cDisp     = carrosArr.filter(function(c){ return c.estado === 'disponible'; }).length;
+  var cFuera    = carrosArr.filter(function(c){ return c.estado === 'fuera-servicio' || c.disponibilidad === '0-8'; }).length;
+  var cEnEmerg  = carrosArr.filter(function(c){ return c.estado === 'en-emergencia'; }).length;
+  var cMant     = carrosArr.filter(function(c){ return c.estado === 'mantencion'; }).length;
+
+  // Cías principales (B-1 a B-6)
+  var ciasPrinc  = (typeof COMPANIAS !== 'undefined') ? COMPANIAS.filter(function(c){ return /^B-[1-6]$/.test(c.id); }) : [];
+  var ciasOk     = ciasPrinc.filter(function(c){ return (typeof estadoCia==='function') ? estadoCia(c.id)==='disponible' : true; }).length;
+
+  // Voluntarios
+  var personalArr = (typeof personal !== 'undefined') ? personal : [];
+  var presentes = personalArr.filter(function(p){ return p.presenteEnCuartel && p.estado !== 'inactivo'; }).length;
+  var conductoresPres = personalArr.filter(function(p){ return p.presenteEnCuartel && p.conductor && p.estado !== 'inactivo'; }).length;
+  var ciasSinCond = ciasPrinc.filter(function(c){
+    return window._ciaTieneConductorPresente && !window._ciaTieneConductorPresente(c.id);
+  }).length;
+
+  // Tiempo promedio respuesta hoy (despacho → primer 6-3)
+  var tiemposResp = [];
+  hoyEmerg.forEach(function(e){
+    if (!e.timestamp || !e.clavesEstado) return;
+    var horaPrimer63 = null;
+    Object.keys(e.clavesEstado).forEach(function(cId){
+      var t = e.clavesEstado[cId] && e.clavesEstado[cId].s63;
+      if (t && (!horaPrimer63 || t < horaPrimer63)) horaPrimer63 = t;
+    });
+    if (!horaPrimer63) return;
+    var hh = horaPrimer63.split(':');
+    var t63 = new Date(e.timestamp); t63.setHours(parseInt(hh[0]), parseInt(hh[1]), 0, 0);
+    var min = (t63.getTime() - e.timestamp) / 60000;
+    if (min > 0 && min < 60) tiemposResp.push(min);
+  });
+  var tiempoProm = tiemposResp.length
+    ? Math.round(tiemposResp.reduce(function(a,b){return a+b;},0) / tiemposResp.length)
+    : null;
+
+  // Última actividad
+  var ultEmerg = todasEmerg.slice().sort(function(a,b){ return b.timestamp - a.timestamp; })[0];
+  var ultLabel = ultEmerg ? _formatHaceCuanto(ultEmerg.timestamp) : 'sin actividad';
+
+  // === Render KPIs ===
+  var deltaHoy = _delta(hoyEmerg.length, ayerEmerg.length);
+  kpisEl.innerHTML = [
+    _kpiCard('blue',   'Llamados hoy',    hoyEmerg.length, deltaHoy.txt, deltaHoy.cls),
+    _kpiCard('purple', 'Llamados ayer',   ayerEmerg.length, '', ''),
+    _kpiCard('red',    'Activas ahora',   activas.length, activas.length ? activas.map(function(e){return e.id;}).join(', ') : 'todo tranquilo', ''),
+    _kpiCard('green',  'Carros en servicio', cDisp + ' / ' + carrosArr.length,
+             cFuera + ' fuera · ' + cEnEmerg + ' en emerg.' + (cMant ? ' · ' + cMant + ' mant.' : ''), ''),
+    _kpiCard('teal',   'Cías disponibles', ciasOk + ' / 6', ciasSinCond ? ciasSinCond + ' sin conductor' : 'todas con conductor', ciasSinCond ? 'down' : 'same'),
+    _kpiCard('amber',  'Voluntarios en cuartel', presentes,
+             conductoresPres + ' conductor(es) presente(s)', ''),
+    _kpiCard('blue',   'Tiempo prom. respuesta', tiempoProm !== null ? (tiempoProm + ' min') : '—',
+             tiemposResp.length + ' muestras hoy', ''),
+    _kpiCard('purple', 'Última actividad', ultLabel, ultEmerg ? ultEmerg.id + ' · ' + (ultEmerg.subtipo||ultEmerg.tipo||'') : '', '')
+  ].join('');
+
+  // === Servicios ===
+  var radioOk = !!window.radioDisponible;
+  var fbOk    = !!window._fbDb;
+  var wspOk   = (typeof contactosWsp !== 'undefined') && contactosWsp.some(function(c){return c.enabled && c.apikey;});
+  var wspEnabled = (typeof contactosWsp !== 'undefined') ? contactosWsp.filter(function(c){return c.enabled;}).length : 0;
+  document.getElementById('resumen-servicios').innerHTML = [
+    _svcRow(fbOk,    'Firebase (Firestore + Auth)',   fbOk ? 'Conectado' : 'Sin conexión'),
+    _svcRow(radioOk, 'Radio VHF (servidor local)',    radioOk ? 'COM4 activo' : 'Servidor offline'),
+    _svcRow(wspOk,   'WhatsApp CallMeBot',            wspEnabled + ' contactos activos'),
+    _svcRow(true,    'Voluntarios sincronizados',     personalArr.length + ' cargados')
+  ].join('');
+
+  // === Turno ===
+  var perfil = window._fbPerfil || {};
+  var inicio = window._turnoInicio || (window._turnoInicio = Date.now());
+  var dur = Math.floor((Date.now() - inicio) / 60000);
+  var horas = Math.floor(dur/60), mins = dur % 60;
+  document.getElementById('resumen-turno').innerHTML =
+    '<div style="font-size:14px;font-weight:700;">' + (perfil.nombre || 'Operador') + '</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-top:3px;">Rol: ' + (perfil.rol || '—') + '</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-top:8px;">⏱ Turno iniciado: ' +
+      (horas > 0 ? horas + 'h ' : '') + mins + 'min' + '</div>' +
+    '<div style="font-size:10px;color:var(--text3);margin-top:3px;">' +
+      new Date(inicio).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}) + ' hs</div>';
+
+  // === Estado del Cuerpo (mini) ===
+  var ciasListEl = document.getElementById('resumen-cias-list');
+  if (ciasListEl) {
+    var allCias = (typeof COMPANIAS !== 'undefined') ? COMPANIAS.filter(function(c){ return c.id !== 'BX-3'; }) : [];
+    ciasListEl.innerHTML = allCias.map(_resumenCiaMini).join('');
+  }
+  document.getElementById('resumen-cias-disp').textContent = ciasOk + ' / 6 disponibles';
+
+  // === Distribución de tipos hoy ===
+  var byTipo = {};
+  hoyEmerg.forEach(function(e){
+    var k = e.tipo || 'sin-codigo';
+    byTipo[k] = (byTipo[k] || 0) + 1;
+  });
+  var tiposEl = document.getElementById('resumen-tipos-bar');
+  var pares = Object.keys(byTipo).map(function(k){ return [k, byTipo[k]]; }).sort(function(a,b){ return b[1] - a[1]; });
+  if (!pares.length) {
+    tiposEl.innerHTML = '<div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:18px;">Sin llamados hoy</div>';
+  } else {
+    var maxN = pares[0][1];
+    tiposEl.innerHTML = pares.map(function(p){
+      var pct = Math.round((p[1] / maxN) * 100);
+      return '<div class="tipos-bar-row">' +
+        '<span style="width:80px;flex-shrink:0;font-family:JetBrains Mono,monospace;font-weight:700;">' + p[0] + '</span>' +
+        '<div style="flex:1;background:var(--bg3);border-radius:3px;overflow:hidden;">' +
+          '<div class="tipos-bar-fill" style="width:' + pct + '%;background:var(--blue);">' + p[1] + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // V2 — Otras actividades del cuerpo (salidas no-emergencia desde compania-X.html)
+  var salidasArr = window._salidasCia || [];
+  var salidasHoy = salidasArr.filter(function(s){
+    if (!s.fecha) return false;
+    var dt = new Date(s.fecha + (s.hora ? 'T' + s.hora : 'T00:00'));
+    return dt >= hoy0;
+  });
+  var salidasRecientes = salidasArr.slice().sort(function(a,b){
+    var da = new Date((a.fecha||'1970-01-01') + (a.hora ? 'T' + a.hora : 'T00:00'));
+    var db = new Date((b.fecha||'1970-01-01') + (b.hora ? 'T' + b.hora : 'T00:00'));
+    return db - da;
+  }).slice(0, 12);
+  var salidasCntEl = document.getElementById('resumen-salidas-cnt');
+  if (salidasCntEl) {
+    salidasCntEl.textContent = salidasHoy.length + ' hoy · ' + salidasArr.length + ' total registradas';
+  }
+  var salidasListEl = document.getElementById('resumen-salidas-list');
+  if (salidasListEl) {
+    if (!salidasRecientes.length) {
+      salidasListEl.innerHTML = '<div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:18px;">Sin actividades registradas. Las cías registran sus salidas (instrucción, ejercicios, actos) desde su PWA.</div>';
+    } else {
+      salidasListEl.innerHTML = salidasRecientes.map(_resumenSalidaCard).join('');
+    }
+  }
+
+  // Last update
+  var lu = document.getElementById('resumen-last-update');
+  if (lu) lu.textContent = '⟳ ' + new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  // Auto-refresh cada 30s mientras esté visible
+  if (forceFlash) {
+    var card = kpisEl;
+    card.style.opacity = '.4';
+    setTimeout(function(){ card.style.opacity = '1'; card.style.transition = 'opacity .3s'; }, 50);
+  }
+  if (window._resumenInterval) clearInterval(window._resumenInterval);
+  window._resumenInterval = setInterval(function(){
+    var pg = document.getElementById('page-resumen');
+    if (pg && pg.classList.contains('active')) renderResumen();
+    else { clearInterval(window._resumenInterval); window._resumenInterval = null; }
+  }, 30000);
+}
+
+function _kpiCard(color, label, value, sub, trendCls){
+  return '<div class="kpi-card kpi-' + color + '">' +
+    '<div class="kpi-label">' + label + '</div>' +
+    '<div class="kpi-value">' + value + '</div>' +
+    (sub ? '<div class="' + (trendCls ? 'kpi-trend ' + trendCls : 'kpi-sub') + '">' + sub + '</div>' : '') +
+  '</div>';
+}
+
+function _svcRow(ok, label, detail){
+  var cls = ok ? 'ok' : 'bad';
+  return '<div class="svc-row">' +
+    '<div class="svc-dot ' + cls + '"></div>' +
+    '<span>' + label + '</span>' +
+    '<span class="svc-detail">' + detail + '</span>' +
+  '</div>';
+}
+
+function _resumenCiaMini(c){
+  var est = (typeof estadoCia==='function') ? estadoCia(c.id) : 'disponible';
+  var statusCol = est === 'en-emergencia' ? 'var(--red)' : est === 'fuera-servicio' ? 'var(--text3)' : 'var(--green)';
+  var statusLbl = est === 'en-emergencia' ? 'EN EMERG.' : est === 'fuera-servicio' ? 'FUERA' : 'DISPONIBLE';
+  var ciaReal = (CIA_MAP[c.id] && CIA_MAP[c.id].cia) || c.id;
+  var pres = (typeof personal !== 'undefined') ? personal.filter(function(p){
+    return p.cia === ciaReal && p.presenteEnCuartel && p.estado !== 'inactivo';
+  }).length : 0;
+  var sinCond = window._ciaTieneConductorPresente && !window._ciaTieneConductorPresente(ciaReal);
+  return '<div class="resumen-cia-mini">' +
+    '<div class="resumen-cia-mini-head">' +
+      '<div class="resumen-cia-mini-num" style="background:' + c.color + '22;color:' + c.color + ';">' + c.num + '</div>' +
+      '<div class="resumen-cia-mini-name">' + c.nombre + '</div>' +
+      '<span style="font-size:9px;font-weight:700;color:' + statusCol + ';">' + statusLbl + '</span>' +
+    '</div>' +
+    '<div class="resumen-cia-chips">' +
+      '<span class="resumen-cia-chip" style="background:rgba(34,197,94,.15);color:var(--green);">🏠 ' + pres + '</span>' +
+      (sinCond ? '<span class="resumen-cia-chip" style="background:rgba(59,130,246,.15);color:var(--blue);">⚠ sin conductor</span>' : '') +
+    '</div>' +
+  '</div>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// V2 FASE D — Tab Bitácora · Feed cronológico de actividades
+// ════════════════════════════════════════════════════════════════
+window._bitFeedPeriodo = 'hoy';
+
+function setBitPeriodo(periodo, btnEl){
+  window._bitFeedPeriodo = periodo;
+  document.querySelectorAll('.bit-period-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btnEl) btnEl.classList.add('active');
+  renderBitacoraFeed();
+}
+
+function _bitPeriodoCutoff(periodo){
+  var now = Date.now();
+  var hoy0 = new Date(); hoy0.setHours(0,0,0,0);
+  switch(periodo){
+    case 'hoy': return hoy0.getTime();
+    case '3d':  return now - 3 * 86400000;
+    case '7d':  return now - 7 * 86400000;
+    case '30d': return now - 30 * 86400000;
+    case 'all': return 0;
+    default:    return hoy0.getTime();
+  }
+}
+
+function renderBitacoraFeed(){
+  var feedList   = document.getElementById('bit-feed-list');
+  var feedSum    = document.getElementById('bit-feed-summary');
+  var feedCount  = document.getElementById('bit-feed-count');
+  if (!feedList) return;
+
+  var periodo = window._bitFeedPeriodo || 'hoy';
+  var cutoff  = _bitPeriodoCutoff(periodo);
+  var search  = (document.getElementById('bit-search')||{}).value || '';
+  search = search.toLowerCase().trim();
+
+  // V2 — fusionar emergencias + salidas no-emergencia en el mismo feed
+  var todasEmerg = (typeof emergencias !== 'undefined') ? emergencias : [];
+  var todasSalidas = window._salidasCia || [];
+  var unified = [];
+  todasEmerg.forEach(function(e){
+    unified.push({
+      kind: 'emergencia',
+      id: e.id,
+      timestamp: e.timestamp,
+      _ref: e
+    });
+  });
+  todasSalidas.forEach(function(s){
+    var dt = new Date((s.fecha || '1970-01-01') + (s.hora ? 'T' + s.hora : 'T00:00'));
+    unified.push({
+      kind: 'salida',
+      id: s.id || s.fbId,
+      timestamp: dt.getTime(),
+      _ref: s
+    });
+  });
+
+  var filtradas = unified.filter(function(item){
+    if (item.timestamp < cutoff) return false;
+    if (!search) return true;
+    var e = item._ref;
+    var texto = item.kind === 'emergencia'
+      ? (e.id + ' ' + (e.tipo||'') + ' ' + (e.subtipo||'') + ' ' + (e.direccion||'') + ' ' + (e.zona||''))
+      : (item.id + ' ' + (e.cia||'') + ' ' + (e.tipo||'') + ' ' + (e.motivo||''));
+    return texto.toLowerCase().indexOf(search) !== -1;
+  }).sort(function(a,b){ return b.timestamp - a.timestamp; });
+
+  // Resumen del período (separar emergencias vs salidas)
+  var emergItems  = filtradas.filter(function(it){ return it.kind === 'emergencia'; });
+  var salidaItems = filtradas.filter(function(it){ return it.kind === 'salida'; });
+  var activas    = emergItems.filter(function(it){ return it._ref.estado === 'activa'; }).length;
+  var cerradasN  = emergItems.filter(function(it){ return it._ref.estado === 'cerrada'; }).length;
+  var minTotal = 0, conTiempo = 0;
+  emergItems.forEach(function(it){
+    var e = it._ref;
+    if (e.estado === 'cerrada') {
+      var dur = (e.cerradaAt ? new Date(e.cerradaAt).getTime() : Date.now()) - e.timestamp;
+      if (dur > 0) { minTotal += dur / 60000; conTiempo++; }
+    }
+  });
+  var minProm = conTiempo ? Math.round(minTotal / conTiempo) : 0;
+
+  feedSum.innerHTML = [
+    _bitSumCard('🚨 Emergencias', emergItems.length),
+    _bitSumCard('● Activas', activas),
+    _bitSumCard('✓ Cerradas', cerradasN),
+    _bitSumCard('📅 Otras activ.', salidaItems.length),
+    _bitSumCard('⏱ Duración prom.', minProm + ' min')
+  ].join('');
+
+  if (feedCount) feedCount.textContent = filtradas.length + ' actividad(es) · ' + emergItems.length + ' emerg. · ' + salidaItems.length + ' otras';
+
+  if (!filtradas.length) {
+    feedList.innerHTML = '<div class="bit-feed-empty">📭 Sin actividades en este período' + (search ? ' que coincidan con la búsqueda' : '') + '</div>';
+    return;
+  }
+
+  feedList.innerHTML = filtradas.map(function(item){
+    if (item.kind === 'emergencia') return _renderFeedEmerg(item._ref);
+    return _renderFeedSalida(item._ref);
+  }).join('');
+}
+
+function _renderFeedEmerg(e){
+  var ciasStr = (e.companias||[]).map(function(id){
+    var c = COMPANIAS.find(function(x){return x.id===id;});
+    return c ? c.num : id;
+  }).join(', ') || '—';
+  var fecha = new Date(e.timestamp);
+  var hoy0 = new Date(); hoy0.setHours(0,0,0,0);
+  var horaLbl = fecha >= hoy0
+    ? fecha.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})
+    : fecha.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'}) + ' ' +
+      fecha.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  var statusCls = e.estado === 'activa' ? 'activa' : 'cerrada';
+  var dur = '';
+  if (e.estado === 'cerrada' && e.cerradaAt) {
+    var min = Math.round((new Date(e.cerradaAt).getTime() - e.timestamp) / 60000);
+    dur = min + ' min';
+  } else if (e.estado === 'activa') {
+    var minNow = Math.round((Date.now() - e.timestamp) / 60000);
+    dur = minNow + ' min activa';
+  }
+  return '<div class="bit-feed-card ' + statusCls + '" data-kind="emergencia" onclick="abrirDetalle(\'' + e.id + '\')">' +
+    '<span class="bit-feed-id" style="background:rgba(229,57,53,.12);color:var(--red);border-color:rgba(229,57,53,.4);">🚨 ' + e.id + '</span>' +
+    '<span class="bit-feed-tipo">' + (e.subtipo || e.tipo || '—') + '</span>' +
+    '<div class="bit-feed-info">' +
+      '<div class="bit-feed-dir">📍 ' + (e.direccion || '—') + '</div>' +
+      '<div class="bit-feed-meta">' +
+        '<span>🚒 ' + ciasStr + '</span>' +
+        (e.reportante ? '<span>👤 ' + e.reportante + '</span>' : '') +
+        (e.zona ? '<span>📌 ' + e.zona + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<span class="bit-feed-status ' + statusCls + '">' +
+      (e.estado === 'activa' ? '● Activa' : '✓ Cerrada') +
+    '</span>' +
+    '<span class="bit-feed-time">' + horaLbl + (dur ? '<br>' + dur : '') + '</span>' +
+  '</div>';
+}
+
+function _renderFeedSalida(s){
+  var TIPOS = {
+    'instruccion':  { lbl:'INSTRUCCIÓN', emoji:'📚', col:'var(--blue)' },
+    'ejercicio':    { lbl:'EJERCICIO',   emoji:'🏃', col:'var(--teal)' },
+    'reunion':      { lbl:'REUNIÓN',     emoji:'🤝', col:'var(--purple)' },
+    'acto':         { lbl:'ACTO',        emoji:'🎖️', col:'#f97316' },
+    'social':       { lbl:'SOCIAL',      emoji:'🍻', col:'var(--amber)' },
+    'trabajo':      { lbl:'T. VOLUNT.',  emoji:'🧰', col:'#a855f7' }
+  };
+  var t = TIPOS[s.tipo] || { lbl:(s.tipo||'OTRO').toUpperCase(), emoji:'📌', col:'var(--text2)' };
+  var ciaInfo = (typeof COMPANIAS!=='undefined') ? COMPANIAS.find(function(c){return c.id===s.cia;}) : null;
+  var fechaTxt = (s.fecha || '?') + (s.hora ? ' ' + s.hora : '');
+  // Usamos el card style con border-left de color del tipo
+  return '<div class="bit-feed-card" data-kind="salida" style="border-left:3px solid ' + t.col + ';">' +
+    '<span class="bit-feed-id" style="background:' + t.col + '22;color:' + t.col + ';border-color:' + t.col + '55;">' + t.emoji + ' ' + (ciaInfo ? ciaInfo.num : (s.cia||'-')) + '</span>' +
+    '<span class="bit-feed-tipo" style="color:' + t.col + ';">' + t.lbl + '</span>' +
+    '<div class="bit-feed-info">' +
+      '<div class="bit-feed-dir">' + (s.motivo || '(sin descripción)') + '</div>' +
+      '<div class="bit-feed-meta">' +
+        '<span>🚒 ' + (ciaInfo ? ciaInfo.nombre : s.cia) + '</span>' +
+        (s.conductor ? '<span>🧑‍✈️ ' + s.conductor + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<span class="bit-feed-status" style="background:' + t.col + '22;color:' + t.col + ';">📅 No-emerg.</span>' +
+    '<span class="bit-feed-time">' + fechaTxt + '</span>' +
+  '</div>';
+}
+
+function _bitSumCard(label, value){
+  return '<div class="bit-feed-summary-card">' +
+    '<div class="bit-feed-summary-label">' + label + '</div>' +
+    '<div class="bit-feed-summary-value">' + value + '</div>' +
+  '</div>';
+}
+
+// V2 — render de una "salida" del compania-X (actividad no-emergencia)
+function _resumenSalidaCard(s){
+  var TIPOS = {
+    'instruccion':  { lbl:'INSTRUCCIÓN', emoji:'📚', col:'var(--blue)' },
+    'ejercicio':    { lbl:'EJERCICIO',   emoji:'🏃', col:'var(--teal)' },
+    'reunion':      { lbl:'REUNIÓN',     emoji:'🤝', col:'var(--purple)' },
+    'acto':         { lbl:'ACTO',        emoji:'🎖️', col:'#f97316' },
+    'social':       { lbl:'SOCIAL',      emoji:'🍻', col:'var(--amber)' },
+    'trabajo':      { lbl:'T. VOLUNT.',  emoji:'🧰', col:'#a855f7' }
+  };
+  var t = TIPOS[s.tipo] || { lbl:(s.tipo||'OTRO').toUpperCase(), emoji:'📌', col:'var(--text2)' };
+  var ciaInfo = (typeof COMPANIAS!=='undefined') ? COMPANIAS.find(function(c){return c.id===s.cia;}) : null;
+  var fechaTxt = s.fecha + (s.hora ? ' ' + s.hora : '');
+  return '<div class="resumen-salida-row" style="display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;align-items:center;padding:8px 11px;border:1px solid var(--border);border-left:3px solid ' + t.col + ';border-radius:var(--r);background:var(--bg3);margin-top:6px;font-size:11px;">' +
+    '<span style="font-size:9px;font-weight:900;letter-spacing:.5px;background:' + t.col + '22;color:' + t.col + ';padding:3px 8px;border-radius:3px;">' + t.emoji + ' ' + t.lbl + '</span>' +
+    '<span style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:13px;color:' + (ciaInfo?ciaInfo.color:'var(--text3)') + ';white-space:nowrap;">' + (ciaInfo ? ciaInfo.num : (s.cia||'-')) + '</span>' +
+    '<span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (s.motivo||'') + '">' + (s.motivo || '(sin descripción)') + '</span>' +
+    '<span style="color:var(--text3);font-family:JetBrains Mono,monospace;font-size:10px;white-space:nowrap;">' + fechaTxt + '</span>' +
+  '</div>';
 }
 
 // ===== MAPA =====
 const FLAT=-41.1248, FLNG=-73.0506, CLAT=-41.1262, CLNG=-73.0518;
 const map=L.map('map',{zoomControl:true}).setView([FLAT,FLNG],15);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+// V2 fix — CartoDB Dark Matter (no requiere Referer HTTP, funciona desde file://).
+// Si OSM cambia su política o querés volver, descomentar la línea OSM y comentar esta.
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors · © <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+// L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);  // requiere Referer (no sirve desde file://)
+// V2 fix — exponer en window y forzar recálculo de tiles cuando:
+//   1) la página termina de cargar (DOM + assets)
+//   2) la ventana se redimensiona
+//   3) el contenedor del mapa cambia de tamaño (ResizeObserver)
+//   4) varios timeouts iniciales por si el layout tarda en estabilizar
+window.map = map;
+['load','resize'].forEach(function(ev){
+  window.addEventListener(ev, function(){ try { map.invalidateSize(); } catch(e){} });
+});
+[100, 400, 900, 1800].forEach(function(ms){
+  setTimeout(function(){ try { map.invalidateSize(); } catch(e){} }, ms);
+});
+try {
+  var mapEl = document.getElementById('map');
+  if (mapEl && typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(function(){ try { map.invalidateSize(); } catch(e){} }).observe(mapEl);
+  }
+} catch(e) { console.warn('[Map] ResizeObserver no disponible:', e); }
 
 L.marker([CLAT,CLNG],{icon:L.divIcon({html:'<div style="background:#e53935;color:#fff;padding:5px 9px;border-radius:6px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:900;white-space:nowrap;">🏠 1ª Cía.</div>',className:'',iconAnchor:[0,0]})}).addTo(map)
   .bindPopup('<strong>1ª Compañía de Bomberos</strong><br>Frutillar, Los Lagos');
@@ -2784,6 +4566,10 @@ function renderCompaniasForm(){
     const ocupada=est==='en-emergencia';
     const sel=compSel.has(c.id);
     const emRef=emergencias.find(e=>e.estado==='activa'&&(e.companias||[]).includes(c.id));
+    // V2.4d — chequear si la cía REAL del dispatch unit tiene conductor presente
+    const ciaReal = (CIA_MAP[c.id] && CIA_MAP[c.id].cia) || c.id;
+    const sinCond = !ocupada && window._ciaTieneConductorPresente
+                  && !window._ciaTieneConductorPresente(ciaReal);
     return `<div class="cia-check-row ${grupo==='sug'?'sugerida':''} ${ocupada?'ocupada':''}">
       <input type="checkbox" ${sel&&!ocupada?'checked':''} ${ocupada?'disabled':''} style="accent-color:${c.color};width:13px;height:13px;cursor:${ocupada?'not-allowed':'pointer'};" onchange="toggleCia('${c.id}',this.checked)">
       <div class="cia-check-badge" style="background:${c.color}22;color:${c.color};">${c.num}</div>
@@ -2792,17 +4578,26 @@ function renderCompaniasForm(){
           ${c.nombre}
           ${grupo==='sug'?'<span style="font-size:8px;background:rgba(245,158,11,.2);color:var(--amber);padding:1px 5px;border-radius:3px;">SUGERIDA</span>':''}
           ${ocupada?'<span style="font-size:8px;background:rgba(229,57,53,.2);color:var(--red);padding:1px 5px;border-radius:3px;">EN EMERG.</span>':''}
+          ${sinCond?'<span title="No hay conductor presente en cuartel" style="font-size:8px;background:rgba(59,130,246,.2);color:var(--blue);padding:1px 5px;border-radius:3px;">⚠ SIN CONDUCTOR</span>':''}
         </div>
         <div style="font-size:9px;color:var(--text3);">${c.sector}${emRef?' · <span style="color:var(--red);">'+emRef.id+'</span>':''}</div>
       </div>
     </div>`;
   }).join('');
+  // V2.4d — Sort: "sin conductor" cias al final dentro de cada grupo (Decisión 4 = mostrar al final con warning)
+  const sortSinCond = (arr)=>arr.slice().sort((a,b)=>{
+    const ciaA = (CIA_MAP[a.id] && CIA_MAP[a.id].cia) || a.id;
+    const ciaB = (CIA_MAP[b.id] && CIA_MAP[b.id].cia) || b.id;
+    const sinA = window._ciaTieneConductorPresente && !window._ciaTieneConductorPresente(ciaA) ? 1 : 0;
+    const sinB = window._ciaTieneConductorPresente && !window._ciaTieneConductorPresente(ciaB) ? 1 : 0;
+    return sinA - sinB;
+  });
   let html='';
   if(sugerido.length){
-    html+=`<div class="sdiv" style="color:var(--amber);">⚡ Sugeridas por tabla de despacho</div>${rows(sug,'sug')}`;
-    html+=`<div class="sdiv">+ Agregar otras compañías</div>${rows(rest,'add')}`;
+    html+=`<div class="sdiv" style="color:var(--amber);">⚡ Sugeridas por tabla de despacho</div>${rows(sortSinCond(sug),'sug')}`;
+    html+=`<div class="sdiv">+ Agregar otras compañías</div>${rows(sortSinCond(rest),'add')}`;
   } else {
-    html+=`<div class="sdiv">Selecciona código y zona para ver sugerido</div>${rows(todas,'add')}`;
+    html+=`<div class="sdiv">Selecciona código y zona para ver sugerido</div>${rows(sortSinCond(todas),'add')}`;
   }
   el.innerHTML=html;
 }
@@ -2834,6 +4629,12 @@ function renderCiaCard(c){
   const emAct=emergencias.filter(e=>e.estado==='activa'&&(e.companias||[]).includes(c.id));
   const myCia=c.id==='BX-3'?'B-3':c.id;
   const todosCarros=CARROS.filter(cr=>cr.cia===myCia);
+  // V2.4d — chequeo conductor presente (cía REAL, no dispatch unit)
+  const ciaReal = (CIA_MAP[c.id] && CIA_MAP[c.id].cia) || c.id;
+  const sinCond = window._ciaTieneConductorPresente && !window._ciaTieneConductorPresente(ciaReal);
+  const presEnCuartel = (typeof personal !== 'undefined') ? personal.filter(function(p){
+    return p.cia === ciaReal && p.presenteEnCuartel === true && p.estado !== 'inactivo';
+  }).length : 0;
   const carrosHTML=todosCarros.map(cr=>{
     const ocu=cr.estado==='en-emergencia';
     return `<div class="carro-row">
@@ -2855,6 +4656,10 @@ function renderCiaCard(c){
       <div class="cia-dot" style="background:${col};${dotAnim}"></div>
       <div class="cia-status-lbl" style="color:${col};">${est==='disponible'?'DISPONIBLE':est==='en-emergencia'?'EN EMERG.':'FUERA'}</div>
       ${emAct.length?`<div style="margin-left:auto;font-size:9px;background:rgba(229,57,53,.15);color:var(--red);padding:1px 6px;border-radius:4px;font-weight:700;">${emAct.map(e=>e.id).join(', ')}</div>`:''}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;font-size:9px;margin-top:3px;">
+      <span style="background:rgba(34,197,94,.12);color:var(--green);padding:1px 6px;border-radius:3px;font-weight:700;">🏠 ${presEnCuartel} presentes</span>
+      ${sinCond?'<span title="Sin conductor presente en cuartel" style="background:rgba(59,130,246,.18);color:var(--blue);padding:1px 6px;border-radius:3px;font-weight:700;">⚠ SIN CONDUCTOR</span>':''}
     </div>
     ${carrosHTML?`<div style="padding:4px 0 2px;">${carrosHTML}</div>`:''}
   </div>`;
@@ -2904,50 +4709,112 @@ function renderActivas(){
       {key:'s610',     label:'6-10 · Llegada al cuartel',     emoji:'🏠', col:'var(--green)', next:null},
     ];
 
-    const ciasHTML=(e.companias||[]).map(cid=>{
-      const cia=COMPANIAS.find(x=>x.id===cid);
-      const color=cia?cia.color:'#888';
-      const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[cid]||cid;
-      const carro=(e.carros||[]).map(id=>CARROS.find(x=>x.id===id)).find(c=>c&&c.cia===ciaNorm);
-      const est=(e.clavesEstado||{})[cid]||{};
+    // V2 fix — determinar QUÉ carro tiene el "slot" para marcar 6-7.
+    // El primer carro (orden de e.carros) que está en s63 sin pasar a s69
+    // recibe el botón "Marcar 6-7". Los demás saltan directo a s69.
+    // Una vez marcado e.s67 a nivel emergencia, todos los demás también saltan.
+    const carroSlot67 = !e.s67 ? (e.carros||[]).find(function(cId){
+      var est = (e.clavesEstado||{})[cId] || {};
+      return est.s63 && !est.s69;
+    }) : null;
 
-      // Encontrar cuál es el último estado completado
+    // BLOQUE 5: itera 1 fila por CARRO (no por dispatch unit)
+    const carrosHTML=(e.carros||[]).map(carroId=>{
+      const carro=CARROS.find(x=>x.id===carroId);
+      if(!carro) return '';
+      const cia=COMPANIAS.find(x=>x.id===carro.cia);
+      const color=cia?cia.color:'#888';
+      const tripu=(e.tripulacion||{})[carroId];
+
+      const est=(e.clavesEstado||{})[carroId]||{};
       let ultimoIdx=-1;
       for(let i=0;i<SEQ.length;i++){
-        if(est[SEQ[i].key]) ultimoIdx=i; else break;
+        const k = SEQ[i].key;
+        // V2 fix bug 6-9 → 6-10: s67 es a nivel emergencia. Si el carro NO es
+        // el "slot" de s67, o si e.s67 ya fue marcado, lo tratamos como "cumplido"
+        // para que la cadena de progresión no se rompa al saltar 6-7.
+        if(k === 's67' && (e.s67 || carroId !== carroSlot67)){
+          ultimoIdx = i;
+          continue;
+        }
+        if(est[k]) ultimoIdx=i; else break;
       }
       const terminado=ultimoIdx===SEQ.length-1;
 
-      // Badges de estados completados
       const badges=SEQ.slice(0,ultimoIdx+1).map(s=>`
         <div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;background:${s.col}18;border:1px solid ${s.col}44;flex-shrink:0;">
           <span style="font-size:10px;">${s.emoji}</span>
           <span style="font-family:JetBrains Mono,monospace;font-size:9px;font-weight:700;color:${s.col};">${s.label} <span style="opacity:.7;">${est[s.key]}</span></span>
         </div>`).join('');
 
-      // Botón del siguiente estado (el que viene)
-      const nextIdx=ultimoIdx+1;
+      // Botón del siguiente estado.
+      // V2 fix — 6-7 vuelve al flujo per-carro PERO solo se muestra en UN carro
+      // a la vez (el "carroSlot67"). Una vez que ese carro marca s67 (lo que setea
+      // e.s67 a nivel emergencia), los demás carros saltan directo a s69.
+      let nextIdx=ultimoIdx+1;
+      if(SEQ[nextIdx] && SEQ[nextIdx].key==='s67' && carroId !== carroSlot67){
+        nextIdx++;  // este carro NO es el designado para s67 → skip
+      }
       const next=SEQ[nextIdx];
+      // BLOQUE 5: pasamos carroId. 6-0/6-7/6-9/6-10 abren modales especializados.
+      const onClickNext = !next ? '' :
+        (next.key==='s60'  ? `abrirS60('${e.id}','${carroId}')` :
+         next.key==='s67'  ? `abrirS67('${e.id}')` :
+         next.key==='s69'  ? `abrirS69('${e.id}','${carroId}')` :
+         next.key==='s610' ? `abrirS610('${e.id}','${carroId}')` :
+                             `marcarClaveEstado('${e.id}','${carroId}','${next.key}')`);
       const btnNext=next?`
-        <button onclick="marcarClaveEstado('${e.id}','${cid}','${next.key}')"
+        <button onclick="${onClickNext}"
           style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r);background:${next.col}20;border:1px solid ${next.col}66;color:${next.col};cursor:pointer;font-size:11px;font-weight:700;width:100%;margin-top:5px;justify-content:center;">
           <span style="font-size:13px;">${next.emoji}</span>
           <span>▶ Marcar ${next.label}</span>
         </button>`:'';
+
+      // Pill de tripulación (si ya se marcó 6-0)
+      const tripuPill = tripu ? `
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;font-size:10px;">
+          <span style="background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:var(--blue);padding:2px 7px;border-radius:3px;">🧑‍✈️ Cond: ${tripu.conductor||'—'}</span>
+          <span style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#c084fc;padding:2px 7px;border-radius:3px;">⭐ Oficial: ${tripu.oficial||'—'}</span>
+          <span style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--amber);padding:2px 7px;border-radius:3px;">👥 ${tripu.cantidad||0}</span>
+        </div>` : '';
+
       return `<div style="background:${terminado?'rgba(16,185,129,.07)':color+'0d'};border:1px solid ${terminado?'rgba(16,185,129,.3)':color+'33'};border-radius:5px;padding:7px 9px;margin-bottom:4px;">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:${badges||btnNext?'6px':'0'};">
-          <div class="cia-num-badge" style="background:${color}22;color:${color};">${cia?cia.num:cid}</div>
+          <div class="cia-num-badge" style="background:${color}22;color:${color};">${cia?cia.num:carro.cia}</div>
           <div class="cia-row-info">
-            <div class="cia-row-name" style="color:${terminado?'var(--green)':'var(--text)'};">${cia?cia.nombre:cid}</div>
-            ${carro?`<div class="cia-row-carro">${carro.nombre} · ${carro.tipo}${carro.prio===2?' (apoyo)':''}</div>`:''}
+            <div class="cia-row-name" style="color:${terminado?'var(--green)':'var(--text)'};">${carro.nombre} · ${carro.tipo}${carro.prio===2?' (apoyo)':''}</div>
+            <div class="cia-row-carro">${cia?cia.nombre:carro.cia}</div>
           </div>
         </div>
-        ${badges?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:${btnNext?'0':'0'};">${badges}</div>`:''}
+        ${badges?`<div style="display:flex;flex-wrap:wrap;gap:3px;">${badges}</div>`:''}
+        ${tripuPill}
         ${btnNext}
       </div>`;
     }).join('');
 
     const div=document.createElement('div');
+    // V2 — Resumen del despacho (4 KPIs visuales + semáforo)
+    const _despCarros = (e.carros || []);
+    const _despCnt = _despCarros.length;
+    const _enCamino = _despCarros.filter(cId => {
+      const est = (e.clavesEstado||{})[cId] || {};
+      return est.s60 && !est.s63;
+    }).length;
+    const _enLugar = _despCarros.filter(cId => {
+      const est = (e.clavesEstado||{})[cId] || {};
+      return est.s63 && !est.s69;
+    }).length;
+    const _voluntarios = _despCarros.reduce((acc, cId) => {
+      const t = (e.tripulacion||{})[cId];
+      return acc + (t && t.cantidad ? parseInt(t.cantidad) : 0);
+    }, 0);
+    // Semáforo: rojo si nadie llegó · amarillo si hay 6-3 sin 6-7 · verde si 6-7 marcado
+    const _semaforo = e.s67
+      ? { color:'#22c55e', emoji:'🟢', label:'CONTROLADA' }
+      : (_enLugar > 0
+          ? { color:'#f59e0b', emoji:'🟡', label:'EN ATENCIÓN' }
+          : { color:'#ef4444', emoji:'🔴', label:'EN CAMINO' });
+
     div.className='emerg-card';
     div.style.borderLeft=`3px solid ${pCol}`;
     div.innerHTML=`
@@ -2958,7 +4825,47 @@ function renderActivas(){
       </div>
       <div class="emerg-dir">📍 ${e.direccion}</div>
       ${e.zona?`<div class="emerg-zona">${e.zona}</div>`:''}
-      <div style="margin-top:7px;">${ciasHTML}</div>
+
+      <!-- V2 — Resumen del despacho con semáforo -->
+      <div class="dispatch-summary" style="background:linear-gradient(90deg, ${_semaforo.color}18, transparent);border:1px solid ${_semaforo.color}55;border-left:3px solid ${_semaforo.color};border-radius:var(--r);padding:8px 10px;margin-top:8px;display:flex;align-items:center;gap:10px;">
+        <div title="${_semaforo.label}" style="width:28px;height:28px;border-radius:50%;background:${_semaforo.color};box-shadow:0 0 12px ${_semaforo.color}99;display:flex;align-items:center;justify-content:center;flex-shrink:0;${e.s67?'animation:none':'animation:bitPulse 1.6s infinite;'}">
+          <span style="font-size:14px;color:#fff;font-weight:900;">${e.s67 ? '✓' : '!'}</span>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+          <div style="text-align:center;">
+            <div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:900;color:var(--blue);line-height:1;">${_despCnt}</div>
+            <div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:2px;">🚒 Despach.</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:900;color:var(--amber);line-height:1;">${_enCamino}</div>
+            <div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:2px;">🛣️ Camino</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:900;color:#f97316;line-height:1;">${_enLugar}</div>
+            <div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:2px;">📍 En lugar</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:900;color:var(--purple);line-height:1;">${_voluntarios}</div>
+            <div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:2px;">👥 Volunt.</div>
+          </div>
+        </div>
+        <div style="font-size:9px;font-weight:900;letter-spacing:.5px;color:${_semaforo.color};white-space:nowrap;text-align:center;line-height:1.2;">${_semaforo.label.split(' ').join('<br>')}</div>
+      </div>
+
+      <div style="margin-top:7px;">${carrosHTML}</div>
+      <!-- V2 — Acciones de escalamiento (re-despacho + alarma general). El botón
+           Alarma General se movió aquí desde el topbar (decisión: visible solo
+           cuando hay emergencia activa; el operador escala desde el contexto). -->
+      <div style="display:flex;gap:5px;margin-top:5px;">
+        <button onclick="abrirRedespacho('${e.id}')" style="flex:1;display:flex;align-items:center;gap:6px;justify-content:center;background:rgba(59,130,246,.08);border:1px dashed rgba(59,130,246,.4);color:var(--blue);padding:6px;border-radius:var(--r);cursor:pointer;font-size:11px;font-weight:700;">
+          + Despachar más recursos
+        </button>
+        <button onclick="openModal('modal-alarma')" title="Convocatoria total del cuerpo (todas las cías)" style="flex:1;display:flex;align-items:center;gap:6px;justify-content:center;background:linear-gradient(135deg,#b71c1c,#8b1414);border:1px solid var(--red);color:#fff;padding:6px;border-radius:var(--r);cursor:pointer;font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 0 8px rgba(229,57,53,.3);">
+          🚨 Alarma General
+        </button>
+      </div>
+      ${window._renderPreInformeBtn ? window._renderPreInformeBtn(e) : ''}
+      ${window._render67Btn          ? window._render67Btn(e)          : ''}
       <div id="resp-panel-${e.id}"></div>
       <div style="display:flex;gap:7px;margin-top:8px;">
         <button onclick="abrirDetalle('${e.id}')" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:5px;border-radius:var(--r);cursor:pointer;font-size:10px;">Detalle</button>
@@ -2969,6 +4876,41 @@ function renderActivas(){
     if(e.fbRespuestas) renderRespuestasVoluntarios(e);
     startTimer(e);
   });
+
+  // V2 fase C — Emergencias CERRADAS de hoy, en formato minimizado
+  var hoy0 = new Date(); hoy0.setHours(0,0,0,0);
+  var cerradasHoy = emergencias
+    .filter(function(x){ return x.estado === 'cerrada' && x.timestamp >= hoy0.getTime(); })
+    .sort(function(a,b){ return b.timestamp - a.timestamp; })
+    .slice(0, 8);  // máximo 8 cerradas en el panel
+  if (cerradasHoy.length) {
+    var sep = document.createElement('div');
+    sep.style.cssText = 'padding:9px 14px 5px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-top:1px solid var(--border);margin-top:5px;display:flex;align-items:center;gap:7px;';
+    sep.innerHTML = '<span>📜 Cerradas hoy</span><span style="background:var(--bg3);border:1px solid var(--border);padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700;color:var(--text);">' + cerradasHoy.length + '</span>';
+    list.appendChild(sep);
+
+    cerradasHoy.forEach(function(e){
+      var totalMin = Math.floor((Date.now() - e.timestamp) / 60000);
+      var ciasStr = (e.companias||[]).map(function(id){
+        var c = COMPANIAS.find(function(x){return x.id===id;});
+        return c ? c.num : id;
+      }).join(', ');
+      var mini = document.createElement('div');
+      mini.style.cssText = 'padding:8px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:11px;transition:background .1s;';
+      mini.onmouseenter = function(){ this.style.background = 'var(--bg3)'; };
+      mini.onmouseleave = function(){ this.style.background = ''; };
+      mini.onclick = function(){ abrirDetalle(e.id); };
+      mini.innerHTML =
+        '<span style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--text);background:var(--bg3);padding:2px 7px;border-radius:3px;flex-shrink:0;">' + e.id + '</span>' +
+        '<span style="font-size:10px;color:var(--green);font-weight:700;flex-shrink:0;">✓ ' + e.hora + '</span>' +
+        '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);" title="' + (e.direccion||'') + '">' +
+          '<strong>' + (e.subtipo || e.tipo || '—') + '</strong> · ' + (e.direccion || '—') +
+        '</span>' +
+        '<span style="font-size:10px;color:var(--text3);flex-shrink:0;">' + ciasStr + '</span>' +
+        '<span style="font-size:10px;color:var(--amber);font-family:JetBrains Mono,monospace;flex-shrink:0;">' + totalMin + 'min</span>';
+      list.appendChild(mini);
+    });
+  }
 }
 
 function startTimer(e){
@@ -2981,11 +4923,18 @@ function startTimer(e){
 }
 
 // ===== DESPACHAR =====
-function despachar(){
+function despachar(relatoTexto){
   const dir=document.getElementById('direccion').value.trim();
   const codigo=document.getElementById('codigo-llamado').value;
+  const reportante=document.getElementById('reportante').value.trim();
+  const telefonoRaw=document.getElementById('telefono').value.trim();
+  const telefonoDigits=telefonoRaw.replace(/\D/g,'');
+  const telefono=telefonoRaw?'+56 '+telefonoRaw:'';
   if(!dir){showNotif('Campo requerido','Ingresa la dirección o haz clic en el mapa.');return;}
   if(!codigo){showNotif('Selecciona el tipo','Selecciona el código de llamado (10-X).');return;}
+  if(!reportante){showNotif('Falta el reportante','Ingresa el nombre de quien llama.');document.getElementById('reportante').focus();return;}
+  if(!telefonoRaw){showNotif('Falta el teléfono','Ingresa el teléfono de quien llama.');document.getElementById('telefono').focus();return;}
+  if(telefonoDigits.length<8){showNotif('Teléfono inválido','Debe tener al menos 8 dígitos (ej: 9 8821 4433).');document.getElementById('telefono').focus();return;}
   if(compSel.size===0){showNotif('Sin compañías','Selecciona al menos una compañía.');return;}
   const n=new Date();
   const hora=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
@@ -3003,16 +4952,23 @@ function despachar(){
     carros:[],
     hora, timestamp:Date.now(), estado:'activa',
     retornadas:new Set(),
-    clavesEstado:{},   // ciaId → { despacho, s60, s63, s67, s69, s610 }
+    clavesEstado:{},   // BLOQUE 5: carroId → { despacho, s60, s63, s67, s69, s610, disponibilidad, kmLlegada, tripulacion }
+    tripulacion:{},    // BLOQUE 5: carroId → { conductor, oficial, cantidad, hora }
     voluntarios:new Set(),
     lat:clickedLatLng?clickedLatLng.lat:FLAT+(Math.random()-.5)*.01,
     lng:clickedLatLng?clickedLatLng.lng:FLNG+(Math.random()-.5)*.01,
+    relato:relatoTexto||'',
   };
   // Asignar carros según especialidad y prioridad + registrar hora de despacho
   e.companias.forEach(cid=>{
     const carro=carroADespachar(cid);
-    if(carro){carro.estado='en-emergencia';carro.emergenciaId=id;e.carros.push(carro.id);}
-    e.clavesEstado[cid]={despacho:hora};
+    if(carro){
+      carro.estado='en-emergencia';
+      carro.emergenciaId=id;
+      e.carros.push(carro.id);
+      // BLOQUE 5: clavesEstado indexed por carroId
+      e.clavesEstado[carro.id] = { despacho:hora };
+    }
   });
   // Guardar KM de salida (odómetro actual antes de la salida)
   const primerCarroDespacho=(e.carros||[]).map(cid=>CARROS.find(x=>x.id===cid)).find(c=>c);
@@ -3036,7 +4992,17 @@ function despachar(){
     window.fbGuardarEmergencia(e).then(function(fbId){
       if(fbId){
         addLog('INFO','lt-c','☁️ <strong>Firebase</strong> — Emergencia '+id+' publicada · Voluntarios notificados');
-        if(window.bitInicializar) window.bitInicializar(e);
+        // V2 fix — conectar el panel de bitácora a esta emergencia. Antes
+        // se llamaba a window.bitInicializar (que no existe), ahora usamos
+        // bitConectarPanel + bitActualizarSelector. Sin esto, el panel se
+        // queda mostrando "Selecciona una emergencia" y los eventos se
+        // escriben a Firestore pero no se ven en la UI.
+        if(window.bitConectarPanel) window.bitConectarPanel(fbId, e.id);
+        if(window.bitActualizarSelector) setTimeout(window.bitActualizarSelector, 50);
+   if(e.relato && window.bitAgregarEvento) window.bitAgregarEvento(fbId, {
+     tipo:'relato_llamada',
+     contenido:'📞 <strong>Relato del llamado:</strong> '+e.relato
+   });
    if(window.bitAgregarEvento) window.bitAgregarEvento(fbId, {
      tipo:'creacion',
      contenido:'Emergencia creada · '+e.subtipo+' · '+e.direccion
@@ -3138,10 +5104,18 @@ function cerrarEmergenciaActiva(){cerrarEmergencia();}
 function cerrarEmergencia(){
   if(!activeEmergId) return;
   const e=emergencias.find(x=>x.id===activeEmergId); if(!e) return;
-  // Liberar todos los carros
+  // BLOQUE 5: solo libera carros que están 'en-emergencia'.
+  // Carros 'fuera-servicio' (0-8) PERSISTEN entre emergencias hasta que un
+  // oficial los marque manualmente como disponibles desde el panel "Carros".
   (e.carros||[]).forEach(carroId=>{
     const c=CARROS.find(x=>x.id===carroId);
-    if(c){c.estado='disponible';c.emergenciaId=null;}
+    if(c && c.estado === 'en-emergencia'){
+      c.estado='disponible';
+      c.emergenciaId=null;
+    } else if(c){
+      // Carro ya está en 0-8 o disponible (post-6-10). Solo limpiar emergenciaId.
+      c.emergenciaId = null;
+    }
   });
   e.estado='cerrada';
   // ── Cerrar en Firebase ──
@@ -3196,6 +5170,30 @@ function cerrarEmergencia(){
   renderCompaniasForm();
   renderStats();
   notificarCierre(e);
+  // V2 — Auto-cerrar / cambiar el panel de bitácora cuando se cierra la emergencia
+  // que estaba conectada. Si hay otra activa, salta a esa. Si no, desconecta.
+  if (window.bitState && window.bitState.emergCadId === e.id) {
+    var otraActiva = emergencias.find(function(x){
+      return x.estado === 'activa' && x.fbId && x.id !== e.id;
+    });
+    if (otraActiva && window.bitConectarPanel) {
+      window.bitConectarPanel(otraActiva.fbId, otraActiva.id);
+      showNotif('📋 Bitácora', 'Cambió a ' + otraActiva.id);
+    } else if (window.bitConectarPanel) {
+      window.bitConectarPanel(null, null);  // desconecta
+      // Colapsar el panel para liberar espacio (si no estaba colapsado)
+      var panel = document.getElementById('panel-bitacora');
+      if (panel && !panel.classList.contains('collapsed')) {
+        panel.classList.add('collapsed');
+        if (window.bitState) window.bitState.panelOpen = false;
+        var btn = document.getElementById('bit-collapse');
+        if (btn) btn.textContent = '▶';
+        // Reajustar mapa después del cambio de layout
+        if (window.map) setTimeout(function(){ window.map.invalidateSize(); }, 280);
+      }
+    }
+  }
+  if (window.bitActualizarSelector) setTimeout(window.bitActualizarSelector, 100);
 }
 
 // ===== DETALLE MODAL =====
@@ -3380,6 +5378,16 @@ function buildMsgDespacho(e, contacto){
   const tpl=document.getElementById('wsp-template'); if(!tpl) return '';
   const prioLbl=['','🔴 Crítica','🟡 Alta','🔵 Media'][e.prioridad]||`P${e.prioridad}`;
   const ciasStr=(e.companias||[]).map(id=>{const c=COMPANIAS.find(x=>x.id===id);return c?c.num:id;}).join(', ');
+  // BLOQUE 5: identificar carros despachados de la cía del contacto (Decisión 3 = C)
+  let carrosCia = '';
+  if(contacto && contacto.cia){
+    const carrosDeContacto = (e.carros||[])
+      .map(cid => CARROS.find(c => c.id === cid))
+      .filter(c => c && (c.cia === contacto.cia || CIA_MAP[contacto.cia]?.cia === c.cia));
+    if(carrosDeContacto.length){
+      carrosCia = carrosDeContacto.map(c => c.nombre).join(', ');
+    }
+  }
   const mapa=e.lat&&e.lng?`https://maps.google.com/?q=${e.lat.toFixed(5)},${e.lng.toFixed(5)}`:'https://maps.google.com/?q=Frutillar,Chile';
   // Generar link de respuesta personalizado — usa contacto.id (W1, W2...) o wsp como identificador
   let linkResp = '';
@@ -3392,10 +5400,12 @@ function buildMsgDespacho(e, contacto){
 ✅ *¿Puedes ir?* Responde aquí:
 ${url}`;
   }
+  // BLOQUE 5: si hay carros específicos de la cía del contacto, agregar línea
+  const carroLine = carrosCia ? `\n🚒 *Carro(s) despachado(s) de tu Cía:* ${carrosCia}` : '';
   return (tpl.value
     .replace(/{ID}/g,e.id).replace(/{TIPO}/g,e.subtipo||e.tipo)
     .replace(/{DIRECCION}/g,e.direccion).replace(/{PRIORIDAD}/g,prioLbl)
-    .replace(/{UNIDADES}/g,ciasStr).replace(/{HORA}/g,e.hora).replace(/{MAPA}/g,mapa)) + linkResp;
+    .replace(/{UNIDADES}/g,ciasStr).replace(/{HORA}/g,e.hora).replace(/{MAPA}/g,mapa)) + carroLine + linkResp;
 }
 async function notificarDespacho(e){
   if(!document.getElementById('rule-despacho')?.checked) return;
@@ -3569,50 +5579,44 @@ const CLAVE_INFO = {
   s610:     { label:'6-10 Disponible',    logEmoji:'🏠', logMsg:'disponible en cuartel (6-10) luego de' },
 };
 
-function marcarClaveEstado(emergId, ciaId, claveKey){
+// BLOQUE 5: marcarClaveEstado opera por carroId. Acepta ciaId (dispatch unit)
+// o carroId — resuelve internamente. Para 6-0/6-9/6-10 los modales narrativos
+// ya interceptan; este path queda para 6-7 directo o casos que no usen modal.
+function marcarClaveEstado(emergId, idCiaOCarro, claveKey){
   const e=emergencias.find(x=>x.id===emergId); if(!e) return;
-  if(!e.clavesEstado)  e.clavesEstado={};
-  if(!e.clavesEstado[ciaId]) e.clavesEstado[ciaId]={};
+  if(!e.clavesEstado) e.clavesEstado={};
+  // Resolver a carroId (acepta ciaId/dispatch unit o carroId directo)
+  const carroId = window._resolverACarro(e, idCiaOCarro) || idCiaOCarro;
+  if(!e.clavesEstado[carroId]) e.clavesEstado[carroId]={};
   const n=new Date();
   const hora=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
-  e.clavesEstado[ciaId][claveKey]=hora;
-  // Al marcar 6-10: solicitar KM de llegada y actualizar el odómetro del carro
-  if(claveKey==='s610'){
-    const kmLlegadaStr=window.prompt('Ingrese el KM de llegada al cuartel para este carro:','');
-    if(kmLlegadaStr && !isNaN(parseInt(kmLlegadaStr))){
-      const kmLlegada=parseInt(kmLlegadaStr);
-      e.kmLlegada=kmLlegada;
-      // Actualizar odómetro del carro
-      const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[ciaId]||ciaId;
-      (e.carros||[]).forEach(function(carroId){
-        const c=CARROS.find(x=>x.id===carroId);
-        if(c&&c.cia===ciaNorm){ c.km=kmLlegada; }
-      });
-    }
-  }
-  // Compatibilidad con sistema de retorno
+  e.clavesEstado[carroId][claveKey]=hora;
+  // Liberar carro al 6-9 (modales especializados también lo hacen, pero por si llamamos directo)
   if(claveKey==='s69'){
     if(!e.retornadas) e.retornadas=new Set();
-    e.retornadas.add(ciaId);
-    // Liberar el carro al retirarse del lugar (6-9)
-    const ciaNorm={'BX-3':'B-3','RX-1':'B-1','R-2':'B-2','Z-2':'B-3'}[ciaId]||ciaId;
-    (e.carros||[]).forEach(carroId=>{
-      const c=CARROS.find(x=>x.id===carroId);
-      if(c&&c.cia===ciaNorm){c.estado='disponible';c.emergenciaId=null;}
-    });
+    e.retornadas.add(carroId);
+    const c=CARROS.find(x=>x.id===carroId);
+    if(c){ c.estado='disponible'; c.emergenciaId=null; }
     renderCompaniasEstado();
     updateCiaMarkers();
     renderCompaniasForm();
   }
-  const cia=COMPANIAS.find(x=>x.id===ciaId);
+  // Logging usa info de la cía REAL del carro
+  const carroObj = CARROS.find(x => x.id === carroId);
+  const ciaReal  = carroObj ? carroObj.cia : idCiaOCarro;
+  const cia=COMPANIAS.find(x=>x.id===ciaReal);
   const info=CLAVE_INFO[claveKey]||{label:claveKey,logEmoji:'📌',logMsg:'actualizó'};
-  addLog(info.label,'lt-a',`${info.logEmoji} <strong>${ciaId}${cia?' — '+cia.nombre:''}</strong> ${info.logMsg} <strong>${e.id}</strong> a las <strong>${hora}</strong>`);
-  showNotif(`${info.logEmoji} ${info.label}`,`${cia?cia.num:ciaId} · ${hora} · ${e.id}`);
-  // ── Sincronizar estado con Firebase ──
+  addLog(info.label,'lt-a',`${info.logEmoji} <strong>${carroObj?carroObj.nombre:carroId}${cia?' ('+cia.nombre+')':''}</strong> ${info.logMsg} <strong>${e.id}</strong> a las <strong>${hora}</strong>`);
+  showNotif(`${info.logEmoji} ${info.label}`,`${carroObj?carroObj.nombre:carroId} · ${hora} · ${e.id}`);
+  // ── Sincronizar con Firebase ── (clave dotted-path indexed por carroId)
   if(window.fbActualizarClaveEstado && e.fbId){
-    window.fbActualizarClaveEstado(e.fbId, ciaId, claveKey, hora);
+    window.fbActualizarClaveEstado(e.fbId, carroId, claveKey, hora);
   }
   renderActivas();
+  // Hook narrativos · primer 6-3 → modal Primera Impresión
+  if(claveKey==='s63' && typeof window.abrirModalImpresion==='function' && window._esPrimerS63(e)){
+    setTimeout(function(){ window.abrirModalImpresion(emergId, carroId); }, 200);
+  }
 }
 
 // ===== PARTE DE ASISTENCIA =====
@@ -3635,9 +5639,9 @@ function cargarDatosParte(){
   document.getElementById('parte-motivo').value=e.descripcion||e.tipo||'';
   document.getElementById('parte-calle').value=e.direccion||'';
   document.getElementById('parte-tono').value=e.hora||'';
-  // Tomar las horas del primer carro despachado
-  const primerCia=e.companias?.[0];
-  const est=primerCia&&e.clavesEstado?e.clavesEstado[primerCia]||{}:{};
+  // BLOQUE 5: tomar las horas del primer carro despachado (clavesEstado por carroId)
+  const primerCarro = e.carros?.[0];
+  const est = primerCarro && e.clavesEstado ? (e.clavesEstado[primerCarro] || {}) : {};
   document.getElementById('parte-6-0').value=est.s60||'';
   document.getElementById('parte-6-3').value=est.s63||'';
   document.getElementById('parte-6-7').value=est.s67||'';
@@ -4248,6 +6252,13 @@ window.bitConectarPanel = function(fbId, cadId) {
   window.bitState.emergId    = fbId;
   window.bitState.emergCadId = cadId;
   window.bitState.eventos    = [];
+  // V2 — Auto-expand del panel cuando se conecta a una emergencia (layout horizontal)
+  var pBit = document.getElementById('panel-bitacora');
+  if (pBit) {
+    pBit.classList.toggle('connected', !!fbId);
+    // Re-ajustar mapa después de la transición de altura
+    if (window.map && window.map.invalidateSize) setTimeout(function(){ window.map.invalidateSize(); }, 280);
+  }
 
   var emergIdEl = document.getElementById('bit-emerg-id');
   if (emergIdEl) {
@@ -4379,7 +6390,7 @@ function bitItemHTML(ev) {
       (ev.codigo ? '<span class="bit-item-codigo">'+bitEscape(ev.codigo)+'</span>' : '') +
       '<span class="bit-item-hora">'+hora+'</span>' +
     '</div>' +
-    '<div class="bit-item-content">'+bitEscape(ev.contenido||'')+'</div>' +
+    '<div class="bit-item-content">'+bitFormat(ev.contenido||'')+'</div>' +
     '<div class="bit-item-author">— '+bitEscape((ev.autor&&ev.autor.nombre)||'Sistema')+
       ' · '+bitEscape((ev.autor&&ev.autor.rol)||'-')+editedTag+
     '</div>' +
@@ -4395,6 +6406,24 @@ function bitEscape(s) {
     .replace(/"/g,'&quot;');
 }
 
+// V2 fix — variante que escapa pero permite tags de formato básicos.
+// Usar SOLO para `contenido` de la bitácora (los eventos del sistema usan
+// <strong> y <br>). Para otros campos (autor, vehiculo, etc.) seguir
+// usando bitEscape estricto.
+function bitFormat(s) {
+  if (s == null) return '';
+  var escaped = String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+  // Re-habilitar tags whitelist: <strong>, </strong>, <b>, </b>, <em>, </em>, <i>, </i>, <br>, <br/>, <br />
+  return escaped.replace(
+    /&lt;(\/?)(strong|b|em|i|br)\s*\/?&gt;/gi,
+    '<$1$2>'
+  );
+}
+
 // ════════════════════════════════════════════════════════════════════
 // HANDLERS DE UI
 // ════════════════════════════════════════════════════════════════════
@@ -4405,7 +6434,12 @@ window.bitTogglePanel = function() {
   panel.classList.toggle('collapsed');
   window.bitState.panelOpen = !panel.classList.contains('collapsed');
   var btn = document.getElementById('bit-collapse');
-  if (btn) btn.textContent = window.bitState.panelOpen ? '◀' : '▶';
+  // V2 — Si está en position-top (horizontal), usa flechas verticales (▲/▼)
+  var horizontal = panel.classList.contains('position-top');
+  if (btn) {
+    if (horizontal) btn.textContent = window.bitState.panelOpen ? '▲' : '▼';
+    else            btn.textContent = window.bitState.panelOpen ? '◀' : '▶';
+  }
   // Reajustar mapa
   if (window.map && window.map.invalidateSize) {
     setTimeout(function(){ window.map.invalidateSize(); }, 280);
@@ -4516,94 +6550,975 @@ function bitNotif(title, msg) {
 // INTEGRACIÓN AUTOMÁTICA — registrar eventos de los flujos existentes
 // ════════════════════════════════════════════════════════════════════
 
-// Patch de fbGuardarEmergencia para registrar evento de creación + datos
-var _origFbGuardar = window.fbGuardarEmergencia;
-window.fbGuardarEmergencia = async function(e) {
-  var fbId = await _origFbGuardar(e);
-  if (fbId) {
-    // Conectar el panel automáticamente a la nueva emergencia
-    setTimeout(function(){
-      window.bitConectarPanel(fbId, e.id);
-      window.bitActualizarSelector();
-    }, 300);
-    // Eventos iniciales
-    await window.bitAgregarEvento(fbId, {
-      tipo     : 'creacion',
-      codigo   : e.subtipo || e.tipo,
-      contenido: 'Se crea despacho ' + e.id + '. Clave: ' + (e.subtipo || e.tipo) + '. ' +
-                 'Dirección: ' + (e.direccion || '—'),
-    });
-    if (e.reportante || e.telefono) {
-      await window.bitAgregarEvento(fbId, {
-        tipo     : 'contacto',
-        contenido: 'Reportante: ' + (e.reportante || '—') +
-                   (e.telefono ? ' · Tel: ' + e.telefono : ''),
-      });
+// El módulo Firebase es <script type="module"> (deferred): se ejecuta DESPUÉS
+// de este script clásico. Sin polling, _orig* captura undefined Y el módulo
+// luego sobrescribe el wrapper, dejando los patches inertes.
+(function aplicarPatchesBitacora(intentos) {
+  intentos = intentos || 0;
+  if (typeof window.fbActualizarClaveEstado !== 'function' ||
+      typeof window.fbCerrarEmergencia     !== 'function' ||
+      typeof window.bitAgregarEvento       !== 'function') {
+    if (intentos > 50) {
+      console.warn('[Bitácora] Firebase no se cargó en 5s — patches NO aplicados');
+      return;
     }
-    if (e.lat && e.lng) {
-      await window.bitAgregarEvento(fbId, {
-        tipo     : 'coords',
-        contenido: 'Coordenadas: ' + e.lat.toFixed(6) + ', ' + e.lng.toFixed(6),
-        metadata : { lat: e.lat, lng: e.lng },
-      });
-    }
-    if (e.companias && e.companias.length) {
-      var carrosStr = (e.carros||[]).join(', ') || '—';
-      await window.bitAgregarEvento(fbId, {
-        tipo     : 'despacho',
-        contenido: 'Despacho: ' + e.companias.join(', ') + ' · Carros: ' + carrosStr,
-        metadata : { companias: e.companias, carros: e.carros },
-      });
-    }
+    setTimeout(function(){ aplicarPatchesBitacora(intentos+1); }, 100);
+    return;
   }
-  return fbId;
-};
 
-// Patch de fbActualizarClaveEstado para registrar cambios de estado
-var _origFbClave = window.fbActualizarClaveEstado;
-window.fbActualizarClaveEstado = async function(fbId, ciaId, clave, valor) {
-  var r = await _origFbClave(fbId, ciaId, clave, valor);
-  // Mapeo de claves a labels legibles
-  var CLAVE_LBL = {
-    despacho: 'Despachado',
-    s60     : '6-0 · Salida del cuartel',
-    s63     : '6-3 · Llegada al lugar',
-    s67     : '6-7 · Emergencia controlada',
-    s69     : '6-9 · Salida del lugar',
-    s610    : '6-10 · Llegada al cuartel',
+  // Patch: cambios de estado (6-0, 6-3, 6-7, 6-9, 6-10) → bitácora
+  var _origFbClave = window.fbActualizarClaveEstado;
+  // BLOQUE 5: ahora el segundo arg es carroId (no ciaId).
+  window.fbActualizarClaveEstado = async function(fbId, carroId, clave, valor) {
+    var r = await _origFbClave(fbId, carroId, clave, valor);
+    var CLAVE_LBL = {
+      despacho: 'Despachado',
+      s60     : '6-0 · Salida del cuartel',
+      s63     : '6-3 · Llegada al lugar',
+      s67     : '6-7 · Emergencia controlada',
+      s69     : '6-9 · Salida del lugar',
+      s610    : '6-10 · Llegada al cuartel',
+    };
+    var codigoCorto = {
+      s60:'6-0', s63:'6-3', s67:'6-7', s69:'6-9', s610:'6-10', despacho:'DESP'
+    }[clave] || clave;
+    var carroObj  = (typeof CARROS !== 'undefined') ? CARROS.find(function(x){ return x.id === carroId; }) : null;
+    var carroLbl  = carroObj ? (carroObj.nombre + ' (' + carroObj.cia + ')') : carroId;
+    await window.bitAgregarEvento(fbId, {
+      tipo     : 'estado',
+      vehiculo : carroLbl,
+      codigo   : codigoCorto,
+      contenido: carroLbl + ' → ' + (CLAVE_LBL[clave] || clave) + ' a las ' + valor,
+      metadata : { carroId: carroId, clave: clave, hora: valor },
+    });
+    return r;
   };
-  var codigoCorto = {
-    s60:'6-0', s63:'6-3', s67:'6-7', s69:'6-9', s610:'6-10', despacho:'DESP'
-  }[clave] || clave;
-  await window.bitAgregarEvento(fbId, {
-    tipo     : 'estado',
-    vehiculo : ciaId,
-    codigo   : codigoCorto,
-    contenido: ciaId + ' → ' + (CLAVE_LBL[clave] || clave) + ' a las ' + valor,
-    metadata : { ciaId: ciaId, clave: clave, hora: valor },
-  });
-  return r;
-};
 
-// Patch de fbCerrarEmergencia para registrar cierre
-var _origFbCerrar = window.fbCerrarEmergencia;
-window.fbCerrarEmergencia = async function(fbId, datosFinales) {
-  if (fbId) {
-    await window.bitAgregarEvento(fbId, {
-      tipo     : 'cierre',
-      contenido: 'Emergencia cerrada por el operador.',
-      metadata : datosFinales,
-    });
+  // Patch: cierre de emergencia → bitácora
+  var _origFbCerrar = window.fbCerrarEmergencia;
+  window.fbCerrarEmergencia = async function(fbId, datosFinales) {
+    if (fbId) {
+      await window.bitAgregarEvento(fbId, {
+        tipo     : 'cierre',
+        contenido: 'Emergencia cerrada por el operador.',
+        metadata : datosFinales,
+      });
+    }
+    return _origFbCerrar(fbId, datosFinales);
+  };
+
+  console.log('[Bitácora] ✅ Patches aplicados (intento ' + intentos + ')');
+  // V2.4c — Subscribe a voluntarios de Firestore (now that fb is ready)
+  if(typeof window.fbSuscribirVoluntarios === 'function'){
+    window.fbSuscribirVoluntarios();
   }
-  return _origFbCerrar(fbId, datosFinales);
-};
+  // V2 — Subscribe a salidas_cia (actividades no-emergencia)
+  if(typeof window.fbSuscribirSalidasCia === 'function'){
+    window.fbSuscribirSalidasCia();
+  }
+  // V2 chips relato — cargar etiquetas configuradas por admin
+  if(typeof window.fbCargarChipsRelato === 'function'){
+    window.fbCargarChipsRelato();
+  }
+})();
 
 console.log('[Bitácora] Módulo cargado · panel listo');
+
+// ════════════════════════════════════════════════════════════════
+// MODAL RELATO DEL LLAMADO (Bloque 2 · narrativos · paso 1)
+// Intercepta el botón Despachar: valida campos, abre modal con chips
+// según tipo de emergencia, y al confirmar llama despachar(relato).
+// ════════════════════════════════════════════════════════════════
+window.RELATO_CHIPS = {
+  '10-0': ['Hay personas adentro','Humo visible','Llamas visibles','Olor a quemado','Vecinos evacuados','Hay niños/adultos mayores','Cilindro de gas dentro'],
+  '10-1': ['Heridos atrapados','Vehículo volcado','Sin movimiento','Conductor inconsciente','Combustible derramado','Vidrios rotos','Múltiples vehículos'],
+  '10-2': ['Persona inconsciente','Dolor en pecho','No respira','Sangrado abundante','Convulsiones','Adulto mayor','Embarazada','Caída de altura'],
+  '10-3': ['Animal en árbol','Animal en techo','Animal herido','Animal en pozo/canal','Persona enfrentada con animal'],
+  '10-4': ['Olor a gas fuerte','Cilindro caído','Camión volcado','Mancha en el agua','Vecinos con síntomas','Humo extraño'],
+  '10-5': ['Cable caído','Transformador en llamas','Chispas','Postes inclinados','Sin luz en sector'],
+  '10-6': ['Árbol caído sobre casa','Árbol bloqueando vía','Inundación','Techo dañado','Línea eléctrica caída','Río desbordado'],
+  '10-7': ['Persona desaparecida','Persona en agua','Persona en cerro','Última vez vista','Sin abrigo','Adulto mayor con demencia'],
+  'DEF':  ['Hay personas en peligro','Múltiples afectados','Situación urgente','Vecinos pidiendo ayuda','No hay acceso fácil','Lugar de difícil llegada'],
+};
+
+// Misma validación que despachar() — para no abrir el modal si falta algo.
+function _validarPreDespacho(){
+  var dir=document.getElementById('direccion').value.trim();
+  var codigo=document.getElementById('codigo-llamado').value;
+  var reportante=document.getElementById('reportante').value.trim();
+  var telefonoRaw=document.getElementById('telefono').value.trim();
+  var telefonoDigits=telefonoRaw.replace(/\D/g,'');
+  if(!dir){showNotif('Campo requerido','Ingresa la dirección o haz clic en el mapa.');return false;}
+  if(!codigo){showNotif('Selecciona el tipo','Selecciona el código de llamado (10-X).');return false;}
+  if(!reportante){showNotif('Falta el reportante','Ingresa el nombre de quien llama.');document.getElementById('reportante').focus();return false;}
+  if(!telefonoRaw){showNotif('Falta el teléfono','Ingresa el teléfono de quien llama.');document.getElementById('telefono').focus();return false;}
+  if(telefonoDigits.length<8){showNotif('Teléfono inválido','Debe tener al menos 8 dígitos (ej: 9 8821 4433).');document.getElementById('telefono').focus();return false;}
+  if(compSel.size===0){showNotif('Sin compañías','Selecciona al menos una compañía.');return false;}
+  return true;
+}
+
+window.iniciarDespacho = function(){
+  if(!_validarPreDespacho()) return;
+
+  var rep    = document.getElementById('reportante').value.trim();
+  var telRaw = document.getElementById('telefono').value.trim();
+  var tel    = telRaw ? '+56 ' + telRaw : '—';
+  var dir    = document.getElementById('direccion').value.trim();
+  var codSel = document.getElementById('codigo-llamado');
+  var subSel = document.getElementById('sub-codigo');
+  var codTxt = codSel.options[codSel.selectedIndex] ? codSel.options[codSel.selectedIndex].text : '—';
+  var subTxt = (subSel && subSel.value) ? subSel.options[subSel.selectedIndex].text : '';
+  var tipoTxt = subTxt ? (codTxt + ' / ' + subTxt) : codTxt;
+
+  document.getElementById('relato-reportante').textContent = rep;
+  document.getElementById('relato-telefono').textContent   = tel;
+  document.getElementById('relato-tipo').textContent       = tipoTxt;
+  document.getElementById('relato-direccion').textContent  = dir;
+
+  var ta = document.getElementById('relato-textarea');
+  ta.value = '';
+  document.getElementById('relato-counter').textContent = '0';
+  document.getElementById('relato-btn-confirm').disabled = true;
+
+  // Chips según código base (10-0, 10-1, etc.)
+  var codigoBase = (codSel.value || '').split('-').slice(0,2).join('-');
+  var chips = window.RELATO_CHIPS[codigoBase] || window.RELATO_CHIPS.DEF;
+  var cont = document.getElementById('relato-chips');
+  cont.innerHTML = '';
+  chips.forEach(function(txt){
+    var c = document.createElement('div');
+    c.className = 'narr-chip';
+    c.textContent = txt;
+    c.onclick = function(){
+      var actual = ta.value;
+      ta.value = actual ? (actual.replace(/\s+$/,'') + '. ' + txt) : txt;
+      c.classList.add('added');
+      onRelatoInput();
+      ta.focus();
+    };
+    cont.appendChild(c);
+  });
+
+  openModal('modal-relato');
+  setTimeout(function(){ ta.focus(); }, 60);
+};
+
+window.onRelatoInput = function(){
+  var ta = document.getElementById('relato-textarea');
+  var n = ta.value.trim().length;
+  document.getElementById('relato-counter').textContent = n;
+  document.getElementById('relato-btn-confirm').disabled = (n < 3);
+};
+
+window.confirmarRelato = function(){
+  var txt = document.getElementById('relato-textarea').value.trim();
+  if(txt.length < 3) return;
+  closeModal('modal-relato');
+  despachar(txt);
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL PRIMERA IMPRESIÓN (Bloque 2 · narrativos · paso 2)
+// Se abre automáticamente al primer 6-3 (s63) de cualquier compañía.
+// Hook colgado en marcarClaveEstado().
+// ════════════════════════════════════════════════════════════════
+// BLOQUE 5: cuenta s63 marcados a nivel CARRO
+window._esPrimerS63 = function(emerg){
+  if(!emerg || !emerg.clavesEstado) return false;
+  var conteo = 0;
+  Object.keys(emerg.clavesEstado).forEach(function(carroId){
+    if(emerg.clavesEstado[carroId] && emerg.clavesEstado[carroId]['s63']) conteo++;
+  });
+  return conteo === 1;
+};
+
+// BLOQUE 5: ahora recibe carroId (el carro que llegó). Acepta también ciaId
+// vía resolución para retrocompat.
+window.abrirModalImpresion = function(emergId, idQueLlego){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var carroId = window._resolverACarro(e, idQueLlego) || idQueLlego;
+  var carro   = CARROS.find(function(x){ return x.id === carroId; });
+  var carroLabel = carro ? (carro.nombre + ' (' + (carro.cia || '') + ')') : carroId;
+  var hora = new Date().toTimeString().slice(0,5);
+
+  document.getElementById('impresion-emergid').textContent  = emergId;
+  document.getElementById('impresion-vehiculo').textContent = carroLabel;
+  document.getElementById('impresion-hora').textContent     = hora;
+  document.getElementById('impresion-relato').textContent   = e.relato || '(sin relato registrado)';
+  document.getElementById('impresion-textarea').value = '';
+
+  window._impresionContext = { emergId:emergId, carroId:carroId, carroLabel:carroLabel };
+  openModal('modal-impresion');
+  setTimeout(function(){ document.getElementById('impresion-textarea').focus(); }, 60);
+};
+
+window.confirmarImpresion = function(){
+  var ctx = window._impresionContext;
+  if(!ctx){ closeModal('modal-impresion'); return; }
+  var txt = (document.getElementById('impresion-textarea').value || '').trim();
+  var e = emergencias.find(function(x){ return x.id === ctx.emergId; });
+  if(e){
+    e.primeraImpresion = {
+      texto   : txt || '(sin observaciones)',
+      vehiculo: ctx.carroLabel,
+      carroId : ctx.carroId,
+      hora    : new Date().toTimeString().slice(0,5),
+      autor   : (window._fbPerfil && window._fbPerfil.nombre) || 'Operadora'
+    };
+    if(e.fbId){
+      if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+        tipo:'primera_impresion',
+        contenido:'👁️ <strong>Primera impresión</strong> · ' + ctx.carroLabel + ': ' + (txt || '(sin observaciones)')
+      });
+      if(window.fbActualizarEstado) window.fbActualizarEstado(e.fbId, 'primeraImpresion', e.primeraImpresion);
+    }
+    if(typeof renderActivas === 'function') renderActivas();
+  }
+  closeModal('modal-impresion');
+};
+
+window.saltarImpresion = function(){
+  var ctx = window._impresionContext;
+  if(ctx && ctx.emergId){
+    var e = emergencias.find(function(x){ return x.id === ctx.emergId; });
+    if(e && e.fbId && window.bitAgregarEvento){
+      window.bitAgregarEvento(e.fbId, {
+        tipo:'primera_impresion',
+        contenido:'👁️ Primera impresión (omitida por operadora · ' + (ctx.carroLabel||'') + ')'
+      });
+    }
+  }
+  closeModal('modal-impresion');
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL PRE-INFORME (Bloque 2 · narrativos · paso 3)
+// Se abre desde la card de emergencia activa, después del primer 6-3.
+// Si pide apoyo (solicitaApoyo=true), dispara re-despacho.
+// ════════════════════════════════════════════════════════════════
+window._preinfoState = { emergId:null, estado:null, apoyoOn:false, ciasApoyo:[] };
+
+window.abrirPreInforme = function(emergId){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  window._preinfoState = { emergId:emergId, estado:null, apoyoOn:false, ciasApoyo:[] };
+
+  document.getElementById('preinfo-emergid').textContent = emergId;
+  document.getElementById('preinfo-impresion').textContent =
+    (e.primeraImpresion && e.primeraImpresion.texto) || '(no se registró primera impresión)';
+  document.getElementById('preinfo-textarea').value = '';
+  document.getElementById('preinfo-heridos').value = 0;
+  document.getElementById('preinfo-evacuados').value = 0;
+
+  document.querySelectorAll('.preinfo-radio').forEach(function(r){
+    r.classList.remove('checked-bajo','checked-desarrollo','checked-refuerzo','checked-critico');
+    var inp = r.querySelector('input'); if(inp) inp.checked = false;
+  });
+
+  document.getElementById('preinfo-apoyo').classList.remove('active');
+  document.getElementById('preinfo-apoyo-chk').checked = false;
+  document.getElementById('preinfo-cias-grid').classList.remove('show');
+
+  // Renderizar checkboxes de cías de apoyo (excluye las ya despachadas)
+  var grid = document.getElementById('preinfo-cias-grid');
+  grid.innerHTML = '';
+  var ciasYa = e.companias || [];
+  COMPANIAS.forEach(function(cia){
+    var yaEsta = ciasYa.indexOf(cia.id) !== -1;
+    var lbl = document.createElement('label');
+    lbl.className = 'preinfo-cia-check' + (yaEsta ? ' disabled' : '');
+    lbl.innerHTML =
+      '<input type="checkbox" ' + (yaEsta ? 'disabled' : '') +
+      ' onchange="onPreinfoCiaToggle(\'' + cia.id + '\', this)">' +
+      '<span>' + cia.nombre + (yaEsta ? ' (ya despachada)' : '') + '</span>';
+    grid.appendChild(lbl);
+  });
+
+  openModal('modal-preinfo');
+};
+
+window.onPreinfoEstado = function(estado){
+  window._preinfoState.estado = estado;
+  document.querySelectorAll('.preinfo-radio').forEach(function(r){
+    r.classList.remove('checked-bajo','checked-desarrollo','checked-refuerzo','checked-critico');
+  });
+  var radio = document.getElementById('preinfo-r-' + estado);
+  if(radio){
+    radio.classList.add('checked-' + estado);
+    var inp = radio.querySelector('input'); if(inp) inp.checked = true;
+  }
+  // Si elige "refuerzo" auto-marcar el toggle de apoyo
+  if(estado === 'refuerzo' && !window._preinfoState.apoyoOn){
+    document.getElementById('preinfo-apoyo-chk').checked = true;
+    onPreinfoApoyo();  // setTimeout interno lee el checked=true que acabamos de setear
+  }
+};
+
+window.onPreinfoApoyo = function(){
+  // Defer: el click del <label> togglea el checkbox NATIVAMENTE después de
+  // que corre el onclick. Si leyéramos chk.checked aquí mismo, veríamos el
+  // valor viejo. setTimeout(0) deja que el browser termine su default action.
+  setTimeout(function(){
+    var checked = document.getElementById('preinfo-apoyo-chk').checked;
+    window._preinfoState.apoyoOn = checked;
+    document.getElementById('preinfo-apoyo').classList.toggle('active', checked);
+    document.getElementById('preinfo-cias-grid').classList.toggle('show', checked);
+  }, 0);
+};
+
+window.onPreinfoCiaToggle = function(ciaId, inp){
+  var lbl = inp.closest('.preinfo-cia-check');
+  if(inp.checked){
+    lbl.classList.add('checked');
+    if(window._preinfoState.ciasApoyo.indexOf(ciaId) === -1){
+      window._preinfoState.ciasApoyo.push(ciaId);
+    }
+  } else {
+    lbl.classList.remove('checked');
+    window._preinfoState.ciasApoyo = window._preinfoState.ciasApoyo.filter(function(x){ return x !== ciaId; });
+  }
+};
+
+window.confirmarPreInforme = function(){
+  var emergId = window._preinfoState.emergId;
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var txt = document.getElementById('preinfo-textarea').value.trim();
+  var estado = window._preinfoState.estado || 'desarrollo';
+  var heridos = parseInt(document.getElementById('preinfo-heridos').value) || 0;
+  var evacuados = parseInt(document.getElementById('preinfo-evacuados').value) || 0;
+  var apoyo = window._preinfoState.apoyoOn;
+  var ciasApoyo = window._preinfoState.ciasApoyo.slice();
+
+  if(!txt){ showNotif('Falta diagnóstico','Ingresa el diagnóstico tras inspección.'); return; }
+  if(apoyo && ciasApoyo.length === 0){
+    showNotif('Falta seleccionar','Selecciona qué compañías apoyarán.'); return;
+  }
+
+  e.preInforme = {
+    texto:txt, estado:estado, heridos:heridos, evacuados:evacuados,
+    solicitaApoyo:apoyo, ciasApoyo:ciasApoyo,
+    hora: new Date().toTimeString().slice(0,5),
+    autor: (window._fbPerfil && window._fbPerfil.nombre) || 'Operadora'
+  };
+
+  if(e.fbId){
+    var contenidoBit = '📋 <strong>Pre-informe</strong> · Estado: ' + estado.toUpperCase() +
+      '<br>' + txt +
+      (heridos > 0   ? '<br><strong>Heridos:</strong> ' + heridos     : '') +
+      (evacuados > 0 ? '<br><strong>Evacuados:</strong> ' + evacuados : '') +
+      (apoyo ? '<br><strong>⚡ Solicita apoyo:</strong> ' + ciasApoyo.join(', ') : '');
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'pre_informe', contenido:contenidoBit
+    });
+    if(window.fbActualizarEstado) window.fbActualizarEstado(e.fbId, 'preInforme', e.preInforme);
+  }
+
+  closeModal('modal-preinfo');
+  if(typeof renderActivas === 'function') renderActivas();
+
+  if(apoyo && ciasApoyo.length > 0){
+    setTimeout(function(){ window.ejecutarRedespacho(emergId, ciasApoyo); }, 250);
+  } else {
+    showNotif('✅ Pre-informe guardado','Diagnóstico registrado en bitácora.');
+  }
+};
+
+// BLOQUE 5: re-despacho — agrega DISPATCH UNITS al e.companias y resuelve sus carros
+window.ejecutarRedespacho = function(emergId, dispatchUnits){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var n = new Date();
+  var hora = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  var agregadas = [];
+  dispatchUnits.forEach(function(unitId){
+    if(e.companias.indexOf(unitId) === -1){
+      e.companias.push(unitId);
+      var carro = (typeof carroADespachar === 'function') ? carroADespachar(unitId) : null;
+      if(carro){
+        carro.estado = 'en-emergencia';
+        carro.emergenciaId = e.id;
+        if(e.carros.indexOf(carro.id) === -1) e.carros.push(carro.id);
+        if(!e.clavesEstado) e.clavesEstado = {};
+        e.clavesEstado[carro.id] = { despacho:hora };  // BLOQUE 5: por carroId
+        agregadas.push(unitId + '→' + carro.nombre);
+      }
+    }
+  });
+  if(e.fbId){
+    if(window.fbActualizarEstado){
+      window.fbActualizarEstado(e.fbId, 'companias', e.companias);
+      window.fbActualizarEstado(e.fbId, 'carros',    e.carros);
+      window.fbActualizarEstado(e.fbId, 'clavesEstado', e.clavesEstado);
+    }
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'redespacho',
+      contenido:'⚡ <strong>Re-despacho por pre-informe:</strong> ' + agregadas.join(', ')
+    });
+  }
+  if(typeof renderActivas === 'function') renderActivas();
+  if(typeof renderCompaniasEstado === 'function') renderCompaniasEstado();
+  if(typeof updateCiaMarkers === 'function') updateCiaMarkers();
+  showNotif('⚡ Re-despacho confirmado', agregadas.length + ' carro(s) agregado(s) a ' + emergId);
+};
+
+// BLOQUE 5: itera carros (no cías) buscando el primer 6-3
+window._renderPreInformeBtn = function(e){
+  var hay63 = false, hora63 = null;
+  Object.keys(e.clavesEstado || {}).forEach(function(carroId){
+    var t = e.clavesEstado[carroId] && e.clavesEstado[carroId]['s63'];
+    if(t){ hay63 = true; if(!hora63 || t < hora63) hora63 = t; }
+  });
+  if(!hay63) return '';
+
+  if(e.preInforme){
+    return '<div class="emerg-pre-done">' +
+      '<span>✓ Pre-informe ' + e.preInforme.hora + '</span>' +
+      '<span class="estado-incidente estado-' + e.preInforme.estado + '">' + e.preInforme.estado + '</span>' +
+      '</div>';
+  }
+  var parpadeo = false;
+  if(hora63){
+    var hh = hora63.split(':');
+    var t63 = new Date();
+    t63.setHours(parseInt(hh[0]), parseInt(hh[1]), 0, 0);
+    if((Date.now() - t63.getTime()) / 60000 >= 5) parpadeo = true;
+  }
+  return '<button class="emerg-pre-action' + (parpadeo ? ' parpadeo' : '') +
+    '" onclick="abrirPreInforme(\'' + e.id + '\')">📋 Hacer pre-informe</button>';
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL 6-7 EMERGENCIA CONTROLADA (Bloque 2 · narrativos · paso 4)
+// A nivel de emergencia (no por carro). Botón en card.
+// ════════════════════════════════════════════════════════════════
+window._s67State = { emergId:null };
+
+window.abrirS67 = function(emergId){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  window._s67State.emergId = emergId;
+  document.getElementById('s67-emergid').textContent = emergId;
+  var hayPre = !!(e.preInforme && e.preInforme.texto);
+  document.getElementById('s67-preinfo-status').innerHTML = hayPre
+    ? '✓ Registrado a las ' + e.preInforme.hora
+    : '<span style="color:var(--amber);">⚠ No registrado</span>';
+  document.getElementById('s67-warning').style.display = hayPre ? 'none' : 'block';
+  document.getElementById('s67-textarea').value = '';
+  openModal('modal-s67');
+  setTimeout(function(){ document.getElementById('s67-textarea').focus(); }, 60);
+};
+
+window.confirmarS67 = function(){
+  var emergId = window._s67State.emergId;
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var comentario = document.getElementById('s67-textarea').value.trim();
+  var n = new Date();
+  var hora = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  e.s67 = {
+    hora: hora, comentario: comentario,
+    autor: (window._fbPerfil && window._fbPerfil.nombre) || 'Operadora'
+  };
+  if(e.fbId){
+    if(window.fbActualizarEstado) window.fbActualizarEstado(e.fbId, 's67', e.s67);
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'estado', codigo:'6-7',
+      contenido:'✅ <strong>Emergencia controlada</strong> a las ' + hora +
+                (comentario ? '<br>' + comentario : '')
+    });
+  }
+  closeModal('modal-s67');
+  if(typeof renderActivas === 'function') renderActivas();
+  showNotif('✅ 6-7 marcada', emergId + ' · Emergencia bajo control');
+};
+
+// V2 — pill de 6-7 controlada (solo cuando e.s67 ya está marcado).
+// El botón "Marcar 6-7" ahora vive en el flujo per-carro (slot designado).
+window._render67Btn = function(e){
+  if(!e.s67) return '';
+  return '<div class="emerg-67-done">✅ 6-7 controlada · ' + e.s67.hora +
+         (e.s67.comentario ? ' · ' + e.s67.comentario.replace(/[<>]/g,'') : '') +
+         '</div>';
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL 6-9 SALE DEL LUGAR (Bloque 2 · narrativos · paso 5)
+// Reemplaza onclick del botón per-carro de 6-9 (en renderActivas).
+// Pide al operador la disponibilidad del carro: 0-9 o 0-8.
+// ════════════════════════════════════════════════════════════════
+window._s69State = { emergId:null, carroId:null, disp:null };
+
+// BLOQUE 5: acepta carroId directo o ciaId (resuelve para retrocompat)
+window.abrirS69 = function(emergId, idCiaOCarro){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var carroId = window._resolverACarro(e, idCiaOCarro) || idCiaOCarro;
+  var carro   = CARROS.find(function(x){ return x.id === carroId; });
+  var carroLbl = carro ? (carro.nombre + ' (' + carro.cia + ')') : carroId;
+  window._s69State = { emergId:emergId, carroId:carroId, disp:null };
+  document.getElementById('s69-titulo').textContent = '↩️ ' + carroLbl + ' sale del lugar (6-9)';
+  document.querySelectorAll('.s69-option').forEach(function(o){
+    o.classList.remove('checked-09','checked-08');
+    var inp = o.querySelector('input'); if(inp) inp.checked = false;
+  });
+  document.getElementById('s69-btn-confirm').disabled = true;
+  openModal('modal-s69');
+};
+
+window.onS69Opt = function(disp){
+  window._s69State.disp = disp;
+  document.querySelectorAll('.s69-option').forEach(function(o){
+    o.classList.remove('checked-09','checked-08');
+  });
+  var optId = 's69-opt-' + disp.replace('-','');
+  var opt = document.getElementById(optId);
+  if(opt){
+    opt.classList.add('checked-' + disp.replace('-',''));
+    var inp = opt.querySelector('input'); if(inp) inp.checked = true;
+  }
+  document.getElementById('s69-btn-confirm').disabled = false;
+};
+
+window.confirmarS69 = function(){
+  var st = window._s69State;
+  if(!st.disp || !st.carroId) return;
+  var e = emergencias.find(function(x){ return x.id === st.emergId; });
+  if(!e) return;
+  var n = new Date();
+  var hora = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  if(!e.clavesEstado[st.carroId]) e.clavesEstado[st.carroId] = {};
+  e.clavesEstado[st.carroId]['s69'] = hora;
+  e.clavesEstado[st.carroId]['disponibilidad'] = st.disp;
+  if(!e.retornadas) e.retornadas = new Set();
+  e.retornadas.add(st.carroId);
+  // BLOQUE 5: liberar SOLO este carro (no todos los de la cía)
+  var c = CARROS.find(function(x){ return x.id === st.carroId; });
+  var carroLbl = c ? (c.nombre + ' (' + c.cia + ')') : st.carroId;
+  if(c){
+    c.estado = (st.disp === '0-9') ? 'disponible' : 'fuera-servicio';
+    c.disponibilidad = st.disp;
+    c.emergenciaId = null;
+  }
+  if(e.fbId){
+    if(window.fbActualizarEstado) window.fbActualizarEstado(e.fbId, 'clavesEstado', e.clavesEstado);
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'estado', codigo:'6-9',
+      contenido:'↩️ <strong>' + carroLbl + '</strong> sale del lugar a las ' + hora +
+                ' · estado: <strong>' + st.disp + '</strong> ' +
+                (st.disp === '0-9' ? '(disponible)' : '(fuera de servicio)')
+    });
+  }
+  closeModal('modal-s69');
+  if(typeof renderActivas === 'function') renderActivas();
+  if(typeof renderCompaniasEstado === 'function') renderCompaniasEstado();
+  if(typeof updateCiaMarkers === 'function') updateCiaMarkers();
+  if(typeof renderCompaniasForm === 'function') renderCompaniasForm();
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL 6-10 LLEGA AL CUARTEL (Bloque 2 · narrativos · paso 6)
+// Reemplaza onclick del botón per-carro de 6-10 (en renderActivas).
+// Pide KM + opcional "mantener fuera de servicio".
+// ════════════════════════════════════════════════════════════════
+window._s610State = { emergId:null, carroId:null, fuera:false };
+
+window.abrirS610 = function(emergId, idCiaOCarro){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var carroId = window._resolverACarro(e, idCiaOCarro) || idCiaOCarro;
+  var carro   = CARROS.find(function(x){ return x.id === carroId; });
+  var carroLbl = carro ? (carro.nombre + ' (' + carro.cia + ')') : carroId;
+  window._s610State = { emergId:emergId, carroId:carroId, fuera:false };
+  document.getElementById('s610-titulo').textContent = '🏠 ' + carroLbl + ' llega al cuartel (6-10)';
+  document.getElementById('s610-km').value = '';
+  document.getElementById('s610-fuera-chk').checked = false;
+  document.getElementById('s610-fuera-toggle').classList.remove('active');
+  document.getElementById('s610-motivo-block').classList.remove('show');
+  document.getElementById('s610-motivo-input').value = '';
+  document.getElementById('s610-btn-confirm').disabled = true;
+  document.getElementById('s610-default-msg').style.display = 'flex';
+  openModal('modal-s610');
+  setTimeout(function(){ document.getElementById('s610-km').focus(); }, 60);
+};
+
+window.onS610KmInput = function(){
+  var km = document.getElementById('s610-km').value.trim();
+  document.getElementById('s610-btn-confirm').disabled = (km === '' || isNaN(parseInt(km)));
+};
+
+window.onS610Fuera = function(){
+  // Click en cualquier parte del row activa el checkbox; el browser ya lo togglea via label,
+  // pero lo leemos en el siguiente tick para tener el estado actualizado.
+  setTimeout(function(){
+    var checked = document.getElementById('s610-fuera-chk').checked;
+    window._s610State.fuera = checked;
+    document.getElementById('s610-fuera-toggle').classList.toggle('active', checked);
+    document.getElementById('s610-motivo-block').classList.toggle('show', checked);
+    document.getElementById('s610-default-msg').style.display = checked ? 'none' : 'flex';
+  }, 0);
+};
+
+window.confirmarS610 = function(){
+  var km = parseInt(document.getElementById('s610-km').value);
+  if(isNaN(km)) return;
+  var st = window._s610State;
+  if(!st.carroId) return;
+  var e = emergencias.find(function(x){ return x.id === st.emergId; });
+  if(!e) return;
+  var motivo = document.getElementById('s610-motivo-input').value.trim();
+  var n = new Date();
+  var hora = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  if(!e.clavesEstado[st.carroId]) e.clavesEstado[st.carroId] = {};
+  e.clavesEstado[st.carroId]['s610'] = hora;
+  e.clavesEstado[st.carroId]['kmLlegada'] = km;
+  var dispFinal = st.fuera ? '0-8' : '0-9';
+  e.clavesEstado[st.carroId]['disponibilidad'] = dispFinal;
+  e.kmLlegada = km;
+  // BLOQUE 5: actualizar SOLO este carro
+  var c = CARROS.find(function(x){ return x.id === st.carroId; });
+  var carroLbl = c ? (c.nombre + ' (' + c.cia + ')') : st.carroId;
+  if(c){
+    c.km = km;
+    c.disponibilidad = dispFinal;
+    c.estado = st.fuera ? 'fuera-servicio' : 'disponible';
+    if(st.fuera && motivo) c.motivoFueraServicio = motivo;
+    else if(c.motivoFueraServicio) delete c.motivoFueraServicio;
+  }
+  if(e.fbId){
+    if(window.fbActualizarEstado) window.fbActualizarEstado(e.fbId, 'clavesEstado', e.clavesEstado);
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'estado', codigo:'6-10',
+      contenido:'🏠 <strong>' + carroLbl + '</strong> llega al cuartel a las ' + hora +
+                ' · KM: <strong>' + km + '</strong> · final: <strong>' + dispFinal + '</strong>' +
+                (st.fuera ? ' (fuera de servicio' + (motivo ? ': ' + motivo : '') + ')' : ' (disponible)')
+    });
+  }
+  closeModal('modal-s610');
+  if(typeof renderActivas === 'function') renderActivas();
+  if(typeof renderCompaniasEstado === 'function') renderCompaniasEstado();
+  if(typeof updateCiaMarkers === 'function') updateCiaMarkers();
+  if(typeof renderCompaniasForm === 'function') renderCompaniasForm();
+  // BLOQUE 5: chequear si TODOS los carros llegaron
+  var todos = (e.carros || []).every(function(cId){
+    return e.clavesEstado[cId] && e.clavesEstado[cId]['s610'];
+  });
+  if(todos) showNotif('🏠 Todos al cuartel', 'Puedes cerrar la emergencia ' + e.id);
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL 6-0 TRIPULACIÓN (Bloque 5 · paso 6)
+// Captura conductor, oficial a cargo y cantidad antes de marcar 6-0.
+// Trigger: botón "Marcar 6-0" en cada carro de la card de emergencia activa.
+// ════════════════════════════════════════════════════════════════
+window._s60State = { emergId:null, carroId:null };
+
+window.abrirS60 = function(emergId, carroId){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  var carro = CARROS.find(function(x){ return x.id === carroId; });
+  if(!carro) return;
+  window._s60State = { emergId:emergId, carroId:carroId };
+
+  var cia = COMPANIAS.find(function(x){ return x.id === carro.cia; });
+  document.getElementById('s60-titulo').textContent = '🚒 ' + carro.nombre + ' sale del cuartel (6-0)';
+  document.getElementById('s60-carro-info').textContent = carro.nombre + ' · ' + carro.tipo + ' · ' + (cia ? cia.nombre : carro.cia);
+
+  // Filtrar personal de la cía REAL del carro (cargado solo para B-1 actualmente)
+  var personalCia = personal.filter(function(p){ return p.cia === carro.cia; });
+
+  // V2 — conductor solo voluntarios habilitados PARA ESTE CARRO específico.
+  // Backwards compat: si no tiene array conductorCarros pero conductor:true → habilitado para todos.
+  var conductoresHabilitados = personalCia.filter(function(p){
+    if(Array.isArray(p.conductorCarros) && p.conductorCarros.length){
+      return p.conductorCarros.indexOf(carroId) !== -1;
+    }
+    return !!p.conductor;  // fallback legacy
+  });
+
+  // Dropdown conductor: solo habilitados para este carro
+  var selCond = document.getElementById('s60-conductor');
+  selCond.innerHTML = '<option value="">— Seleccionar conductor —</option>';
+  if(conductoresHabilitados.length === 0){
+    if(personalCia.length === 0){
+      selCond.innerHTML += '<option value="" disabled>(Sin personal cargado para esta cía)</option>';
+    } else {
+      selCond.innerHTML += '<option value="" disabled>(Ningún voluntario habilitado para ' + carro.nombre + ')</option>';
+    }
+  } else {
+    conductoresHabilitados.forEach(function(p){
+      selCond.innerHTML += '<option value="' + p.id + '">' + p.num + ' · ' + p.nombre + ' (' + p.cargo + ')</option>';
+    });
+  }
+
+  // Dropdown oficial: prefiere cat='oficial', sino todos
+  var oficiales = personalCia.filter(function(p){ return p.cat === 'oficial'; });
+  var listaOficial = oficiales.length ? oficiales : personalCia;
+  var selOf = document.getElementById('s60-oficial');
+  selOf.innerHTML = '<option value="">— Seleccionar oficial —</option>';
+  if(listaOficial.length === 0){
+    selOf.innerHTML += '<option value="" disabled>(Sin personal cargado)</option>';
+  } else {
+    listaOficial.forEach(function(p){
+      selOf.innerHTML += '<option value="' + p.id + '">' + p.num + ' · ' + p.nombre + ' (' + p.cargo + ')</option>';
+    });
+  }
+
+  document.getElementById('s60-cantidad').value = '';
+  document.getElementById('s60-notas').value = '';
+  document.getElementById('s60-btn-confirm').disabled = true;
+
+  openModal('modal-s60');
+  setTimeout(function(){ document.getElementById('s60-conductor').focus(); }, 60);
+};
+
+window.onS60Change = function(){
+  var cond = document.getElementById('s60-conductor').value;
+  var of   = document.getElementById('s60-oficial').value;
+  var cant = parseInt(document.getElementById('s60-cantidad').value);
+  var ok   = cond && of && !isNaN(cant) && cant >= 1;
+  document.getElementById('s60-btn-confirm').disabled = !ok;
+};
+
+window.confirmarS60 = function(){
+  var st = window._s60State;
+  if(!st.carroId) return;
+  var e = emergencias.find(function(x){ return x.id === st.emergId; });
+  if(!e) return;
+  var condId = document.getElementById('s60-conductor').value;
+  var ofId   = document.getElementById('s60-oficial').value;
+  var cant   = parseInt(document.getElementById('s60-cantidad').value);
+  var notas  = document.getElementById('s60-notas').value.trim();
+  if(!condId || !ofId || isNaN(cant) || cant < 1){
+    showNotif('Faltan datos','Conductor, oficial y cantidad son obligatorios.');
+    return;
+  }
+  var condP = personal.find(function(p){ return p.id === condId; });
+  var ofP   = personal.find(function(p){ return p.id === ofId;   });
+  var carro = CARROS.find(function(x){ return x.id === st.carroId; });
+  var carroLbl = carro ? (carro.nombre + ' (' + carro.cia + ')') : st.carroId;
+
+  var n = new Date();
+  var hora = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+
+  // Marcar 6-0 + guardar tripulación
+  if(!e.clavesEstado[st.carroId]) e.clavesEstado[st.carroId] = {};
+  e.clavesEstado[st.carroId]['s60'] = hora;
+  if(!e.tripulacion) e.tripulacion = {};
+  e.tripulacion[st.carroId] = {
+    conductor: condP ? condP.nombre : condId,
+    conductorId: condId,
+    oficial:   ofP   ? ofP.nombre   : ofId,
+    oficialId:  ofId,
+    cantidad: cant,
+    notas:    notas,
+    hora:     hora,
+    autor:    (window._fbPerfil && window._fbPerfil.nombre) || 'Operadora'
+  };
+
+  // Sync Firebase + bitácora
+  if(e.fbId){
+    if(window.fbActualizarEstado){
+      window.fbActualizarEstado(e.fbId, 'clavesEstado', e.clavesEstado);
+      window.fbActualizarEstado(e.fbId, 'tripulacion',  e.tripulacion);
+    }
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'tripulacion', codigo:'6-0',
+      contenido:'🚒 <strong>' + carroLbl + '</strong> sale del cuartel a las ' + hora +
+                '<br>🧑‍✈️ <strong>Conductor:</strong> ' + (condP ? condP.nombre : condId) +
+                '<br>⭐ <strong>Oficial a cargo:</strong> ' + (ofP ? ofP.nombre : ofId) +
+                '<br>👥 <strong>Tripulación:</strong> ' + cant + ' bombero(s)' +
+                (notas ? '<br>📝 ' + notas : '')
+    });
+  }
+  closeModal('modal-s60');
+  if(typeof renderActivas === 'function') renderActivas();
+  showNotif('🚒 6-0 confirmado', carroLbl + ' · ' + cant + ' a bordo');
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODAL RE-DESPACHO (Bloque 5 · paso 7)
+// Permite agregar carros adicionales a una emergencia ya activa.
+// Sort: especialidad matching primero (TODO: GPS distance), luego por cía.
+// ════════════════════════════════════════════════════════════════
+window._redespState = { emergId:null, seleccion:[], filtro:'todos' };
+
+window.abrirRedespacho = function(emergId){
+  var e = emergencias.find(function(x){ return x.id === emergId; });
+  if(!e) return;
+  // Permisos: operadora + admin-cuerpo + superadmin (todos los logueados al CAD)
+  var perfil = window._fbPerfil || {};
+  var rolesOk = ['operadora','admin-cuerpo','superadmin'];
+  if(rolesOk.indexOf(perfil.rol) === -1){
+    showNotif('🚫 Sin permiso','Solo operadora, admin-cuerpo o superadmin pueden re-despachar.');
+    return;
+  }
+  window._redespState = { emergId:emergId, seleccion:[], filtro:'todos' };
+  document.getElementById('redesp-emergid').textContent = emergId;
+  document.getElementById('redesp-motivo').value = '';
+  document.getElementById('redesp-count').textContent = '0';
+  document.getElementById('redesp-btn-confirm').disabled = true;
+  // Reset filtros UI
+  document.querySelectorAll('.redesp-filter-chip').forEach(function(ch){
+    ch.classList.toggle('active', ch.dataset.tipo === 'todos');
+  });
+  _renderRedespList();
+  openModal('modal-redespacho');
+};
+
+// Determina la "especialidad sugerida" según el código del llamado
+function _especialidadSugerida(emerg){
+  if(!emerg) return null;
+  var t = emerg.tipo || '';
+  // Heurística simple: rescates → 'R', incendios → 'B', otros → null
+  if(/^10-1\b|^10-2\b|^10-7\b/.test(t)) return 'R';
+  if(/^10-0\b|^10-6\b/.test(t))         return 'B';
+  // TODO: refinar con TABLA_DESPACHO + GPS distance
+  return null;
+}
+
+function _renderRedespList(){
+  var e = emergencias.find(function(x){ return x.id === window._redespState.emergId; });
+  if(!e) return;
+  var espSug = _especialidadSugerida(e);
+  var carrosEnEsta = new Set(e.carros || []);
+  var lista = CARROS.filter(function(c){
+    if(carrosEnEsta.has(c.id)) return false;                              // ya en esta emerg
+    if(window._redespState.filtro !== 'todos' && c.espec !== window._redespState.filtro) return false;
+    return true;
+  });
+  // Sort: especialidad sugerida primero, luego carros con conductor presente, luego por cía + nombre
+  // (V2.4d Decisión 4D — sin-conductor van al final con warning)
+  lista.sort(function(a,b){
+    var aMatch = espSug && a.espec === espSug ? 0 : 1;
+    var bMatch = espSug && b.espec === espSug ? 0 : 1;
+    if(aMatch !== bMatch) return aMatch - bMatch;
+    var aSinC = window._carroSinConductor && window._carroSinConductor(a.id) ? 1 : 0;
+    var bSinC = window._carroSinConductor && window._carroSinConductor(b.id) ? 1 : 0;
+    if(aSinC !== bSinC) return aSinC - bSinC;
+    if(a.cia !== b.cia)   return a.cia.localeCompare(b.cia);
+    return a.nombre.localeCompare(b.nombre);
+  });
+  var cont = document.getElementById('redesp-list');
+  if(!lista.length){
+    cont.innerHTML = '<div class="redesp-empty">No hay carros disponibles con este filtro.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(function(c){
+    var cia = COMPANIAS.find(function(x){ return x.id === c.cia; });
+    var color = cia ? cia.color : '#888';
+    var matchEsp = espSug && c.espec === espSug;
+    var disabled = false, tagHtml = '';
+    if(c.estado === 'en-emergencia'){
+      disabled = true;
+      tagHtml = '<span class="redesp-item-tag busy">EN OTRA EMERG.</span>';
+    } else if(c.estado === 'fuera-servicio' || c.disponibilidad === '0-8'){
+      disabled = true;
+      tagHtml = '<span class="redesp-item-tag fuera">0-8 FUERA</span>';
+    } else if(c.estado === 'mantencion'){
+      disabled = true;
+      tagHtml = '<span class="redesp-item-tag fuera">MANTENCIÓN</span>';
+    } else {
+      tagHtml = '<span class="redesp-item-tag disp">DISPONIBLE</span>';
+      if(matchEsp) tagHtml += ' <span class="redesp-item-tag match">SUGERIDO</span>';
+      // V2.4d — warning sin-conductor (NO disabled — operadora decide)
+      if(window._carroSinConductor && window._carroSinConductor(c.id)){
+        tagHtml += ' <span class="redesp-item-tag" style="background:rgba(59,130,246,.18);color:var(--blue);" title="Sin conductor presente en cuartel — avisar manualmente">⚠ SIN COND</span>';
+      }
+    }
+    var checked = window._redespState.seleccion.indexOf(c.id) !== -1;
+    return '<label class="redesp-item' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '" data-carro="' + c.id + '">' +
+      '<input type="checkbox" ' + (disabled ? 'disabled' : '') + (checked ? 'checked' : '') + ' onchange="onRedespToggle(\'' + c.id + '\', this)">' +
+      '<div class="redesp-item-badge" style="background:' + color + '22;color:' + color + ';">' + (cia ? cia.num : c.cia) + '</div>' +
+      '<div class="redesp-item-info">' +
+        '<div class="redesp-item-name">' + c.nombre + ' · ' + c.tipo + '</div>' +
+        '<div class="redesp-item-detail">' + (cia ? cia.nombre : c.cia) + ' · KM ' + c.km + '</div>' +
+      '</div>' +
+      tagHtml +
+    '</label>';
+  }).join('');
+}
+
+window.onRedespFilter = function(tipo){
+  window._redespState.filtro = tipo;
+  document.querySelectorAll('.redesp-filter-chip').forEach(function(ch){
+    ch.classList.toggle('active', ch.dataset.tipo === tipo);
+  });
+  _renderRedespList();
+};
+
+window.onRedespToggle = function(carroId, inp){
+  var arr = window._redespState.seleccion;
+  if(inp.checked){
+    if(arr.indexOf(carroId) === -1) arr.push(carroId);
+    inp.closest('.redesp-item').classList.add('checked');
+  } else {
+    window._redespState.seleccion = arr.filter(function(x){ return x !== carroId; });
+    inp.closest('.redesp-item').classList.remove('checked');
+  }
+  document.getElementById('redesp-count').textContent = window._redespState.seleccion.length;
+  onRedespChange();
+};
+
+window.onRedespChange = function(){
+  var motivo = document.getElementById('redesp-motivo').value.trim();
+  var nSel = window._redespState.seleccion.length;
+  document.getElementById('redesp-btn-confirm').disabled = !(nSel > 0 && motivo.length >= 3);
+};
+
+window.confirmarRedespacho = function(){
+  var st = window._redespState;
+  var e = emergencias.find(function(x){ return x.id === st.emergId; });
+  if(!e || !st.seleccion.length) return;
+  var motivo = document.getElementById('redesp-motivo').value.trim();
+  if(motivo.length < 3){ showNotif('Falta motivo','Ingresa el motivo del re-despacho.'); return; }
+  var n = new Date();
+  var hora = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  var agregados = [];
+  st.seleccion.forEach(function(carroId){
+    if(e.carros.indexOf(carroId) === -1){
+      e.carros.push(carroId);
+      var c = CARROS.find(function(x){ return x.id === carroId; });
+      if(c){
+        c.estado = 'en-emergencia';
+        c.emergenciaId = e.id;
+        // Agregar la cía a e.companias si no estaba
+        var ciaUnit = c.cia;
+        if(e.companias.indexOf(ciaUnit) === -1) e.companias.push(ciaUnit);
+        if(!e.clavesEstado) e.clavesEstado = {};
+        e.clavesEstado[carroId] = { despacho:hora };
+        agregados.push(c.nombre + ' (' + c.cia + ')');
+      }
+    }
+  });
+  if(e.fbId){
+    if(window.fbActualizarEstado){
+      window.fbActualizarEstado(e.fbId, 'companias',    e.companias);
+      window.fbActualizarEstado(e.fbId, 'carros',       e.carros);
+      window.fbActualizarEstado(e.fbId, 'clavesEstado', e.clavesEstado);
+    }
+    if(window.bitAgregarEvento) window.bitAgregarEvento(e.fbId, {
+      tipo:'redespacho',
+      contenido:'➕ <strong>Re-despacho manual:</strong> ' + agregados.join(', ') +
+                '<br>📝 <strong>Motivo:</strong> ' + motivo
+    });
+  }
+  closeModal('modal-redespacho');
+  if(typeof renderActivas         === 'function') renderActivas();
+  if(typeof renderCompaniasEstado === 'function') renderCompaniasEstado();
+  if(typeof updateCiaMarkers      === 'function') updateCiaMarkers();
+  if(typeof renderCompaniasForm   === 'function') renderCompaniasForm();
+  if(typeof notificarDespacho     === 'function') notificarDespacho(e);  // re-notificar a las cías nuevas
+  showNotif('➕ Re-despacho confirmado', agregados.length + ' carro(s) agregado(s)');
+};
+
 // ===== INIT PARTE =====
 function init(){
   initSelector();
   renderCompaniasForm();
   renderCompaniasEstado();
+  renderCarrosPanel();        // BLOQUE 5: vista de carros
   renderDotacion();
   renderActivas();
   renderStats();

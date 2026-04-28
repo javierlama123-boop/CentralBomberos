@@ -752,7 +752,10 @@ window.initMapa = function() {
   if (mapaIniciado) return;
   mapaIniciado = true;
   mapa = L.map('mapa', { zoomControl:false }).setView([-41.1262,-73.0518], 14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OSM' }).addTo(mapa);
+  // V2 fix — CartoDB (no requiere Referer, funciona desde file:// y mobile WebView)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OSM · © CARTO', subdomains:'abcd', maxZoom:19
+  }).addTo(mapa);
   L.control.zoom({ position:'topright' }).addTo(mapa);
   document.getElementById('map-overlay').style.display = 'block';
 };

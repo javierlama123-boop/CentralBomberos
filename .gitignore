@@ -1,0 +1,17 @@
+# Estado local de Claude Code (no commitear)
+.claude/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups locales
+*.bak
+*.backup
