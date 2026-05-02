@@ -133,6 +133,68 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);width:500px;max-width:95vw;max-height:85vh;overflow-y:auto;}
+.modal.wizard{width:840px;max-width:96vw;}
+
+/* V2 — Wizard de "Nuevo Cuerpo" */
+.wizard-steps{display:flex;gap:0;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg);}
+.wizard-step{
+  flex:1;display:flex;align-items:center;gap:10px;font-size:11px;
+  color:var(--text3);position:relative;padding:6px 10px;cursor:default;
+}
+.wizard-step::after{
+  content:'';position:absolute;right:-1px;top:50%;width:1px;height:60%;
+  background:var(--border);transform:translateY(-50%);
+}
+.wizard-step:last-child::after{display:none;}
+.wizard-step-num{
+  width:26px;height:26px;border-radius:50%;background:var(--bg3);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:var(--text3);flex-shrink:0;
+}
+.wizard-step.active{color:var(--text);font-weight:700;}
+.wizard-step.active .wizard-step-num{background:var(--blue);border-color:var(--blue);color:#fff;}
+.wizard-step.done .wizard-step-num{background:var(--green);border-color:var(--green);color:#fff;}
+.wizard-step.done{color:var(--green);}
+.wizard-panel{display:none;padding:18px;}
+.wizard-panel.active{display:block;}
+.wizard-cia-row,.wizard-carro-row{
+  display:grid;gap:8px;padding:10px 12px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;
+}
+.wizard-cia-row{grid-template-columns:60px 2fr 1fr 90px 1fr 90px 90px;align-items:center;}
+.wizard-carro-row{grid-template-columns:80px 1.4fr 90px 60px 90px 70px 1fr 80px 32px;align-items:center;}
+.wizard-cia-row input,.wizard-cia-row select,
+.wizard-carro-row input,.wizard-carro-row select{
+  background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:5px 8px;border-radius:var(--r);font-size:11px;font-family:inherit;width:100%;
+}
+.wizard-cia-row input[type=color]{padding:1px 2px;height:28px;cursor:pointer;}
+.wizard-section-head{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.wizard-section-head h3{
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--text);margin:0;
+}
+.wizard-resumen{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;
+}
+.wizard-resumen-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px dashed var(--border);}
+.wizard-resumen-row:last-child{border:none;}
+.wizard-resumen-label{color:var(--text3);font-weight:600;}
+.wizard-resumen-value{color:var(--text);font-family:'JetBrains Mono',monospace;}
+.wizard-tip{
+  background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);
+  border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--blue);
+  display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;
+}
+.wizard-mini-th{
+  display:grid;gap:8px;padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--text3);
+}
+.wizard-cia-th{grid-template-columns:60px 2fr 1fr 90px 1fr 90px 90px;}
+.wizard-carro-th{grid-template-columns:80px 1.4fr 90px 60px 90px 70px 1fr 80px 32px;}
 .modal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;}
 .modal-close{width:26px;height:26px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
@@ -818,28 +880,126 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
 </div><!-- /app -->
 
 <!-- MODALES -->
+<!-- V2 — Wizard de "Nuevo Cuerpo" — 4 pasos para configuración inicial completa -->
 <div class="modal-overlay" id="modal-nuevo-cuerpo">
-  <div class="modal">
-    <div class="modal-header"><div class="modal-title">Nuevo Cuerpo de Bomberos</div><button class="modal-close" onclick="closeModal('modal-nuevo-cuerpo')">✕</button></div>
-    <div class="modal-body">
-      <div class="fgroup"><div class="flabel">Nombre del Cuerpo</div><input class="finput" id="nc-nombre" placeholder="Ej: Cuerpo de Bomberos de Osorno"/></div>
-      <div class="form-row">
-        <div class="fgroup"><div class="flabel">Ciudad</div><input class="finput" id="nc-ciudad" placeholder="Ej: Osorno"/></div>
-        <div class="fgroup"><div class="flabel">Región</div><input class="finput" id="nc-region" placeholder="Ej: Los Lagos"/></div>
+  <div class="modal wizard">
+    <div class="modal-header"><div class="modal-title">🚒 Nuevo Cuerpo de Bomberos · Configuración inicial</div><button class="modal-close" onclick="closeModal('modal-nuevo-cuerpo')">✕</button></div>
+
+    <!-- Indicador de pasos -->
+    <div class="wizard-steps">
+      <div class="wizard-step active" data-step="1">
+        <div class="wizard-step-num">1</div>
+        <div><div>Datos del cuerpo</div><div style="font-size:9px;color:var(--text3);">nombre, ubicación</div></div>
       </div>
-      <div class="fgroup">
-        <div class="flabel">Número de Compañías</div>
-        <select class="fselect" id="nc-ncias" onchange="generarCamposCompanias(parseInt(this.value))">
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="4">4</option><option value="5">5</option><option value="6" selected>6</option>
-          <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
-        </select>
+      <div class="wizard-step" data-step="2">
+        <div class="wizard-step-num">2</div>
+        <div><div>Compañías</div><div style="font-size:9px;color:var(--text3);">cantidad y datos</div></div>
       </div>
-      <div id="cias-nombres-form" style="margin-top:8px;"></div>
+      <div class="wizard-step" data-step="3">
+        <div class="wizard-step-num">3</div>
+        <div><div>Carros (vehículos)</div><div style="font-size:9px;color:var(--text3);">flota inicial</div></div>
+      </div>
+      <div class="wizard-step" data-step="4">
+        <div class="wizard-step-num">4</div>
+        <div><div>Confirmar</div><div style="font-size:9px;color:var(--text3);">resumen y crear</div></div>
+      </div>
     </div>
+
+    <!-- PANEL 1 · Datos del cuerpo -->
+    <div class="wizard-panel active" data-panel="1">
+      <div class="wizard-tip">💡 <span>Estos son los datos institucionales del cuerpo de bomberos. Pueden editarse después en la sección "Cuerpos".</span></div>
+      <div class="form-row">
+        <div class="fgroup" style="flex:2;"><div class="flabel">Nombre completo del cuerpo *</div><input class="finput" id="nc-nombre" placeholder="Ej: Cuerpo de Bomberos de Osorno"/></div>
+        <div class="fgroup" style="flex:1;"><div class="flabel">Slug (ID URL-friendly) *</div><input class="finput" id="nc-slug" placeholder="osorno" pattern="[a-z0-9-]+"/></div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Ciudad *</div><input class="finput" id="nc-ciudad" placeholder="Ej: Osorno"/></div>
+        <div class="fgroup"><div class="flabel">Región</div>
+          <select class="fselect" id="nc-region">
+            <option value="">— Seleccionar —</option>
+            <option>Arica y Parinacota</option><option>Tarapacá</option><option>Antofagasta</option>
+            <option>Atacama</option><option>Coquimbo</option><option>Valparaíso</option>
+            <option>Metropolitana</option><option>O'Higgins</option><option>Maule</option>
+            <option>Ñuble</option><option>Biobío</option><option>La Araucanía</option>
+            <option>Los Ríos</option><option selected>Los Lagos</option><option>Aysén</option>
+            <option>Magallanes</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Latitud cuartel general</div><input class="finput" id="nc-lat" type="number" step="0.0001" placeholder="Ej: -41.1262"/></div>
+        <div class="fgroup"><div class="flabel">Longitud cuartel general</div><input class="finput" id="nc-lng" type="number" step="0.0001" placeholder="Ej: -73.0518"/></div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Email institucional</div><input class="finput" id="nc-email" type="email" placeholder="contacto@bomberosX.cl"/></div>
+        <div class="fgroup"><div class="flabel">Teléfono fijo</div><input class="finput" id="nc-telefono" placeholder="+56 65 ..."/></div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup"><div class="flabel">Año de fundación</div><input class="finput" id="nc-fundacion" type="number" placeholder="Ej: 1907"/></div>
+        <div class="fgroup"><div class="flabel">Sitio web</div><input class="finput" id="nc-web" placeholder="https://..."/></div>
+      </div>
+    </div>
+
+    <!-- PANEL 2 · Compañías -->
+    <div class="wizard-panel" data-panel="2">
+      <div class="wizard-tip">💡 <span>Cada compañía es una unidad operativa. Define su sector, color identificativo y especialidad principal. Los voluntarios se cargan después desde la PWA de cada cía.</span></div>
+      <div class="form-row" style="margin-bottom:14px;">
+        <div class="fgroup" style="flex:0 0 220px;">
+          <div class="flabel">Número de compañías</div>
+          <select class="fselect" id="nc-ncias" onchange="wizardGenerarCias(parseInt(this.value))">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6" selected>6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+            <option value="11">11</option><option value="12">12</option>
+          </select>
+        </div>
+        <div class="fgroup" style="flex:1;align-self:flex-end;font-size:11px;color:var(--text3);padding-bottom:8px;">
+          ⚙️ Las compañías se nombran 1ª, 2ª, etc. Edita los datos abajo según tu cuerpo.
+        </div>
+      </div>
+      <div class="wizard-mini-th wizard-cia-th">
+        <span>Núm</span><span>Nombre</span><span>Apodo</span><span>Color</span><span>Sector</span><span>Lat</span><span>Lng</span>
+      </div>
+      <div id="wizard-cias-list"></div>
+    </div>
+
+    <!-- PANEL 3 · Carros -->
+    <div class="wizard-panel" data-panel="3">
+      <div class="wizard-tip">💡 <span>Carros (vehículos) iniciales por compañía. Por defecto sugerimos 1 Bomba + 1 Apoyo + 1 Rescate por cía. Edita o elimina los que no aplican. Más carros se agregan después en cada cía.</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button class="btn-sec" onclick="wizardCarrosTemplate('basico')">🚒 1 Bomba/cía</button>
+        <button class="btn-sec" onclick="wizardCarrosTemplate('completo')">🚒 Bomba+Apoyo+Rescate/cía</button>
+        <button class="btn-sec" onclick="wizardCarrosLimpiar()">🧹 Limpiar todo</button>
+      </div>
+      <div class="wizard-mini-th wizard-carro-th">
+        <span>Cía</span><span>Nombre</span><span>Tipo</span><span>Espec</span><span>Patente</span><span>Año</span><span>Modelo</span><span>KM</span><span></span>
+      </div>
+      <div id="wizard-carros-list"></div>
+      <button class="btn-sec" onclick="wizardCarroAgregar()" style="margin-top:8px;">+ Agregar carro</button>
+    </div>
+
+    <!-- PANEL 4 · Confirmar -->
+    <div class="wizard-panel" data-panel="4">
+      <div class="wizard-tip">💡 <span>Revisa los datos antes de crear. Después de la creación podrás editar voluntarios, configurar el CAD (radio, timbres, subtonos) y la tabla de despacho desde la sección del cuerpo.</span></div>
+      <div class="wizard-resumen" id="wizard-resumen"></div>
+      <div class="form-row" style="margin-bottom:0;">
+        <div class="fgroup">
+          <div class="flabel">Plantilla de configuración CAD inicial</div>
+          <select class="fselect" id="nc-template-cfg">
+            <option value="defaults" selected>Defaults estándar (radio COM4, timbres, etc. — editar después)</option>
+            <option value="frutillar">Copiar de Frutillar (si existe)</option>
+            <option value="vacio">Vacío (configurar todo manualmente)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn-sec" onclick="closeModal('modal-nuevo-cuerpo')">Cancelar</button>
-      <button class="btn-green" onclick="crearCuerpo()">Crear Cuerpo</button>
+      <span style="flex:1;"></span>
+      <button class="btn-sec" id="wizard-btn-prev" onclick="wizardPrev()" style="display:none;">← Atrás</button>
+      <button class="btn-green" id="wizard-btn-next" onclick="wizardNext()">Siguiente →</button>
+      <button class="btn-green" id="wizard-btn-create" onclick="wizardCrearCuerpoCompleto()" style="display:none;">✓ Crear cuerpo</button>
     </div>
   </div>
 </div>
@@ -1297,24 +1457,329 @@ async function cargarCuerpos() {
   } catch(e){ cont.innerHTML='<div style="color:var(--red);font-size:12px;">'+e.message+'</div>'; }
 }
 
-window.crearCuerpo = async function() {
-  var nombre=document.getElementById('nc-nombre').value.trim();
-  var ciudad=document.getElementById('nc-ciudad').value.trim();
-  var region=document.getElementById('nc-region').value.trim();
-  var nCias=parseInt(document.getElementById('nc-ncias').value);
-  if (!nombre||!ciudad){ showNotif('⚠️','Campos requeridos','Completa nombre y ciudad.'); return; }
-  var companias=[];
-  for (var i=0;i<nCias;i++){
-    var el=document.getElementById('cia-nombre-'+i);
-    companias.push({id:'B-'+(i+1),nombre:el?el.value.trim():(i+1)+'ª Compañía',num:(i+1)+'ª',color:CIA_COLORS[i%CIA_COLORS.length]});
+// ════════════════════════════════════════════════════════════════
+// V2 — WIZARD DE NUEVO CUERPO (4 pasos, configuración inicial completa)
+// ════════════════════════════════════════════════════════════════
+window._wizardStep = 1;
+window._wizardCarros = [];
+
+function _wizardSlugify(s){
+  return (s||'').toString().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+
+window.wizardStep = function(n) {
+  window._wizardStep = n;
+  document.querySelectorAll('.wizard-step').forEach(function(el){
+    var s = parseInt(el.dataset.step);
+    el.classList.toggle('active', s === n);
+    el.classList.toggle('done', s < n);
+  });
+  document.querySelectorAll('.wizard-panel').forEach(function(el){
+    el.classList.toggle('active', parseInt(el.dataset.panel) === n);
+  });
+  document.getElementById('wizard-btn-prev').style.display = n > 1 ? '' : 'none';
+  document.getElementById('wizard-btn-next').style.display = n < 4 ? '' : 'none';
+  document.getElementById('wizard-btn-create').style.display = n === 4 ? '' : 'none';
+  if (n === 2) wizardGenerarCias(parseInt(document.getElementById('nc-ncias').value || 6));
+  if (n === 3 && !window._wizardCarros.length) wizardCarrosTemplate('completo');
+  if (n === 4) wizardRenderResumen();
+};
+
+window.wizardNext = function() {
+  if (!wizardValidarPaso(window._wizardStep)) return;
+  if (window._wizardStep < 4) wizardStep(window._wizardStep + 1);
+};
+
+window.wizardPrev = function() {
+  if (window._wizardStep > 1) wizardStep(window._wizardStep - 1);
+};
+
+function wizardValidarPaso(n) {
+  if (n === 1) {
+    var nom = document.getElementById('nc-nombre').value.trim();
+    var ciu = document.getElementById('nc-ciudad').value.trim();
+    var slug = document.getElementById('nc-slug').value.trim();
+    if (!nom || !ciu) { showNotif('⚠️','Campos requeridos','Completa nombre y ciudad.'); return false; }
+    if (!slug) {
+      // Auto-generar si vacío
+      document.getElementById('nc-slug').value = _wizardSlugify(ciu);
+    }
+    if (!/^[a-z0-9-]+$/.test(document.getElementById('nc-slug').value)) {
+      showNotif('⚠️','Slug inválido','El slug solo puede tener letras minúsculas, números y guiones.'); return false;
+    }
   }
+  if (n === 2) {
+    var cias = wizardLeerCias();
+    if (cias.some(function(c){ return !c.nombre || !c.num; })) {
+      showNotif('⚠️','Compañías','Cada compañía necesita nombre y número.'); return false;
+    }
+  }
+  return true;
+}
+
+window.wizardGenerarCias = function(n) {
+  var cont = document.getElementById('wizard-cias-list');
+  if (!cont) return;
+  // Preservar valores que ya estaban
+  var prev = wizardLeerCias();
+  var html = '';
+  for (var i = 0; i < n; i++) {
+    var p = prev[i] || {};
+    var num = p.num || (i+1) + 'ª';
+    var nombre = p.nombre || (i+1) + 'ª Compañía';
+    var apodo = p.apodo || '';
+    var color = p.color || CIA_COLORS[i % CIA_COLORS.length] || '#e53935';
+    var sector = p.sector || '';
+    var lat = p.lat || '';
+    var lng = p.lng || '';
+    html +=
+      '<div class="wizard-cia-row" data-idx="' + i + '">' +
+        '<input type="text" class="cia-num" value="' + num + '" placeholder="1ª">' +
+        '<input type="text" class="cia-nombre" value="' + nombre + '" placeholder="Nombre">' +
+        '<input type="text" class="cia-apodo" value="' + apodo + '" placeholder="Apodo (ej: Germania)">' +
+        '<input type="color" class="cia-color" value="' + color + '">' +
+        '<input type="text" class="cia-sector" value="' + sector + '" placeholder="Sector / dirección">' +
+        '<input type="number" step="0.0001" class="cia-lat" value="' + lat + '" placeholder="Lat">' +
+        '<input type="number" step="0.0001" class="cia-lng" value="' + lng + '" placeholder="Lng">' +
+      '</div>';
+  }
+  cont.innerHTML = html;
+};
+
+function wizardLeerCias() {
+  return Array.from(document.querySelectorAll('#wizard-cias-list .wizard-cia-row')).map(function(row, i){
+    return {
+      id:     'B-' + (i+1),
+      num:    row.querySelector('.cia-num').value.trim(),
+      nombre: row.querySelector('.cia-nombre').value.trim(),
+      apodo:  row.querySelector('.cia-apodo').value.trim(),
+      color:  row.querySelector('.cia-color').value,
+      sector: row.querySelector('.cia-sector').value.trim(),
+      lat:    parseFloat(row.querySelector('.cia-lat').value) || null,
+      lng:    parseFloat(row.querySelector('.cia-lng').value) || null
+    };
+  });
+}
+
+window.wizardCarrosTemplate = function(template) {
+  var cias = wizardLeerCias();
+  if (!cias.length) cias = [{id:'B-1', num:'1ª'}];
+  window._wizardCarros = [];
+  var counter = 1;
+  cias.forEach(function(cia, i){
+    var n = i + 1;
+    if (template === 'basico' || template === 'completo') {
+      window._wizardCarros.push({
+        id:'B'+n, cia:cia.id, nombre:'B'+n, tipo:'Bomba',
+        espec:'B', prio:1, patente:'', anio:'', modelo:'', km:0
+      });
+    }
+    if (template === 'completo') {
+      window._wizardCarros.push({
+        id:'BX'+n, cia:cia.id, nombre:'BX'+n, tipo:'Bomba Apoyo',
+        espec:'BX', prio:2, patente:'', anio:'', modelo:'', km:0
+      });
+      window._wizardCarros.push({
+        id:'R'+n, cia:cia.id, nombre:'R'+n, tipo:'Rescate',
+        espec:'R', prio:1, patente:'', anio:'', modelo:'', km:0
+      });
+    }
+  });
+  wizardRenderCarros();
+};
+
+window.wizardCarrosLimpiar = function() {
+  window._wizardCarros = [];
+  wizardRenderCarros();
+};
+
+window.wizardCarroAgregar = function() {
+  var cias = wizardLeerCias();
+  var defaultCia = (cias[0] && cias[0].id) || 'B-1';
+  window._wizardCarros.push({
+    id:'', cia:defaultCia, nombre:'', tipo:'Bomba', espec:'B', prio:1, patente:'', anio:'', modelo:'', km:0
+  });
+  wizardRenderCarros();
+};
+
+window.wizardCarroEliminar = function(idx) {
+  window._wizardCarros.splice(idx, 1);
+  wizardRenderCarros();
+};
+
+function wizardRenderCarros() {
+  var cont = document.getElementById('wizard-carros-list');
+  if (!cont) return;
+  // Preservar valores actuales (re-leer del DOM)
+  var rows = document.querySelectorAll('#wizard-carros-list .wizard-carro-row');
+  rows.forEach(function(r, i){
+    if (!window._wizardCarros[i]) return;
+    window._wizardCarros[i] = {
+      cia:    r.querySelector('.car-cia').value,
+      nombre: r.querySelector('.car-nombre').value.trim(),
+      tipo:   r.querySelector('.car-tipo').value,
+      espec:  r.querySelector('.car-espec').value,
+      prio:   parseInt(r.querySelector('.car-prio').value) || 1,
+      patente:r.querySelector('.car-pat').value.trim(),
+      anio:   r.querySelector('.car-anio').value,
+      modelo: r.querySelector('.car-modelo').value.trim(),
+      km:     parseInt(r.querySelector('.car-km').value) || 0,
+      id:     window._wizardCarros[i].id || r.querySelector('.car-nombre').value.trim()
+    };
+  });
+  var cias = wizardLeerCias();
+  var ciasOpts = cias.map(function(c){ return '<option value="' + c.id + '">' + c.id + ' · ' + (c.apodo || c.nombre) + '</option>'; }).join('');
+  if (!window._wizardCarros.length) {
+    cont.innerHTML = '<div style="padding:18px;text-align:center;font-size:11px;color:var(--text3);font-style:italic;">Sin carros aún. Usa una plantilla arriba o agrega manualmente.</div>';
+    return;
+  }
+  cont.innerHTML = window._wizardCarros.map(function(c, i){
+    return '<div class="wizard-carro-row" data-idx="' + i + '">' +
+      '<select class="car-cia">' + ciasOpts.replace('value="' + c.cia + '"', 'value="' + c.cia + '" selected') + '</select>' +
+      '<input type="text" class="car-nombre" value="' + (c.nombre||'') + '" placeholder="B1, BX1...">' +
+      '<select class="car-tipo">' +
+        ['Bomba','Bomba Apoyo','Rescate','Escala','Forestal','Rescate Vehicular','Apoyo'].map(function(t){
+          return '<option ' + (c.tipo===t?'selected':'') + '>' + t + '</option>';
+        }).join('') +
+      '</select>' +
+      '<select class="car-espec">' +
+        ['B','BX','R','Z','F'].map(function(e){
+          return '<option ' + (c.espec===e?'selected':'') + '>' + e + '</option>';
+        }).join('') +
+      '</select>' +
+      '<input type="text" class="car-pat" value="' + (c.patente||'') + '" placeholder="Patente">' +
+      '<input type="number" class="car-anio" value="' + (c.anio||'') + '" placeholder="Año" min="1900" max="2030">' +
+      '<input type="text" class="car-modelo" value="' + (c.modelo||'') + '" placeholder="Marca/modelo">' +
+      '<input type="number" class="car-km" value="' + (c.km||0) + '" min="0">' +
+      '<select class="car-prio" style="display:none;">' +
+        '<option value="1" ' + (c.prio===1?'selected':'') + '>1</option>' +
+        '<option value="2" ' + (c.prio===2?'selected':'') + '>2</option>' +
+      '</select>' +
+      '<button class="btn-danger" onclick="wizardCarroEliminar(' + i + ')" style="padding:5px 8px;font-size:11px;">×</button>' +
+    '</div>';
+  }).join('');
+}
+
+function wizardRenderResumen() {
+  var nombre = document.getElementById('nc-nombre').value.trim();
+  var slug   = document.getElementById('nc-slug').value.trim() || _wizardSlugify(document.getElementById('nc-ciudad').value.trim());
+  var ciudad = document.getElementById('nc-ciudad').value.trim();
+  var region = document.getElementById('nc-region').value;
+  var cias = wizardLeerCias();
+  // Re-leer carros del DOM
+  wizardRenderCarros();  // refresca _wizardCarros
+  var carros = window._wizardCarros || [];
+  var carrosByEspec = {};
+  carros.forEach(function(c){ carrosByEspec[c.espec] = (carrosByEspec[c.espec]||0) + 1; });
+  var carrosResumen = Object.keys(carrosByEspec).map(function(k){
+    return k + ':' + carrosByEspec[k];
+  }).join(' · ') || '—';
+
+  document.getElementById('wizard-resumen').innerHTML =
+    '<div class="wizard-resumen-row"><span class="wizard-resumen-label">Nombre del cuerpo</span><span class="wizard-resumen-value">' + nombre + '</span></div>' +
+    '<div class="wizard-resumen-row"><span class="wizard-resumen-label">Slug (ID)</span><span class="wizard-resumen-value">' + slug + '</span></div>' +
+    '<div class="wizard-resumen-row"><span class="wizard-resumen-label">Ubicación</span><span class="wizard-resumen-value">' + ciudad + (region ? ' · ' + region : '') + '</span></div>' +
+    '<div class="wizard-resumen-row"><span class="wizard-resumen-label">Compañías</span><span class="wizard-resumen-value">' + cias.length + ' (' + cias.map(function(c){return c.num;}).join(', ') + ')</span></div>' +
+    '<div class="wizard-resumen-row"><span class="wizard-resumen-label">Carros (vehículos)</span><span class="wizard-resumen-value">' + carros.length + ' total · ' + carrosResumen + '</span></div>';
+}
+
+window.wizardCrearCuerpoCompleto = async function() {
+  var btn = document.getElementById('wizard-btn-create');
+  btn.disabled = true; btn.textContent = 'Creando...';
   try {
-    await addDoc(collection(db,'cuerpos'),{nombre,ciudad,region,companias,nCompanias:nCias,activo:true,creado:serverTimestamp()});
-    showNotif('✅','Cuerpo creado',nombre+' con '+nCias+' compañías.');
+    var nombre = document.getElementById('nc-nombre').value.trim();
+    var slug   = document.getElementById('nc-slug').value.trim() || _wizardSlugify(document.getElementById('nc-ciudad').value.trim());
+    var ciudad = document.getElementById('nc-ciudad').value.trim();
+    var region = document.getElementById('nc-region').value;
+    var lat    = parseFloat(document.getElementById('nc-lat').value) || null;
+    var lng    = parseFloat(document.getElementById('nc-lng').value) || null;
+    var email  = document.getElementById('nc-email').value.trim();
+    var tel    = document.getElementById('nc-telefono').value.trim();
+    var fund   = parseInt(document.getElementById('nc-fundacion').value) || null;
+    var web    = document.getElementById('nc-web').value.trim();
+    var template = document.getElementById('nc-template-cfg').value;
+    var cias = wizardLeerCias();
+    wizardRenderCarros();
+    var carros = window._wizardCarros || [];
+
+    // 1) Doc del cuerpo (id = slug, no auto-generado)
+    var cuerpoData = {
+      nombre: nombre, slug: slug, ciudad: ciudad, region: region,
+      lat: lat, lng: lng, email: email, telefono: tel,
+      fundacion: fund, sitioWeb: web,
+      companias: cias, nCompanias: cias.length,
+      activo: true, creado: serverTimestamp(),
+      creadoPor: (window._userPerfil && window._userPerfil.nombre) || (window._userEmail || 'admin')
+    };
+    await setDoc(doc(db, 'cuerpos', slug), cuerpoData);
+
+    // 2) Carros en collection carros_cia (con cuerpoId para multi-cuerpo)
+    var carrosCreated = 0;
+    for (var i = 0; i < carros.length; i++) {
+      var c = carros[i];
+      if (!c.nombre || !c.cia) continue;
+      var carroData = {
+        id: c.id || c.nombre, cia: c.cia, cuerpoId: slug,
+        nombre: c.nombre, tipo: c.tipo, espec: c.espec, prio: c.prio,
+        patente: c.patente, anio: parseInt(c.anio) || null,
+        modelo: c.modelo, km: c.km, estado: 'disponible',
+        creado: serverTimestamp()
+      };
+      await addDoc(collection(db, 'carros_cia'), carroData);
+      carrosCreated++;
+    }
+
+    // 3) Configuración CAD inicial según template
+    var cfgInicial = JSON.parse(JSON.stringify(CFG_DEFAULT));  // por defecto
+    if (template === 'frutillar') {
+      try {
+        var fSnap = await getDoc(doc(db, 'config_cad', 'frutillar'));
+        if (!fSnap.exists()) fSnap = await getDoc(doc(db, 'config_cad', 'sistema'));
+        if (fSnap.exists()) cfgInicial = fSnap.data();
+      } catch(e) { /* fallback a defaults */ }
+    } else if (template === 'vacio') {
+      cfgInicial = {};
+    }
+    await setDoc(doc(db, 'config_cad', slug), cfgInicial);
+
+    // 4) Tabla de despacho vacía
+    await setDoc(doc(db, 'tabla_despacho', slug), { reglas: [], creado: serverTimestamp() });
+
+    showNotif('✅', 'Cuerpo creado',
+      nombre + ' · ' + cias.length + ' cías · ' + carrosCreated + ' carros · CAD inicializado'
+    );
     closeModal('modal-nuevo-cuerpo');
     cargarCuerpos();
-  } catch(e){ showNotif('❌','Error',e.message); }
+    // Reset state para próxima vez
+    window._wizardStep = 1;
+    window._wizardCarros = [];
+    wizardStep(1);
+    document.querySelectorAll('#modal-nuevo-cuerpo input').forEach(function(i){
+      if (i.type !== 'color') i.value = '';
+    });
+  } catch(e) {
+    console.error('[Wizard] Error:', e);
+    showNotif('❌', 'Error', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '✓ Crear cuerpo';
+  }
 };
+
+// Reset wizard al abrir modal
+var _origOpenModal = window.openModal;
+window.openModal = function(id) {
+  if (id === 'modal-nuevo-cuerpo') {
+    window._wizardStep = 1;
+    window._wizardCarros = [];
+    setTimeout(function(){ wizardStep(1); }, 50);
+  }
+  return _origOpenModal(id);
+};
+
+// Función legacy para compatibilidad (si algún código viejo aún la llama)
+window.crearCuerpo = window.wizardCrearCuerpoCompleto;
 
 window.editarCuerpo = async function(id) {
   showNotif('ℹ️','Próximamente','Edición de cuerpo en desarrollo.');
