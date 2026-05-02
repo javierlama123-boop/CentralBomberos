@@ -408,12 +408,24 @@ body.no-auth #ia-fab, body.no-auth .map-wrapper { display:none !important; }
 .panel-bitacora.position-top.collapsed .bit-pulse{display:flex;}
 .panel-bitacora.position-top.collapsed .bit-header{padding:10px 12px;justify-content:flex-start;}
 
-/* V2 — Panel Emergencias Activas a la derecha */
+/* V2 — Panel Emergencias Activas a la derecha (ancho dinámico) */
 .panel-activas-right{
   width:320px;flex-shrink:0;
   border-left:1px solid var(--border);
   background:var(--bg);
   display:flex;flex-direction:column;overflow:hidden;
+  transition:width .35s ease;
+}
+/* V2 — Modo expandido: cuando hay emergencia activa, el panel se ensancha
+   (mapa + bitácora se achican) porque lo crítico ya no es el mapa sino el
+   seguimiento de carros y actualización de estados. */
+#page-despacho.has-active-emergency .panel-activas-right{
+  width:48%;        /* ~mitad del page-despacho */
+  max-width:680px;
+  min-width:380px;
+}
+#page-despacho.has-active-emergency .panel-center{
+  /* panel-center mantiene flex:1 → toma el resto, achicando mapa y bitácora */
 }
 .panel-activas-right .activas-header{
   padding:10px 12px;border-bottom:1px solid var(--border);
@@ -1366,14 +1378,18 @@ window.fbSuscribirSalidasCia = function() {
 
 // ── V2 — Cargar etiquetas rápidas (chips relato) desde Firestore ──
 // Reemplaza window.RELATO_CHIPS con lo que el admin haya configurado.
-// Si el doc no existe (primera vez), se mantienen los defaults hardcoded.
+// V2 — Configs ahora son por cuerpo. Intenta cargar del cuerpo del operador
+// (window._fbPerfil.cuerpoId) primero; si no existe, fallback al doc legacy.
+window.CUERPO_ID_CAD = window.CUERPO_ID_CAD || 'frutillar';  // hardcoded fallback
 window.fbCargarChipsRelato = async function() {
   if (!_fbDb) return;
+  var cuerpoId = (window._fbPerfil && window._fbPerfil.cuerpoId) || window.CUERPO_ID_CAD;
   try {
-    var snap = await getDoc(doc(_fbDb, 'config_cad', 'relato_chips'));
+    var snap = await getDoc(doc(_fbDb, 'config_cad', 'relato_chips_' + cuerpoId));
+    if (!snap.exists()) snap = await getDoc(doc(_fbDb, 'config_cad', 'relato_chips'));
     if (snap.exists() && snap.data().chips) {
       window.RELATO_CHIPS = snap.data().chips;
-      console.log('[FB] Chips relato cargados:', Object.keys(window.RELATO_CHIPS).length, 'códigos');
+      console.log('[FB] Chips relato cargados (' + cuerpoId + '):', Object.keys(window.RELATO_CHIPS).length, 'códigos');
     } else {
       console.log('[FB] Chips relato: usando defaults (no doc en Firestore aún)');
     }
@@ -4690,6 +4706,22 @@ function renderActivas(){
   const badge=document.getElementById('badge-activas');
   if(badge) badge.textContent=activas.length;
   if(lbl) lbl.textContent=activasPanelOpen?'▲ ocultar':'▼ ver';
+
+  // V2 — Layout dinámico: cuando hay emergencias activas, panel-activas-right se
+  // ensancha (mapa + bitácora se achican). Una vez despachada, el seguimiento
+  // de carros y actualización de estados es lo crítico, no el mapa.
+  const pgDesp = document.getElementById('page-despacho');
+  if (pgDesp) {
+    const hadClass = pgDesp.classList.contains('has-active-emergency');
+    const shouldHave = activas.length > 0;
+    if (hadClass !== shouldHave) {
+      pgDesp.classList.toggle('has-active-emergency', shouldHave);
+      // Re-ajustar mapa después de la transición de width (CSS .35s)
+      if (window.map && window.map.invalidateSize) {
+        setTimeout(function(){ window.map.invalidateSize(); }, 380);
+      }
+    }
+  }
 
   list.innerHTML='';
   if(!activas.length){

@@ -229,7 +229,6 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
         <div class="sb-item" onclick="navGlobal('cuerpos',this)" id="nav-g-cuerpos"><span class="ico">🏛️</span>Cuerpos de Bomberos</div>
         <div class="sb-item" onclick="navGlobal('admins',this)" id="nav-g-admins"><span class="ico">👑</span>Administradores</div>
         <div class="sb-item" onclick="navGlobal('stats-global',this)" id="nav-g-stats"><span class="ico">📈</span>Estadísticas Globales</div>
-        <div class="sb-item" onclick="navGlobal('configuracion',this)" id="nav-g-config"><span class="ico">⚙️</span>Configuración CAD</div>
         <div class="sb-section">Cuenta</div>
         <div class="sb-item" onclick="navGlobal('mi-cuenta',this)" id="nav-g-cuenta"><span class="ico">⚙️</span>Mi Cuenta</div>
       </div>
@@ -250,6 +249,7 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
         <div class="sb-item" onclick="navCuerpo('emergencias-cuerpo',this)" id="nav-c-emergencias"><span class="ico">🚨</span>Emergencias</div>
         <div class="sb-item" onclick="navCuerpo('tabla-despacho',this)" id="nav-c-tabla"><span class="ico">📋</span>Tabla de Despacho</div>
         <div class="sb-item" onclick="navCuerpo('chips-relato',this)" id="nav-c-chips"><span class="ico">🏷️</span>Etiquetas Rápidas</div>
+        <div class="sb-item" onclick="navCuerpo('configuracion',this)" id="nav-c-config"><span class="ico">⚙️</span>Configuración CAD</div>
       </div>
 
       <!-- Vista Compañía -->
@@ -1109,8 +1109,7 @@ window.navGlobal = function(name, el) {
     'dashboard': cargarDashboardGlobal,
     'cuerpos': cargarCuerpos,
     'admins': cargarAdmins,
-    'stats-global': cargarStatsGlobal,
-    'configuracion': cargarConfiguracion
+    'stats-global': cargarStatsGlobal
   };
   if (loaders[name]) loaders[name]();
 };
@@ -1146,7 +1145,8 @@ window.navCuerpo = function(name, el) {
     'stats-cuerpo': cargarStatsCuerpo,
     'emergencias-cuerpo': cargarEmergenciasCuerpo,
     'tabla-despacho': function(){ (window.cargarTablaDespacho||function(){})(); },
-    'chips-relato':   function(){ (window.cargarChipsRelato||function(){})();   }
+    'chips-relato':   function(){ (window.cargarChipsRelato||function(){})();   },
+    'configuracion':  function(){ (window.cargarConfiguracion||function(){})(); }
   };
   if (loaders[name]) loaders[name]();
 };
@@ -1942,15 +1942,37 @@ var CFG_DEFAULT = {
 var cfgActual = JSON.parse(JSON.stringify(CFG_DEFAULT));
 
 // ── CARGAR CONFIGURACIÓN ──────────────────────────────────────
-async function cargarConfiguracion() {
+// V2 — La configuración ahora vive POR cuerpo (cada cuerpo puede usar
+// distintos métodos: radios, timbres, ttss, etc.). Se guarda en
+// `config_cad/{cuerpoId}` en lugar del antiguo `config_cad/sistema`.
+window.cargarConfiguracion = async function cargarConfiguracion() {
+  if (!cuerpoActual) {
+    showNotif('⚠️', 'Sin cuerpo', 'Selecciona un cuerpo de bomberos primero');
+    return;
+  }
+  // Mostrar nombre del cuerpo en el título de la página
+  var titEl = document.querySelector('#page-configuracion .page-title');
+  var subEl = document.querySelector('#page-configuracion .page-sub');
+  if (titEl) titEl.textContent = 'Configuración del Sistema CAD — ' + cuerpoActual.nombre;
+  if (subEl) subEl.textContent = 'Parametrización específica de este cuerpo de bomberos. Cada cuerpo puede tener radios, timbres, subtonos, TTS y reglas distintas.';
+
   try {
-    var snap = await getDoc(doc(db, 'config_cad', 'sistema'));
+    // Intentar leer config específica del cuerpo
+    var snap = await getDoc(doc(db, 'config_cad', cuerpoActual.id));
     if (snap.exists()) {
       var data = snap.data();
-      // Merge profundo con defaults
       cfgActual = Object.assign(JSON.parse(JSON.stringify(CFG_DEFAULT)), data);
+    } else {
+      // Si no existe la del cuerpo, intentar migrar desde la antigua 'sistema' (legacy)
+      var legacy = await getDoc(doc(db, 'config_cad', 'sistema'));
+      if (legacy.exists()) {
+        cfgActual = Object.assign(JSON.parse(JSON.stringify(CFG_DEFAULT)), legacy.data());
+        console.log('[CFG] Migrando desde config legacy a cuerpo ' + cuerpoActual.id);
+      } else {
+        cfgActual = JSON.parse(JSON.stringify(CFG_DEFAULT));
+      }
     }
-  } catch(e) { console.warn('[CFG] Usando defaults:', e.message); }
+  } catch(e) { console.warn('[CFG] Usando defaults:', e.message); cfgActual = JSON.parse(JSON.stringify(CFG_DEFAULT)); }
   renderCfgRadio();
   renderCfgTimbre();
   renderCfgLuces();
@@ -1958,7 +1980,9 @@ async function cargarConfiguracion() {
   renderCfgTTS();
   renderCfgReglas();
   renderCiasCfg();
-}
+};
+// Fallback legacy alias para que cualquier código viejo siga funcionando
+var cargarConfiguracion = window.cargarConfiguracion;
 
 // ── TABS ──────────────────────────────────────────────────────
 window.cfgTab = function(name, el) {
@@ -1971,10 +1995,15 @@ window.cfgTab = function(name, el) {
 };
 
 // ── GUARDAR EN FIRESTORE ──────────────────────────────────────
+// V2 — guarda en `config_cad/{cuerpoId}` (no en /sistema global)
 async function guardarCfg() {
+  if (!cuerpoActual) {
+    showNotif('⚠️', 'Sin cuerpo', 'Selecciona un cuerpo primero');
+    return;
+  }
   try {
-    await setDoc(doc(db, 'config_cad', 'sistema'), cfgActual, { merge: true });
-    showNotif('✅', 'Configuración guardada', 'Los cambios se aplicarán al próximo despacho.');
+    await setDoc(doc(db, 'config_cad', cuerpoActual.id), cfgActual, { merge: true });
+    showNotif('✅', 'Configuración guardada', cuerpoActual.nombre + ' — los cambios se aplicarán al próximo despacho.');
   } catch(e) { showNotif('❌', 'Error', e.message); }
 }
 
@@ -2757,9 +2786,10 @@ window.guardarQuickCall = async function() {
       };
     }
   });
+  if (!cuerpoActual) { showNotif('⚠️','Sin cuerpo','Selecciona un cuerpo primero'); return; }
   try {
-    await setDoc(doc(db, 'config_cad', 'quickcall'), { cias: qcActual, actualizado: serverTimestamp() }, { merge: true });
-    showNotif('✅', 'QuickCall II guardado', 'Subtonos por compañía actualizados en Firebase.');
+    await setDoc(doc(db, 'config_cad', 'quickcall_'+cuerpoActual.id), { cias: qcActual, actualizado: serverTimestamp() }, { merge: true });
+    showNotif('✅', 'QuickCall II guardado', cuerpoActual.nombre+' — subtonos actualizados.');
   } catch(e) { showNotif('❌', 'Error', e.message); }
 };
 
@@ -2777,9 +2807,10 @@ window.guardarMDC = async function() {
       };
     }
   });
+  if (!cuerpoActual) { showNotif('⚠️','Sin cuerpo','Selecciona un cuerpo primero'); return; }
   try {
-    await setDoc(doc(db, 'config_cad', 'mdc'), { tipos: mdcActual, actualizado: serverTimestamp() }, { merge: true });
-    showNotif('✅', 'MDC guardado', 'Señales por tipo de emergencia actualizadas en Firebase.');
+    await setDoc(doc(db, 'config_cad', 'mdc_'+cuerpoActual.id), { tipos: mdcActual, actualizado: serverTimestamp() }, { merge: true });
+    showNotif('✅', 'MDC guardado', cuerpoActual.nombre+' — señales por tipo actualizadas.');
   } catch(e) { showNotif('❌', 'Error', e.message); }
 };
 
@@ -2792,24 +2823,25 @@ window.resetTonosDefault = function() {
 };
 
 // Cargar desde Firestore al abrir la pestaña
-var _tonLoaded = false;
-var _origCfg = cargarConfiguracion;
-cargarConfiguracion = async function() {
+// V2 — quickcall y mdc también son por cuerpo (cada cuerpo elige sus subtonos / señales).
+// Se recarga cada vez que cambia el cuerpo seleccionado.
+var _origCfg = window.cargarConfiguracion;
+window.cargarConfiguracion = async function() {
   await _origCfg();
-  if (!_tonLoaded) {
-    _tonLoaded = true;
-    try {
-      var [qcSnap, mdcSnap] = await Promise.all([
-        getDoc(doc(db, 'config_cad', 'quickcall')),
-        getDoc(doc(db, 'config_cad', 'mdc'))
-      ]);
-      if (qcSnap.exists() && qcSnap.data().cias)
-        qcActual = Object.assign(JSON.parse(JSON.stringify(QC_DEFAULT)), qcSnap.data().cias);
-      if (mdcSnap.exists() && mdcSnap.data().tipos)
-        mdcActual = Object.assign(JSON.parse(JSON.stringify(MDC_DEFAULT)), mdcSnap.data().tipos);
-    } catch(e) { console.warn('[QC/MDC]', e.message); }
-  }
+  if (!cuerpoActual) return;
+  try {
+    var [qcSnap, mdcSnap] = await Promise.all([
+      getDoc(doc(db, 'config_cad', 'quickcall_'+cuerpoActual.id)),
+      getDoc(doc(db, 'config_cad', 'mdc_'+cuerpoActual.id))
+    ]);
+    // Migrar desde docs antiguos compartidos si no hay del cuerpo aún
+    if (!qcSnap.exists()) qcSnap = await getDoc(doc(db, 'config_cad', 'quickcall'));
+    if (!mdcSnap.exists()) mdcSnap = await getDoc(doc(db, 'config_cad', 'mdc'));
+    qcActual  = qcSnap.exists() && qcSnap.data().cias  ? Object.assign(JSON.parse(JSON.stringify(QC_DEFAULT)),  qcSnap.data().cias)  : JSON.parse(JSON.stringify(QC_DEFAULT));
+    mdcActual = mdcSnap.exists() && mdcSnap.data().tipos ? Object.assign(JSON.parse(JSON.stringify(MDC_DEFAULT)), mdcSnap.data().tipos) : JSON.parse(JSON.stringify(MDC_DEFAULT));
+  } catch(e) { console.warn('[QC/MDC]', e.message); }
 };
+cargarConfiguracion = window.cargarConfiguracion;
 
 // Función legacy para compatibilidad
 window.guardarTonos = window.guardarMDC;
@@ -3105,17 +3137,22 @@ const CHIPS_DEFAULT = {
 let chipsRelatoData = {};
 
 window.cargarChipsRelato = async function() {
+  if (!cuerpoActual) {
+    showNotif('⚠️','Sin cuerpo','Selecciona un cuerpo primero');
+    return;
+  }
   document.getElementById('chips-status').textContent = 'Cargando…';
   try {
-    var snap = await getDoc(doc(db, 'config_cad', 'relato_chips'));
+    // V2 — chips por cuerpo: relato_chips_{cuerpoId}. Migra desde el shared si no existe.
+    var snap = await getDoc(doc(db, 'config_cad', 'relato_chips_'+cuerpoActual.id));
+    if (!snap.exists()) snap = await getDoc(doc(db, 'config_cad', 'relato_chips'));
     if (snap.exists() && snap.data().chips) {
       chipsRelatoData = snap.data().chips;
-      document.getElementById('chips-status').textContent = '☁ Sincronizado con Firebase';
+      document.getElementById('chips-status').textContent = '☁ ' + cuerpoActual.nombre + ' · sincronizado';
     } else {
-      // Primera vez: arrancar con defaults
       chipsRelatoData = JSON.parse(JSON.stringify(CHIPS_DEFAULT));
       await guardarChipsRelato(true);
-      document.getElementById('chips-status').textContent = '☁ Inicializado con defaults';
+      document.getElementById('chips-status').textContent = '☁ ' + cuerpoActual.nombre + ' · inicializado con defaults';
     }
   } catch(e) {
     console.warn('[Chips] Error cargando:', e);
@@ -3185,15 +3222,18 @@ window.cargarChipsDefault = async function() {
 };
 
 async function guardarChipsRelato(silent) {
+  if (!cuerpoActual) { showNotif('⚠️','Sin cuerpo','Selecciona un cuerpo primero'); return; }
   try {
     document.getElementById('chips-status').textContent = '💾 Guardando…';
-    await setDoc(doc(db, 'config_cad', 'relato_chips'), {
+    await setDoc(doc(db, 'config_cad', 'relato_chips_'+cuerpoActual.id), {
       chips:       chipsRelatoData,
+      cuerpoId:    cuerpoActual.id,
+      cuerpoNombre:cuerpoActual.nombre,
       actualizado: serverTimestamp(),
       autor:       (window._userPerfil && window._userPerfil.nombre) || (window._userEmail || 'admin')
     });
-    document.getElementById('chips-status').textContent = '☁ Sincronizado con Firebase · ' + new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-    if (!silent) showNotif('☁ Guardado','Sincronizado con Firebase');
+    document.getElementById('chips-status').textContent = '☁ ' + cuerpoActual.nombre + ' · ' + new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    if (!silent) showNotif('☁ Guardado',cuerpoActual.nombre+' · sincronizado');
   } catch(e) {
     console.error('[Chips] Error guardando:', e);
     document.getElementById('chips-status').textContent = '❌ Error: ' + e.message;
